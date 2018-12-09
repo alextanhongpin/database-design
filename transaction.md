@@ -21,3 +21,23 @@ async function main() {
   }
 } 
 ```
+# Sample result from nodejs
+
+```js
+// This will be returned when running execute.
+ResultSetHeader {
+  fieldCount: 0,
+  affectedRows: 1,
+  insertId: 0,
+  info: 'Rows matched: 1  Changed: 1  Warnings: 0',
+  serverStatus: 2,
+  warningStatus: 0,
+  changedRows: 1 
+}
+
+// To check if the row is updated.
+const isUpdated = !!result.changedRows
+
+// To get the last id created (int, auto-incremented primary key)
+const id = result.insertId
+```
