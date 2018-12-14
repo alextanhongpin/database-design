@@ -1,4 +1,4 @@
-# Setting character set
+## Setting character set
 
 ```sql
 CREATE TABLE IF NOT EXISTS tableName (
@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS tableName (
 ```
 
 
-# To check if `utf8mb4` is set correctly.
-```
+## To check if `utf8mb4` is set correctly.
+```sql
 mysql> SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_name LIKE 'collation%';
 +--------------------------+--------------------+
 | Variable_name            | Value              |
@@ -25,4 +25,11 @@ mysql> SHOW VARIABLES WHERE Variable_name LIKE 'character\_set\_%' OR Variable_n
 | collation_server         | utf8mb4_unicode_ci |
 +--------------------------+--------------------+
 10 rows in set (0.00 sec)
+```
+
+## Connection string
+
+Example in golang:
+```go
+	connStr := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true&charset=utf8mb4&collation=utf8mb4_unicode_ci", opt.User, opt.Password, opt.Host, opt.Database)
 ```
