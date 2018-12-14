@@ -2,6 +2,13 @@
 
 ```js
 async function main() {
+  const db = await mysql.createPool({
+    database: config.database,
+    host: config.host,
+    password: config.password,
+    user: config.user
+  })
+
   const conn = await db.getConnection()
   try {
     const stmt = `
