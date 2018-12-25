@@ -25,3 +25,9 @@ SELECT * FROM table WHERE JSON_TYPE(json_field) = 'ARRAY';
 ```sql
 SELECT JSON_ARRAYAGG(organizations) FROM user WHERE JSON_TYPE(organizations) = 'ARRAY';
 ```
+## Privilege for functions 
+
+```sql
+mysql -u USERNAME -p
+set global log_bin_trust_function_creators=1;
+```
