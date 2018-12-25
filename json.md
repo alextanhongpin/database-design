@@ -19,3 +19,9 @@ SELECT json_data -> "$.field_name" FROM table;
 ```sql
 SELECT * FROM table WHERE JSON_TYPE(json_field) = 'ARRAY';
 ```
+
+## To aggregate the json array from all rows where the column is not null
+
+```sql
+SELECT JSON_ARRAYAGG(organizations) FROM user WHERE JSON_TYPE(organizations) = 'ARRAY';
+```
