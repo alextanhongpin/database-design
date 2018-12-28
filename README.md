@@ -32,6 +32,13 @@ FOREIGN KEY (relationship) REFERENCES ref_relationship (status) ON UPDATE CASCAD
 PRIMARY KEY (user_id1, user_id2)
 ```
 
+
+Sorting:
+
+```sql
+-- Sorting integer string in the correct order
+SELECT * FROM <table> ORDER BY CAST(<column> AS unsigned)
+```
 ## Data Type: IPV4 and IPV6
 
 You have two possibilities (for an IPv4 address) :
