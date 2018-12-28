@@ -32,7 +32,7 @@ FOREIGN KEY (relationship) REFERENCES ref_relationship (status) ON UPDATE CASCAD
 PRIMARY KEY (user_id1, user_id2)
 ```
 
-## Data Type: IPV4
+## Data Type: IPV4 and IPV6
 
 You have two possibilities (for an IPv4 address) :
 
@@ -50,3 +50,46 @@ SELECT INET_NTOA(`ipv4`) FROM `table`;
 INSERT INTO `table` (`ipv6`) VALUES (INET6_ATON("127.0.0.1"));
 SELECT INET6_NTOA(`ipv6`) FROM `table`;
 ```
+
+To use a single column for both IPV4 and IPV6:
+
+```sql
+CREATE TABLE `sensor` (
+  `ip` varbinary(16) NOT NULL DEFAULT '0x'
+)
+-- Insert IPv6.
+insert into sensor (ip) values (INET6_ATON("2001:0db8:85a3:0000:0000:8a2e:0370:7334"));
+
+-- Insert IPv4.
+insert into sensor (ip) values (INET6_ATON("255.255.255.0"));
+
+select INET6_NTOA(ip) from sensor;
++------------------------------+
+| INET6_NTOA(ip)               |
++------------------------------+
+| 2001:db8:85a3::8a2e:370:7334 |
+| 255.255.255.0                |
++------------------------------+
+2 rows in set (0.00 sec)
+```
+
+## Data Type: Country
+Al Jumahiriyah al Arabiyah al Libiyah ash Shabiyah al Ishtirakiyah al Uzma also known as Libya is the world's longest country name at 74 characters with spaces and 63 characters without.
+
+```sql
+country varchar(80) NOT NULL DEFAULT ''
+```
+
+## Data Type: URL
+
+```sql
+url varchar(2083) NOT NULL DEFAULT '';
+```
+
+Checking can be done at the application side. If the length exceeded that of 2083, just warn the client or suggest them to use a url shortener.
+
+References: https://stackoverflow.com/questions/219569/best-database-field-type-for-a-url
+
+
+## Data Type: Email
+## Data Type: Geolocation
