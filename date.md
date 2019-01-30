@@ -15,3 +15,9 @@ SELECT users.id, DATE_FORMAT(users.signup_date, '%Y-%m-%d')
 FROM users 
 WHERE DATE(signup_date) = CURDATE()
 ```
+
+## Format to dd-mm-yyyy
+
+```sql
+SELECT date_format(NOW(), '%d-%m-%Y') as ddmmyyyy;
+```
