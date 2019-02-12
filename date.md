@@ -8,6 +8,12 @@ INSERT INTO test (date) VALUES (CURRENT_TIMESTAMP());
 SELECT * FROM test WHERE date > date_sub(now(), interval 1 minute);
 ```
 
+## Query expired item after 1 month
+
+```sql
+SELECT * from TABLE WHERE registered < DATE_SUB(CURRENT_DATE(), INTERVAL 30 day)
+```
+
 ## Get rows that is today
 
 ```sql
