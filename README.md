@@ -99,4 +99,10 @@ References: https://stackoverflow.com/questions/219569/best-database-field-type-
 
 
 ## Data Type: Email
+
+https://stackoverflow.com/questions/8242567/acceptable-field-type-and-size-for-email-address
+
+```sql
+email VARCHAR(255) NOT NULL UNIQUE
+```
 ## Data Type: Geolocation
