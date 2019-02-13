@@ -108,7 +108,7 @@ email VARCHAR(255) NOT NULL UNIQUE
 ## Data Type: Geolocation
 
 
-## TZ Database
+## Data Type: TZ
 
 Max length of 32, longest is `America/Argentina/ComodRivadavia`:
 
@@ -118,3 +118,26 @@ zoneinfo VARCHAR(32) COMMENT "String from zoneinfo [zoneinfo] time zone database
 References: 
 - https://stackoverflow.com/questions/12546312/max-length-of-tzname-field-timezone-identifier-name
 - https://www.iana.org/time-zones
+
+## Data Type: Locale
+
+BCP47/RFC5646 section 4.4.1 recommends a 35 characters tag length:
+
+```sql
+locale VARCHAR(35) NOT NULL DEFAULT '' COMMENT "End-User's locale, represented as a BCP47 [RFC5646] language tag. This is typically an ISO 639-1 Alpha-2 [ISO639?1] language code in lowercase and an ISO 3166-1 Alpha-2 [ISO3166?1] country code in uppercase, separated by a dash. For example, en-US or fr-CA. As a compatibility note, some implementations have used an underscore as the separator rather than a dash, for example, en_US",
+```
+
+References:
+- https://stackoverflow.com/questions/17848070/what-data-type-should-i-use-for-ietf-language-codes
+- https://openid.net/specs/openid-connect-core-1_0.html#zoneinfo
+
+## Data Type: Phone number
+
+```sql
+	phone_number VARCHAR(32) NOT NULL DEFAULT '',
+	phone_number_verified BOOLEAN NOT NULL DEFAULT 0,
+```
+References:
+- https://en.wikipedia.org/wiki/Telephone_numbering_plan
+- https://boards.straightdope.com/sdmb/showthread.php?t=417024
+https://stackoverflow.com/questions/723587/whats-the-longest-possible-worldwide-phone-number-i-should-consider-in-sql-varc
