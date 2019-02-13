@@ -84,8 +84,26 @@ select INET6_NTOA(ip) from sensor;
 Al Jumahiriyah al Arabiyah al Libiyah ash Shabiyah al Ishtirakiyah al Uzma also known as Libya is the world's longest country name at 74 characters with spaces and 63 characters without.
 
 ```sql
-country varchar(80) NOT NULL DEFAULT ''
+country varchar(74) NOT NULL DEFAULT ''
 ```
+
+## Data Type: Address
+
+```sql
+address_line_1 VARCHAR(255) NOT NULL DEFAULT '',
+address_line_2 VARCHAR(255) NOT NULL DEFAULT '',
+
+-- Longest city name: Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch (58 chars.)
+city VARCHAR(58) NOT NULL DEFAULT '',
+
+-- Longest state name: The State of Rhode Island and Providence Plantations (52 chars.)
+state VARCHAR(56) NOT NULL DEFAULT '',
+postal_code VARCHAR(16) NOT NULL DEFAULT '',
+country VARCHAR(74) NOT NULL DEFAULT '',
+```
+
+References:
+- postal code length https://stackoverflow.com/questions/325041/i-need-to-store-postal-codes-in-a-database-how-big-should-the-column-be
 
 ## Data Type: URL
 
@@ -134,8 +152,8 @@ References:
 ## Data Type: Phone number
 
 ```sql
-	phone_number VARCHAR(32) NOT NULL DEFAULT '',
-	phone_number_verified BOOLEAN NOT NULL DEFAULT 0,
+phone_number VARCHAR(32) NOT NULL DEFAULT '',
+phone_number_verified BOOLEAN NOT NULL DEFAULT 0,
 ```
 References:
 - https://en.wikipedia.org/wiki/Telephone_numbering_plan
