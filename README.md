@@ -109,4 +109,12 @@ email VARCHAR(255) NOT NULL UNIQUE
 
 
 ## TZ Database
-https://www.iana.org/time-zones
+
+Max length of 32, longest is `America/Argentina/ComodRivadavia`:
+
+```sql
+zoneinfo VARCHAR(32) COMMENT "String from zoneinfo [zoneinfo] time zone database representing the End-User's time zone. For example, Europe/Paris or America/Los_Angeles"
+```
+References: 
+- https://stackoverflow.com/questions/12546312/max-length-of-tzname-field-timezone-identifier-name
+- https://www.iana.org/time-zones
