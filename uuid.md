@@ -34,7 +34,18 @@ We have to insert them manually:
 INSERT INTO test (uuid) VALUES (ordered_uuid(uuid())
 ```
 
+To query:
 
+```sql
+SELECT FROM hex(uuid) FROM test;
+-- 11E92F44A2762A8F83030242AC180002
+```
+
+To search:
+
+```sql
+SELECT * FROM test WHERE uuid = unhex('11E92F44A2762A8F83030242AC180002')
+```
 
 References:
 - https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/
