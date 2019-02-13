@@ -106,3 +106,7 @@ https://stackoverflow.com/questions/8242567/acceptable-field-type-and-size-for-e
 email VARCHAR(255) NOT NULL UNIQUE
 ```
 ## Data Type: Geolocation
+
+
+## TZ Database
+https://www.iana.org/time-zones
