@@ -5,6 +5,13 @@
 - use soft delete
 - no null fields, except date
 
+# Notes
+
+- inner joins is faster that subquery most of the time
+- apply logic in the database if you are going to have many different applications
+- use optimized uuid for faster querying
+- include the default auto incremented id
+
 
 ## Useful Statements
 
@@ -159,3 +166,24 @@ References:
 - https://en.wikipedia.org/wiki/Telephone_numbering_plan
 - https://boards.straightdope.com/sdmb/showthread.php?t=417024
 https://stackoverflow.com/questions/723587/whats-the-longest-possible-worldwide-phone-number-i-should-consider-in-sql-varc
+
+
+## One-to-One Relationship
+
+Example of 1-to-1 relationship between `user` and `preference` table:
+
+```
+CREATE TABLE IF NOT EXISTS user (
+  name VARCHAR(255),
+  id INT UNSIGNED AUTO_INCREMENT,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS preference (
+  user_id INT UNSIGNED AUTO_INCREMENT,
+  interest TEXT,
+  -- ...other fields
+  PRIMARY KEY (id),
+  FOREIGN KEY (id) REFERENCES user(id)
+);
+```
