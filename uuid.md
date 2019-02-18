@@ -3,6 +3,8 @@
 Creating fallback function for ordered uuid in old mysql version. Example using golang's `goose`:
 
 ```sql
+--  https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/
+
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 DROP FUNCTION IF EXISTS ordered_uuid;
@@ -16,7 +18,6 @@ RETURN UNHEX(CONCAT(SUBSTR(uuid, 15, 4),SUBSTR(uuid, 10, 4),SUBSTR(uuid, 1, 8),S
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 DROP FUNCTION ordered_uuid;
-
 ```
 
 We can then store the uuid as `binary(16)`. This does not work, since default values must be `constant`.
@@ -49,3 +50,42 @@ SELECT * FROM test WHERE uuid = unhex('11E92F44A2762A8F83030242AC180002')
 
 References:
 - https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/
+
+
+## Generate From Client
+
+MySQL 5.7 uses uuid v1:
+
+```go
+package model
+
+import (
+	"strings"
+
+	uuid "github.com/satori/go.uuid"
+)
+
+func NewOrderedUUID() string {
+	//  MySQL 5.7 uses uuid.v1.
+	id := uuid.Must(uuid.NewV1())
+	output := strings.Split(id.String(), "-")
+	part3 := output[0]
+	part2 := output[1]
+	part1 := output[2]
+	part4 := output[3]
+	part5 := output[4]
+	out := strings.Join([]string{part1, part2, part3, part4, part5}, "")
+	return out
+}
+
+func OrderedUUID(uuid string) string {
+	output := strings.Split(uuid, "-")
+	part3 := output[0]
+	part2 := output[1]
+	part1 := output[2]
+	part4 := output[3]
+	part5 := output[4]
+	out := strings.Join([]string{part1, part2, part3, part4, part5}, "")
+	return out
+}
+```
