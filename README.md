@@ -215,6 +215,32 @@ Barnaby Marmaduke Aloysius Benjy Cobweb Dartagnan Egbert Felix Gaspar Humbert Ig
 
 References:
 - http://www.worldrecordacademy.com/society/longest_name_Barnaby_Marmaduke_sets_world_record_112063.html
+
+## Data Type: Gender
+
+```sql
+-- Probably the best bet, but needs to be validated. 
+gender char(1) 
+insert into table (gender) values (IF(? in ('m', 'f', 'x', 'o'), LOWER(?), ''));
+
+-- With enum. Allows only 'm', 'f', 'M', or 'F'. Don't use enum - it will rebuild the whole database when we update it.
+gender enum('m','f') DEFAULT 'm' 
+
+-- With set.
+gender set('m', 'f') // Allows '', 'm', 'M', 'f', 'F', or 'm,f'
+```
+
+
+References:
+- http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
+- http://download.nust.na/pub6/mysql/tech-resources/articles/mysql-set-datatype.html
+- https://ocelot.ca/blog/blog/2013/09/16/representing-sex-in-databases/
+
+Note: We could have used check constraint, but it is ignored by MySQL.
+
+## References
+- Gender X: https://www.lifesitenews.com/news/generation-x-germany-to-allow-third-blank-gender-for-birth-certificates
+
 ## One-to-One Relationship
 
 Example of 1-to-1 relationship between `user` and `preference` table:
@@ -234,6 +260,8 @@ CREATE TABLE IF NOT EXISTS preference (
   FOREIGN KEY (id) REFERENCES user(id)
 );
 ```
+
+
 
 
 
