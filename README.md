@@ -207,7 +207,14 @@ References:
 - https://boards.straightdope.com/sdmb/showthread.php?t=417024
 https://stackoverflow.com/questions/723587/whats-the-longest-possible-worldwide-phone-number-i-should-consider-in-sql-varc
 
+## Data Type: Name
+Longest name (225 characters)
+```
+Barnaby Marmaduke Aloysius Benjy Cobweb Dartagnan Egbert Felix Gaspar Humbert Ignatius Jayden Kasper Leroy Maximilian Neddy Obiajulu Pepin Quilliam Rosencrantz Sexton Teddy Upwood Vivatma Wayland Xylon Yardley Zachary Usansky
+```
 
+References:
+- http://www.worldrecordacademy.com/society/longest_name_Barnaby_Marmaduke_sets_world_record_112063.html
 ## One-to-One Relationship
 
 Example of 1-to-1 relationship between `user` and `preference` table:
@@ -227,6 +234,8 @@ CREATE TABLE IF NOT EXISTS preference (
   FOREIGN KEY (id) REFERENCES user(id)
 );
 ```
+
+
 
 
 ## Thoughts
