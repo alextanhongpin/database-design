@@ -109,6 +109,18 @@ postal_code VARCHAR(16) NOT NULL DEFAULT '',
 country VARCHAR(74) NOT NULL DEFAULT '',
 ```
 
+Alternative is this, based on [OpenID AddressClaim](https://openid.net/specs/openid-connect-core-1_0.html#AddressClaim)
+```sql
+street_address VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Full street address component, which MAY include house number, street name, Post Office Box, and multi-line extended street address information. This field MAY contain multiple lines, separated by newlines. Newlines can be represented either as a carriage return/line feed pair ("\r\n") or as a single line feed character ("\n").'
+locality VARCHAR(58) NOT NULL DEFAULT '' COMMENT 'City or locality component.'
+region VARCHAR(56) NOT NULL DEFAULT '' COMMENT 'State, province, prefecture or region component.'
+postal_code VARCHAR(16) NOT NULL DEFAULT '' COMMENT 'Zip code or postal code component.'
+country VARCHAR(74) NOT NULL DEFAULT '' COMMENT 'Country name component.'
+-- latitude (See below)
+-- longitude
+```
+
+
 References:
 - postal code length https://stackoverflow.com/questions/325041/i-need-to-store-postal-codes-in-a-database-how-big-should-the-column-be
 
@@ -132,6 +144,34 @@ email VARCHAR(255) NOT NULL UNIQUE
 ```
 ## Data Type: Geolocation
 
+With `MySQL <8.0`:
+```sql
+CREATE TABLE locations (
+  lat DECIMAL(10,8) NOT NULL, 
+  lng DECIMAL(11,8) NOT NULL
+);
+```
+with `MySQL >8.0`:
+```sql
+CREATE TABLE locations (
+    location POINT SRID 4326 NOT NULL,
+    SPATIAL INDEX (location)
+);
+```
+
+To insert:
+```sql
+INSERT INTO locations (location) VALUES (ST_PointFromText('Point(1 1)', 4326));
+```
+
+To select:
+```sql
+SELECT ST_AsText(location) FROM locations
+```
+
+
+References:
+- https://medium.com/maatwebsite/the-best-way-to-locate-in-mysql-8-e47a59892443
 
 ## Data Type: TZ
 
@@ -187,3 +227,11 @@ CREATE TABLE IF NOT EXISTS preference (
   FOREIGN KEY (id) REFERENCES user(id)
 );
 ```
+
+
+## Thoughts
+
+- Should I create a differen table for user profile and password? No.
+https://stackoverflow.com/questions/17683571/should-i-create-2-tables-first-for-usernames-and-passwords-and-other-for-user
+https://www.quora.com/Should-we-keep-the-user-name-and-password-in-the-same-table-where-the-other-personal-information-is
+https://dba.stackexchange.com/questions/148909/is-it-a-good-practice-to-isolate-login-information-username-password-in-a-sep
