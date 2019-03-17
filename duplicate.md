@@ -24,6 +24,15 @@ if mysqlError, ok := err.(*mysql.MySQLError); ok {
 }
 ```
 
+Alternatively, use this package to avoid hardcoding `https://github.com/VividCortex/mysqlerr/blob/master/mysqlerr.go`:
+```go
+if mysqlError, ok := err.(*mysql.MySQLError); ok {
+  if mysqlError.Number == mysqlerr.ER_DUP_KEY {
+    // Duplicate key.
+  }
+}
+```
+
 ## Duplicate Key
 
 ```sql
