@@ -218,16 +218,18 @@ References:
 
 ## Data Type: Gender
 
+Column naming can be `sex`, or alternatively `gender`:
+
 ```sql
 -- Probably the best bet, but needs to be validated. 
-gender char(1) 
+sex char(1) 
 insert into table (gender) values (IF(? in ('m', 'f', 'x', 'o'), LOWER(?), ''));
 
 -- With enum. Allows only 'm', 'f', 'M', or 'F'. Don't use enum - it will rebuild the whole database when we update it.
-gender enum('m','f') DEFAULT 'm' 
+sex enum('m','f') DEFAULT 'm' 
 
 -- With set.
-gender set('m', 'f') // Allows '', 'm', 'M', 'f', 'F', or 'm,f'
+sex set('m', 'f') // Allows '', 'm', 'M', 'f', 'F', or 'm,f'
 ```
 
 
@@ -237,6 +239,14 @@ References:
 - https://ocelot.ca/blog/blog/2013/09/16/representing-sex-in-databases/
 
 Note: We could have used check constraint, but it is ignored by MySQL.
+
+## Data Type: Currency
+
+compliant with Generally Accepted Accounting Principles (GAAP):
+
+```sql
+currency DECIMAL(13,4)
+```
 
 ## References
 - Gender X: https://www.lifesitenews.com/news/generation-x-germany-to-allow-third-blank-gender-for-birth-certificates
