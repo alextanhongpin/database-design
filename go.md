@@ -77,11 +77,20 @@ Problem: need to build dynamic query depending on the number of params that are 
 - possible syntax error when building query dynamically
 - cannot be prepared
 
+
 The NULLIF() function compares two expressions and returns NULL if they are equal. Otherwise, the first expression is returned.
 
-COALESCE returns the first non-null value in a list
+COALESCE returns the first non-null value in a list.
 
-`sql
-UPDATE user SET name=COALESCE(NULLIF(?, name),"") ... 
-`
 
+To perform an update only if the value is different, and the value is not empty ("", or 0):
+
+```sql
+insert into user 
+	(id, name, age) 
+values (1, "jessie", 20) 
+on duplicate key 
+update 
+	name = COALESCE(NULLIF(NULLIF("jessie", name), ''), name),
+	age = COALESCE(NULLIF(NULLIF(20, age), 0), age)
+```
