@@ -27,3 +27,26 @@ WHERE DATE(signup_date) = CURDATE()
 ```sql
 SELECT date_format(NOW(), '%d-%m-%Y') as ddmmyyyy;
 ```
+
+
+## How to store opening hours
+```sql
+shop_id binary(16)
+-- weekday tinyint(1) -- SELECT DAYOFWEEK('2007-02-03'), values from 1 to 7. But how about starting and ending in different days?
+start_day tinyint(1) 
+end_day tinyint(1)
+opening_hour TIME -- format 'HH:MM:SS' NOTE: There's no type time in MySQL
+closing_hour TIME
+timezone GMT +2
+closed_dates JSON
+```
+
+- How to deal with timezone? Store the Timezone info for people viewing in different countries. Since the opening/closing time will differ greatly. Else, need to convert the timezone to UTC.
+- How to deal with opening time and closing time for different days? Store the start day and end day, e.g. start day is Sunday, end day is Mondy, opening hours is 10.00 a.m., closing hours is 2.00 a.m.
+- to query all the opening time, just select all from the same shop id
+- how to handle exceptional cases (closed on 1 day)? store the additional closed dates as a json array, then iterate and compare the date when it is closed.
+- what if the store is opened for 24/7? start_day, end_day is the same, opening hour and closing hour is the same
+- what if it has two opening hours on the same day? create the same entry for the same weekday, with different time
+
+https://stackoverflow.com/questions/19545597/way-to-store-various-shop-opening-times-in-a-database
+http://www.remy-mellet.com/blog/288-storing-opening-and-closing-times-in-database-for-stores/
