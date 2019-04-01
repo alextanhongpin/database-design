@@ -35,8 +35,10 @@ shop_id binary(16)
 -- weekday tinyint(1) -- SELECT DAYOFWEEK('2007-02-03'), values from 1 to 7. But how about starting and ending in different days?
 start_day tinyint(1) 
 end_day tinyint(1)
-opening_hour TIME -- format 'HH:MM:SS' NOTE: There's no type time in MySQL
-closing_hour TIME
+-- opening_hour TIME -- format 'HH:MM:SS' NOTE: There's no type time in MySQL
+opens TIME
+-- closing_hour TIME
+closes TIME
 timezone GMT +2
 closed_dates JSON
 ```
@@ -47,6 +49,8 @@ closed_dates JSON
 - how to handle exceptional cases (closed on 1 day)? store the additional closed dates as a json array, then iterate and compare the date when it is closed.
 - what if the store is opened for 24/7? start_day, end_day is the same, opening hour and closing hour is the same
 - what if it has two opening hours on the same day? create the same entry for the same weekday, with different time
+- how to set if the store is closed on a particular date? set the closed dates
+- what if the store is not open on a day? don't create the entry
 
 https://stackoverflow.com/questions/19545597/way-to-store-various-shop-opening-times-in-a-database
 http://www.remy-mellet.com/blog/288-storing-opening-and-closing-times-in-database-for-stores/
