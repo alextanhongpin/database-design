@@ -48,3 +48,81 @@ const isUpdated = !!result.changedRows
 // To get the last id created (int, auto-incremented primary key)
 const id = result.insertId
 ```
+
+
+## Transaction trap with golang
+
+```go
+package main
+
+import (
+	"database/sql"
+	"log"
+	"sync"
+	"time"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+type User struct {
+	Name string
+	Age  int
+}
+
+func main() {
+	db, err := sql.Open("mysql", "john:123456@/test?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+
+		err := transactionUpdate(db)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+	go func() {
+		defer wg.Done()
+
+		err := transactionUpdate(db)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+	// If start age is 1, the end age is 2, not 3.
+	wg.Wait()
+}
+
+func transactionUpdate(db *sql.DB) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	var u User
+	// Either use `SELECT name, age FROM user LIMIT FOR UPDATE`
+	err = tx.QueryRow(`SELECT name, age FROM user LIMIT 1`).Scan(
+		&u.Name,
+		&u.Age,
+	)
+	log.Printf("got user: %+v\n", u)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	time.Sleep(1 * time.Second)
+
+	// Atomic-safe: `UPDATE user SET age = age + 1 WHERE name = ?`
+	res, err := tx.Exec(`UPDATE user SET age = ? WHERE name = ?`, u.Age+1, u.Name)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	log.Printf("%+v\n", res)
+	_ = tx.Commit()
+	return nil
+}
+```
