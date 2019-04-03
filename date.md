@@ -54,3 +54,20 @@ closed_dates JSON
 
 https://stackoverflow.com/questions/19545597/way-to-store-various-shop-opening-times-in-a-database
 http://www.remy-mellet.com/blog/288-storing-opening-and-closing-times-in-database-for-stores/
+
+
+## Calculate Age
+
+```
+SELECT TIMESTAMPDIFF(YEAR, '1970-02-01', CURDATE()) AS age
+```
+
+## Group by age bucket
+
+SELECT
+    SUM(IF(age < 20,1,0)) as 'Under 20',
+    SUM(IF(age BETWEEN 20 and 29,1,0)) as '20 - 29',
+    SUM(IF(age BETWEEN 30 and 39,1,0)) as '30 - 39',
+    SUM(IF(age BETWEEN 40 and 49,1,0)) as '40 - 49',
+...etc.
+FROM inquiries;
