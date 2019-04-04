@@ -64,6 +64,7 @@ SELECT TIMESTAMPDIFF(YEAR, '1970-02-01', CURDATE()) AS age
 
 ## Group by age bucket
 
+```sql
 SELECT
     SUM(IF(age < 20,1,0)) as 'Under 20',
     SUM(IF(age BETWEEN 20 and 29,1,0)) as '20 - 29',
@@ -71,3 +72,17 @@ SELECT
     SUM(IF(age BETWEEN 40 and 49,1,0)) as '40 - 49',
 ...etc.
 FROM inquiries;
+```
+
+
+## Golang test time
+Go time.Time has nanosecond resolution, MySQL datetime has second resolution (use datetime(6) for microseconds). Go has a timezone, MySQL doesn't.
+```
+  Expected: '2019-04-04 11:45:41.170518 +0800 +08 m=+0.223437462'
+  Actual:   '2019-04-04 03:45:41 +0000 UTC'
+```
+
+To make the test work, round the seconds and convert to UTC:
+```
+time.Now().Round(time.Second).UTC())
+```
