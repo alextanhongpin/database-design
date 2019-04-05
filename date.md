@@ -86,3 +86,15 @@ To make the test work, round the seconds and convert to UTC:
 ```
 time.Now().Round(time.Second).UTC())
 ```
+
+## SQL Date
+
+Hoping to get all records within a month...
+```sql
+BETWEEN 2019-01-01 AND 2019-01-31
+```
+
+But this will only take records less than `2019-01-31 00:00:00`. The below query is correct:
+```sql
+BETWEEN 2019-01-01 AND 2019-02-01
+```
