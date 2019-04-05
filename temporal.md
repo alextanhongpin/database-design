@@ -26,7 +26,8 @@ We will use the wiki's version, with an addition on a column `modified_by` to in
 
 ```
 - type (activity_type)??
-- data (JSON)
+- data (JSON) (x, not a good idea, since we don't know what facts are there)
+- fact (string) this is a fact that is tracked, e.g. employee left company. this fact will have a validity, and confirmation through the transaction time.
 - valid_from
 - valid_till
 - entered
@@ -57,3 +58,13 @@ References:
 References:
 
 - https://stackoverflow.com/questions/31252905/how-to-implement-temporal-data-in-mysql
+
+
+## Issues
+
+- how do we know who changed what
+- how can we verify if the person that confirms it has the say?
+- how can we know who performs action on that/confirm the validity, and what is the valid data
+
+- fact is something that is true, and should be validated by a person
+- an old fact can be dismissed by another person, but the record of the person will be maintained
