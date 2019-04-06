@@ -68,3 +68,16 @@ References:
 
 - fact is something that is true, and should be validated by a person
 - an old fact can be dismissed by another person, but the record of the person will be maintained
+
+
+## Other interesting discussions
+- https://dba.stackexchange.com/questions/176935/how-would-i-track-all-price-changes-in-a-db-in-order-to-get-the-price-of-x-pro
+- https://stackoverflow.com/questions/39060709/changes-of-product-price-in-database-design
+- https://martinfowler.com/eaaDev/timeNarrative.html
+
+
+## Event Sourcing vs Temporal
+
+Event sourcing deals with objects, temporal databases deals with event record.
+
+- https://softwareengineering.stackexchange.com/questions/349098/event-sourcing-vs-sql-server-temporal-tables)
