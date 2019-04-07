@@ -74,7 +74,8 @@ References:
 - https://dba.stackexchange.com/questions/176935/how-would-i-track-all-price-changes-in-a-db-in-order-to-get-the-price-of-x-pro
 - https://stackoverflow.com/questions/39060709/changes-of-product-price-in-database-design
 - https://martinfowler.com/eaaDev/timeNarrative.html
-
+- https://blog.cloudera.com/blog/2017/05/bi-temporal-data-modeling-with-envelope/
+https://www.datasciencecentral.com/profiles/blogs/temporal-databases-why-you-should-care-and-how-to-get-started-2
 
 ## Event Sourcing vs Temporal
 
