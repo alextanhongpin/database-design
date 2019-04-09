@@ -248,6 +248,16 @@ compliant with Generally Accepted Accounting Principles (GAAP):
 currency DECIMAL(13,4)
 ```
 
+For percentage:
+
+```sql
+-- For your case (0.00% to 100.00%) you'd want decimal(5,4).
+gst DECIMAL(5, 4)
+
+-- For the most common case (0% to 100%) you'd want decimal(3,2).
+discount DECIMAL(3, 2)
+```
+
 ## References
 - Gender X: https://www.lifesitenews.com/news/generation-x-germany-to-allow-third-blank-gender-for-birth-certificates
 
