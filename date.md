@@ -98,3 +98,45 @@ But this will only take records less than `2019-01-31 00:00:00`. The below query
 ```sql
 BETWEEN 2019-01-01 AND 2019-02-01
 ```
+
+## SQL Timezone
+
+Common mistake is to query the start to end of the date in UTC, which is different when comparing against local timezone.
+```sql
+SELECT * FROM mysql.time_zone;
+SELECT * FROM mysql.time_zone_name;
+select current_timestamp;
+-- 2019-04-09 02:08:18
+
+select CONVERT_TZ(current_timestamp, 'GMT', 'Singapore');
+-- 2019-04-09 10:08:24
+
+
+-- To query the difference
+SELECT
+id, created_at, 
+DATE(created_at) AS date_utc, 
+DATE(convert_tz(created_at, 'GMT', 'Singapore')) AS date_local
+FROM employee_activity 
+WHERE DATE(convert_tz(created_at, 'GMT', 'Singapore')) != DATE(created_at);
+```
+
+To find the records on a specific date (local timezone!):
+
+```sql
+-- This query is incorrect, because it will select those dates that are based on UTC.
+SELECT
+id, created_at, 
+DATE(created_at) AS date_utc, 
+DATE(convert_tz(created_at, 'GMT', 'Singapore')) AS date_local
+FROM employee_activity 
+WHERE DATE(created_at) = '2019-03-04';
+
+-- This query is correct, because the dates are first converted into local timezone before queried.
+SELECT
+id, created_at, 
+DATE(created_at) AS date_utc, 
+DATE(convert_tz(created_at, 'GMT', 'Singapore')) AS date_local
+FROM employee_activity 
+WHERE DATE(CONVERT_TZ(created_at, 'GMT', 'Singapore')) = '2019-03-04';
+```
