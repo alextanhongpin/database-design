@@ -31,3 +31,30 @@ SELECT JSON_ARRAYAGG(organizations) FROM user WHERE JSON_TYPE(organizations) = '
 mysql -u USERNAME -p
 set global log_bin_trust_function_creators=1;
 ```
+
+
+## Thoughts on storing json data as object vs array
+
+
+with object:
+- we probably need to create a static struct to manage the growing keys
+- no identity on the kind of data (unless determined through column name)
+- once unmarshalled, the values can be used straight away
+
+with array:
+- more generic approach
+- need to loop through each key value pairs to get the data 
+- easier to extend in the future
+
+```js
+{
+  "a": "1",
+  "b": "2"
+}
+
+// vs
+{
+  "data": [{"key": "a", "value": "1"}]
+}
+```
+
