@@ -140,3 +140,26 @@ DATE(convert_tz(created_at, 'GMT', 'Singapore')) AS date_local
 FROM employee_activity 
 WHERE DATE(CONVERT_TZ(created_at, 'GMT', 'Singapore')) = '2019-03-04';
 ```
+
+
+## Difference in days, hours ...
+```
+mysql> SELECT TIMESTAMPDIFF(MONTH,'2003-02-01','2003-05-01');
+        -> 3
+mysql> SELECT TIMESTAMPDIFF(YEAR,'2002-05-01','2001-01-01');
+        -> -1
+mysql> SELECT TIMESTAMPDIFF(MINUTE,'2003-02-01','2003-05-01 12:05:55');
+        -> 128885
+```
+
+For difference in days:
+
+```sql
+datediff(current_timestamp, created_at)
+```
+
+To check how many days have elapsed (10 is the number of days elapsed):
+
+```sql
+datediff(current_timestamp, created_at) > 10
+```
