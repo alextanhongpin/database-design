@@ -24,3 +24,21 @@ Use-cases:
 - get by category: query those with the category_id that matches the id (category id)
 
 We can index both fields, and to avoid null, set those without category id to `-1`.
+
+
+## Using recursive pattern
+
+```mysql
+CREATE TABLE IF NOT EXISTS category (
+	category varchar(255),
+	parent_category varchar(255) NOT NULL DEFAULT '',
+	description varchar(255),
+	PRIMARY KEY (category, parent_category),
+	FOREIGN KEY (parent_category) REFERENCES category(category)
+);
+INSERT INTO category (category, description) VALUES ('', 'NONE');
+INSERT INTO category (category, description) VALUES ('food', 'food category');
+INSERT INTO category (category, parent_category, description) VALUES ('food.dairy', 'food', 'dairy products category');
+INSERT INTO category (category, parent_category, description) VALUES ('food.drinks', 'food', 'beverages products category');
+SELECT parent_category, JSON_ARRAYAGG(category) AS subcategories FROM category GROUP BY parent_category;
+```
