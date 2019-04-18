@@ -54,7 +54,7 @@ closed_dates JSON
 
 https://stackoverflow.com/questions/19545597/way-to-store-various-shop-opening-times-in-a-database
 http://www.remy-mellet.com/blog/288-storing-opening-and-closing-times-in-database-for-stores/
-
+https://stackoverflow.com/questions/4464898/best-way-to-store-working-hours-and-query-it-efficiently
 
 ## Calculate Age
 
