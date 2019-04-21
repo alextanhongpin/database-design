@@ -301,7 +301,9 @@ CREATE TABLE IF NOT EXISTS preference (
 
 
 
+## Country Table
 
+https://www.ip2location.com/free/country-multilingual
 
 
 ## Thoughts
