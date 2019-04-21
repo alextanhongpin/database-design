@@ -258,6 +258,24 @@ gst DECIMAL(5, 4)
 discount DECIMAL(3, 2)
 ```
 
+
+## Marital Status
+
+| Code | Description | Definition | 
+| ---- | ------------| -----------|
+| 1 | Single | This refers to a person who has never been married. |
+| 2 | Married | This refers to a person who is recognised as married under the marriage laws in Singapore. It includes a person who has remarried. |
+| 3 | Widowed | This refers to a person whose spouse(s) is/are deceased and who has not remarried. |
+| 4 | Separated | This refers to a person who has been legally separated or estranged from his/her spouse(s) and who has not remarried. |
+| 5 | Divorced | This refers to a person whose marriage(s) has/have been legally dissolved and who has not remarried. |
+| x | Not Reported | This includes instances where the marital status is unknown, not reported or where there is no/insufficient information available on the marital status |
+
+```sql
+marital_status ENUM('single', 'married', 'widowed', 'separated', 'divorced', 'not reported');
+```
+References:
+- https://www.singstat.gov.sg/-/media/files/standards_and_classifications/scms.pdf
+
 ## References
 - Gender X: https://www.lifesitenews.com/news/generation-x-germany-to-allow-third-blank-gender-for-birth-certificates
 
