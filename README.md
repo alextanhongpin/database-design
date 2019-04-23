@@ -1,7 +1,8 @@
 # principles
 
 - use singular noun
-- use uuid if possible
+- ~~use uuid if possible~~
+- use ordered UUID v1, stored as BINARY(16) when the data is dynamically generated. For reference table, stick to auto-incremented primary keys since the values are static and won't change that much either. If the number of items can be less than [a-z0-9], then use char(1) as primary key, since they can be more verbose than just int (`m` for male, `f` for female, `o` for others etc) 
 - use soft delete
 - no null fields, except date
 
