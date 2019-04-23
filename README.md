@@ -87,6 +87,20 @@ select INET6_NTOA(ip) from sensor;
 2 rows in set (0.00 sec)
 ```
 
+Sample query from `ipnation`:
+
+```mysql
+SELECT c.country 
+FROM ip2nationCountries c, ip2nation i 
+WHERE i.ip < INET_ATON('your_ip_address') 
+AND c.code = i.country 
+ORDER BY i.ip DESC 
+LIMIT 0,1;
+```
+
+References:
+- http://www.ip2nation.com/
+
 ## Data Type: Country
 Al Jumahiriyah al Arabiyah al Libiyah ash Shabiyah al Ishtirakiyah al Uzma also known as Libya is the world's longest country name at 74 characters with spaces and 63 characters without.
 
