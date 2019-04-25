@@ -163,3 +163,23 @@ To check how many days have elapsed (10 is the number of days elapsed):
 ```sql
 datediff(current_timestamp, created_at) > 10
 ```
+
+
+## Default/Null Date
+
+There are some disadvantages of using NULL date, eg. it cannot be indexed (you might need it later), and marshalling them can be a pain when using a strongly typed language (null types needs to be type asserted). 
+
+There are some cases where the NULL values can be [optimized](https://dev.mysql.com/doc/refman/8.0/en/is-null-optimization.html).
+
+For dates, it's best to use a default date range rather than `null`, with the only exception being the `deleted_at` date (since it is easier to check if `deleted_at IS NULL` rather than `deleted_at = 9999-12-31').
+
+TL;DR;
+
+- valid_from: `1000-01-01`
+- valid_till: `9999-12-31`
+
+## DATE vs DATETIME
+
+For validity period that has a period ranging within days/weeks/months/year, using `DATE` will be sufficient. 
+
+For actions (approvals, update, creation, logging, audit), use `DATETIME` for better accuracy.
