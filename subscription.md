@@ -23,3 +23,7 @@
 
 - https://www.nathanhammond.com/the-subscription-library-schema-to-rule-them-all
 - https://www.nathanhammond.com/patterns-for-subscription-based-billing
+
+## Subscription plans naming
+
+https://www.paidmembershipspro.com/how-to-name-your-membership-levels-or-subscription-options/
