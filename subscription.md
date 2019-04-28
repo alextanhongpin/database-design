@@ -17,7 +17,26 @@
 - does the subscription have a cooldown period (1 month means the plan will end at the month, regardless of when it is cancelled), or is it immediate (terminate now, and it will take effect immediately)
 - if the plan is upgraded, will the previous term (valid from to valid till) still be valid, or will they be extended?
 - plans can be extended, upgraded, terminated, term started, term ended (expired), transferred etc
-- who can purchase subscription? preferable a party, since a party can be either an organization or person, and the subscription can be for a person or organization. If the subscription is applied to an organization, then the employees belonging to the organzation will all benefit from it
+- who can purchase subscription? preferable a party, since a party can be either an organization or person, and the subscription can be for a person or organization. If the subscription is applied to an organization, then the employees belonging to the organzation will all benefit from it. TL;DR there can be both individual and organization plan.
+- subscription plans can be upgraded/downgraded/cancelled anytime (unless there is a minimum period). There may be additional costs (prorated) when upgrading in the middle of the month, or refund when downgrading/cancelling it. The features will also change (how do we detect the changes? when the user login and obtain a jwt token? but how to handle changes in that?)
+- is there a mandatory minimum for the plans?
+- will user receive freemium? we can create a default plan that is freemium (valid say for 1 month), which cannot be renewed.
+- statuses: subscriptions can be renewed, cancelled, upgraded, downgraded etc
+- plans are valid for the period (month, year, etc)
+- plans have a start and end date
+- subscriptions are charged at the end of the month
+- if the users did not paid for the month, next month account is temporarily disabled
+- if the users downgrade the plan, the features will be missing (disabled), when they enable it back then the features will be added back. additional costs are refunded (?) unless stated not in the agreement
+- how to renew the existing subscription? ( without plan changes)
+- Do we need to create the basic plan? It will only take up rows in the db.
+- How to pause subscription?
+- How to generate invoice for subscription?
+- What if the plans changed? Add new plans, expire the old one through valid from date, but don’t delete it. The old data may still reference the old plan, but the new ones will have the new plans. What if we want to force upgrade the old plans (deprecation), we can automatically extend them.
+- the period (weekly, monthly, yearly) matters if we are going to do deduction/refund when the user changes the subscription plan
+- the cost per day, month, year also needs to be defined
+- is the cost affected by other rules? such as country, location, roles.
+- if the user upgrades his subscription, then he has to pay more for the current elapsed difference in the duration left for the current subscription. What if the user downgrades his subscription? Do we need to refund the subscription?
+- If the plans is for individual vs organization, the features could have different business rules, e.g. individual can create 5 items. But if we have organization account, we can probably have a rule that only 5 users can be added, and each of them can only create 1 item.
 
 ## Subscription schema
 
