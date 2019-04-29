@@ -12,6 +12,34 @@
 
 ## Thoughts
 
+
+
+Date scenario:
+- user is charged only at the end of the month (charging at the start of the month means more refunds logic, since they need to be refunded for what they didn't pay for)
+- assume user select monthly subscription
+- user subscribe at a date other than start of the month
+	- option 1: charge user only for the rest of the month
+	- option 2: if the days are less than 5 (?), give them for free
+	- option 3: user cancel immediately (?) if day == 0, exclude charges
+- user cancel subscription
+	- option 1: charge user only for the period they used from the start of the month until the date they cancel the subscription
+	- option 2: no refund
+- user upgrade subscription
+	- charge the difference at the end of the month
+- user downgrade subscription
+	- charge the difference at the end of the month
+
+Role Scenario:
+- organization vs user purchase subscription
+	- different plans for user and organization, different costs and different rules
+
+Subscription Plan Scenario:
+- introducing new plans
+	- don't update the existing data in db, create new plan so that old users will maintain their subscription
+	- automatically upgrade user's plan?
+- introducing new feature?
+
+Rest:
 - does the start/end date matters? If I subscribed in the middle of the month, will I get charged the full amount or partial (prorated?)
 - if I cancel the subscription, do I get the refund for the remaining month?
 - does the subscription have a cooldown period (1 month means the plan will end at the month, regardless of when it is cancelled), or is it immediate (terminate now, and it will take effect immediately)
@@ -205,4 +233,80 @@ func main() {
 	// What if the user is attempting to modify the subscription frequently (?). Block them.
 	fmt.Println("Hello, playground")
 }
+```
+
+
+## Schema
+
+```
+
+party
+- id
+- subtype enum(person, organization)
+
+// Subscription information for the user. If the plan is basic, it won’t be counted as a subscription to avoid creating redundant roles.
+subscription
+- id
+- party_id
+- valid_from // The date the subscription is activated
+- valid_till // The date the subscription is expected to end (can be different than deleted at)
+- is_active // The subscription status, or just check the date of valid_till
+- created_at // The date the subscription is created.
+- updated_at
+- deleted_at
+
+
+// Feature type
+feature_type 
+- name // E.g. country, period (weekly, monthly, yearly), currency
+- description
+
+// Feature represents the chosen feature type and it’s corresponding value.
+feature
+- id
+- feature_type_id
+- value
+
+feature 
+{id: 1, feature_type_id: currency, value: “SGD”},
+{id: 2, feature_type_id: period, value: “monthly”}
+{id: 3, feature_type_id: country, value: “Singapore”}
+{id: 4, feature_type_id: max_clients, value: 20}
+
+// Plan describes the value of the feature. Each plan will have a feature and a designated value. There are only three plans at most, but with different combination of features.
+plan
+- id
+- name // The name of the plan (basic, elite, enterprise)
+- description // The description of the plan.
+- billing_method_type (auto, manual (?) better naming please)
+- cost
+- valid_from 
+- valid_till // If we are going to deprecate a plan…
+
+plan_feature
+- plan_id
+- feature_id
+- cost
+- duration_feature (yearly/monthly)
+
+subscription plan
+- subscription_id
+- plan_id
+- valid_from
+- valid_till
+- superseded_by (the previous subscription plan)
+- // NOTE: This can be part of the feature.
+- // country (subscription is different per country)
+- // currency (currency is different per country)
+- // cost (the cost depends on currency)
+- // duration_feature (yearly/monthly)
+- // is_renewable (?) can just check the valid_till date
+- // status (?)
+
+
+invoice 
+- subscription_plan_id
+- paid_amount (probably need this to offset the upgrade)
+- amount
+- for_date (what month/year is this invoice for?)
 ```
