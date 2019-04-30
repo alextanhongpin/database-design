@@ -216,3 +216,11 @@ select datediff(
 -- Latest date - now.
 select datediff('2019-05-31', current_date);
 ```
+
+## Timezone difference
+
+Rather than setting the timezone information for the user, set the timezone information on the products/events instead. So if the user purchases the product with the said timezone, it is much easier to process the difference in the timezone. With that said, this means that for each product, there is a need to create different product with different timezone, and there's a logic required to show the different products by different countries too, possibly by the user location or ip information.
+
+Why does this matter? Because if there's a promotion in Malaysia (GMT+8), then if the sale is supposed to end at 12:00 am GMT+8, if the server time is set to UTC instead, the closing time would have been different (it would end earlier) and this could cause a lot of miscommunication.
+
+That said, it is best to store the dates as UTC in the database. But the timezone information should be stored somewhere else too so that the dates can be computed correctly.
