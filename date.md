@@ -183,3 +183,36 @@ TL;DR;
 For validity period that has a period ranging within days/weeks/months/year, using `DATE` will be sufficient. 
 
 For actions (approvals, update, creation, logging, audit), use `DATETIME` for better accuracy.
+
+
+## Date Elapsed
+
+```mysql
+-- Get the last day of the month.
+select last_day(current_date) as last_day;
+
+-- Get the first day of the month.
+select DATE_ADD(
+	DATE_ADD(LAST_DAY(current_date),INTERVAL 1 DAY),
+	INTERVAL - 1 MONTH) AS first_day;
+
+-- Get the max date (if registered on the same month) or the start of the month
+select GREATEST('2019-03-12', DATE_ADD(
+	DATE_ADD(LAST_DAY(current_date),INTERVAL 1 DAY),
+	INTERVAL - 1 MONTH));
+	
+-- Find the difference in date between the current date and the last day.
+
+-- Get the max date (if registered on the same month) or the start of the month.
+-- The order matters - the end of the month must be first.
+select datediff(
+	last_day(current_date), 
+	-- Compare the subscription date vs the start of the month, the greater one takes priority
+	GREATEST('2019-04-12', DATE_ADD(
+	DATE_ADD(LAST_DAY(current_date),INTERVAL 1 DAY),
+	INTERVAL - 1 MONTH))
+);
+
+-- Latest date - now.
+select datediff('2019-05-31', current_date);
+```
