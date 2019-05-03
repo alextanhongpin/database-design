@@ -15,6 +15,9 @@ But these are typical CRUD queries. If there are specific ones, we can also crea
 
 Note that `publish:book`, while it is mostly just updating the status of the resource, it is marked as a different scope, because it is a different usecase.
 
+References:
+- https://github.com/alextanhongpin/evolutionary-architecture/blob/master/role_and_scopes.md
+
 ## Limiting scopes
 
 For most scenarios, a user can only modify the resources created by them (unless they are admins). Reading a resource depends on the user access rights. Some resources can be read by all users, while others are only readable by owner/ops etc. 
@@ -25,6 +28,8 @@ If the resource is public, note that the access rights does not apply anymore. L
 ## Public vs Private
 
 Public apis should return as little information as possible. Distinguish the public and private resources by limiting what to be returned.
+
+Note that for `golang`, we can shadow the structs to ensure less information is returned. This would however, require you to create duplicate redundant structs.
 
 ## Context
 
@@ -63,3 +68,8 @@ Note we are using `INNER JOIN` instead of `LEFT JOIN`, so it should not return a
 Some thoughts here:
 - how would the query looks like for NOSQL?
 - can we cache the access? (what if it has been modified/role removed?)
+
+
+## Row Level Security (RLS)
+
+There are no RLS available for MySQL. To design an ACL for database, we can consider using some principles from the unix level permissions.
