@@ -1,4 +1,4 @@
-Workflow Pattern
+## Workflow Pattern
 
 ```sql
 DROP DATABASE test;
@@ -208,7 +208,215 @@ INSERT INTO workflow_state_option
 ;
 ```
 
+## Workflow Pattern, with String ID
+
+```sql
+DROP DATABASE test;
+CREATE DATABASE test;
+USE test;
+
+CREATE TABLE IF NOT EXISTS your_entity_to_manage (
+	id INT UNSIGNED AUTO_INCREMENT,
+	your_col_1 INT NOT NULL DEFAULT 0,
+	your_col_2 VARCHAR(255) NOT NULL DEFAULT "",
+	your_col_3_etc BOOLEAN NOT NULL DEFAULT 0,
+	-- This is not strictly a foreign key.
+	wf_state_type_process_id INT UNSIGNED,
+	PRIMARY KEY (id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS workflow_level_type (
+	id VARCHAR(255),
+	alt_sequence INT UNSIGNED NOT NULL DEFAULT 0,
+	description TEXT,
+	effective_period_from DATE NOT NULL DEFAULT '1000-01-01',
+	effective_period_to DATE NOT NULL DEFAULT '9999-12-31',
+	pretty_name VARCHAR(255) NOT NULL DEFAULT '',
+	PRIMARY KEY (id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO workflow_level_type 
+(id, description) VALUES
+('process', 'High level workflow process.'),
+('state', 'A state in the process.'),
+('outcome', 'How a state ends, its outcome.'),
+('qualifier', 'An optional, more detailed qualifier for an outcome.');
+
+CREATE TABLE IF NOT EXISTS workflow_state_type (
+	id VARCHAR(255),
+	alt_sequence INT UNSIGNED NOT NULL DEFAULT 0,
+	description TEXT,
+	effective_period_from DATE NOT NULL DEFAULT '1000-01-01',
+	effective_period_to DATE NOT NULL DEFAULT '9999-12-31',
+	pretty_name VARCHAR(255) NOT NULL DEFAULT '',
+	type_key VARCHAR(32) NOT NULL DEFAULT '',
+	workflow_level_type_id VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (workflow_level_type_id) REFERENCES workflow_level_type(id),
+	UNIQUE (id, workflow_level_type_id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO workflow_state_type
+(workflow_level_type_id, id) VALUES 
+-- 3: Outcomes
+('outcome', 'passed'),
+('outcome', 'failed'),
+('outcome', 'accepted'),
+('outcome', 'declined'),
+('outcome', 'candidate_cancelled'),
+('outcome', 'employer_cancelled'),
+('outcome', 'rejected'),
+('outcome', 'employer_withdrawn'),
+('outcome', 'no_show'),
+('outcome', 'hired'),
+('outcome', 'not_hired'),
+-- 2: State
+('state', 'application_received'),
+('state', 'application_review'),
+('state', 'invited_to_interview'),
+('state', 'interview'),
+('state', 'test_aptitude'),
+('state', 'seek_references'),
+('state', 'make_offer'),
+('state', 'application_closed'),
+('state', 'end'),
+-- 1: Process
+('process', 'standard_job_application'),
+('process', 'technical_job_application');
+
+CREATE TABLE IF NOT EXISTS workflow_state_hierachy (
+	id VARCHAR(255),
+	alt_sequence INT UNSIGNED NOT NULL DEFAULT 0,
+	wf_state_type_parent_id VARCHAR(255) NOT NULL,
+	wf_state_type_child_id VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (wf_state_type_parent_id) REFERENCES workflow_state_type(id),
+	FOREIGN KEY (wf_state_type_child_id) REFERENCES workflow_state_type(id),
+	UNIQUE KEY (wf_state_type_parent_id, wf_state_type_child_id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+-- Each state must end with an outcome.
+INSERT INTO workflow_state_hierachy 
+(id, wf_state_type_parent_id, wf_state_type_child_id) VALUES
+('application_received.accepted', 'application_received', 'accepted'),
+('application_received.rejected', 'application_received', 'rejected'),
+('application_review.passed', 'application_review', 'passed'),
+('application_review.failed', 'application_review', 'failed'), 
+('invited_to_interview.accepted', 'invited_to_interview', 'accepted'),
+('invited_to_interview.declined', 'invited_to_interview', 'declined'),
+('interview.passed', 'interview', 'passed'),
+('interview.failed', 'interview', 'failed'),
+('interview.candidate_cancelled', 'interview', 'candidate_cancelled'),
+('interview.no_show', 'interview', 'no_show'),
+('make_offer.accepted', 'make_offer', 'accepted'),
+('make_offer.declined', 'make_offer', 'declined'),
+('seek_references.passed', 'seek_references', 'passed'),
+('seek_references.failed', 'seek_references', 'failed'),
+('application_closed.hired', 'application_closed', 'hired'),
+('application_closed.not_hired', 'application_closed', 'not_hired'),
+('test_aptitude.passed', 'test_aptitude', 'passed'),
+('test_aptitude.failed', 'test_aptitude', 'failed'),
+('standard_job_application.application_received', 'standard_job_application', 'application_received'),
+('standard_job_application.application_review', 'standard_job_application', 'application_review'),
+('standard_job_application.invited_to_interview', 'standard_job_application', 'invited_to_interview'),
+('standard_job_application.interview', 'standard_job_application', 'interview'),
+('standard_job_application.make_offer', 'standard_job_application', 'make_offer'),
+('standard_job_application.seek_references', 'standard_job_application', 'seek_references'),
+('standard_job_application.application_closed', 'standard_job_application', 'application_closed'),
+('technical_job_application.application_received', 'technical_job_application', 'application_received'),
+('technical_job_application.application_review', 'technical_job_application', 'application_review'),
+('technical_job_application.invited_to_interview', 'technical_job_application', 'invited_to_interview'),
+('technical_job_application.interview', 'technical_job_application', 'interview'),
+('technical_job_application.make_offer', 'technical_job_application', 'make_offer'),
+('technical_job_application.seek_references', 'technical_job_application', 'seek_references'),
+('technical_job_application.application_closed', 'technical_job_application', 'application_closed');
+
+
+
+
+CREATE TABLE IF NOT EXISTS managed_entity_state (
+	id INT UNSIGNED AUTO_INCREMENT,
+	due_date DATE NOT NULL DEFAULT '1000-01-01',
+	effective_period_from DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	effective_period_to DATETIME NOT NULL DEFAULT '9999-12-31',
+	notes TEXT,
+	managed_entity_id INT UNSIGNED NOT NULL,
+	wf_state_type_state_id INT VARCHAR(255) NOT NULL,
+	wf_state_type_outcome_id VARCHAR(255) NOT NULL,
+	wf_state_type_qual_id VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (wf_state_type_state_id) REFERENCES workflow_state_type(id),
+	FOREIGN KEY (wf_state_type_outcome_id) REFERENCES workflow_state_type(id),
+	FOREIGN KEY (wf_state_type_qual_id) REFERENCES workflow_state_type(id),
+	FOREIGN KEY (managed_entity_id) REFERENCES your_entity_to_manage(id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS workflow_state_context (
+	id VARCHAR(255),
+	child_disabled BOOLEAN NOT NULL DEFAULT 0,
+	workflow_state_type_id VARCHAR(255) NOT NULL,
+	workflow_state_hierachy_id VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (workflow_state_type_id) REFERENCES workflow_state_type(id),
+	FOREIGN KEY (workflow_state_hierachy_id) REFERENCES workflow_state_hierachy(id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO workflow_state_context
+(id, workflow_state_type_id, workflow_state_hierachy_id) VALUES 
+('standard_job_application.application_received.accepted', 'standard_job_application', 'application_received.accepted'),
+('standard_job_application.application_received.rejected', 'standard_job_application', 'application_received.rejected'),
+('standard_job_application.application_review.passed', 'standard_job_application', 'application_review.passed'),
+('standard_job_application.application_review.failed', 'standard_job_application', 'application_review.failed'),
+('standard_job_application.invited_to_interview.accepted', 'standard_job_application', 'invited_to_interview.accepted'),
+('standard_job_application.invited_to_interview.declined', 'standard_job_application', 'invited_to_interview.declined'),
+('standard_job_application.interview.passed', 'standard_job_application', 'interview.passed'),
+('standard_job_application.interview.failed', 'standard_job_application', 'interview.failed'),
+('standard_job_application.interview.candidate_cancelled', 'standard_job_application', 'interview.candidate_cancelled'),
+('standard_job_application.interview.no_show', 'standard_job_application', 'interview.no_show'),
+('standard_job_application.make_offer.accepted', 'standard_job_application', 'make_offer.accepted'),
+('standard_job_application.make_offer.declined', 'standard_job_application', 'make_offer.declined'),
+('standard_job_application.seek_references.passed', 'standard_job_application', 'seek_references.passed'),
+('standard_job_application.seek_references.failed', 'standard_job_application', 'seek_references.failed'),
+('standard_job_application.application_closed.hired', 'standard_job_application', 'application_closed.hired'),
+('standard_job_application.application_closed.not_hired', 'standard_job_application', 'application_closed.not_hired');
+
+CREATE TABLE IF NOT EXISTS workflow_state_option (
+	id INT UNSIGNED AUTO_INCREMENT,
+	alt_sequence INT UNSIGNED NOT NULL DEFAULT 0,
+	workflow_state_context_id VARCHAR(255) NOT NULL,
+	workflow_state_type_id VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id),
+	FOREIGN KEY (workflow_state_context_id) REFERENCES workflow_state_context(id),
+	FOREIGN KEY (workflow_state_type_id) REFERENCES workflow_state_type(id)
+) ENGINE=InnoDB CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO workflow_state_option 
+(workflow_state_context_id, workflow_state_type_id) VALUES
+('standard_job_application.application_received.accepted', 'application_review'),
+('standard_job_application.application_received.rejected', 'not_hired'),
+('standard_job_application.application_review.passed', 'invited_to_interview'),
+('standard_job_application.application_review.failed', 'not_hired'),
+('standard_job_application.invited_to_interview.accepted', 'interview'),
+('standard_job_application.invited_to_interview.declined', 'not_hired'),
+('standard_job_application.interview.passed', 'make_offer'),
+('standard_job_application.interview.passed', 'seek_references'),
+('standard_job_application.interview.failed', 'application_closed'),
+('standard_job_application.interview.candidate_cancelled', 'application_closed'),
+('standard_job_application.interview.candidate_cancelled', 'invited_to_interview'),
+('standard_job_application.interview.no_show', 'application_closed'),
+('standard_job_application.make_offer.accepted', 'seek_references'),
+('standard_job_application.make_offer.declined', 'application_closed'),
+('standard_job_application.seek_references.passed', 'hired'),
+('standard_job_application.seek_references.failed', 'application_closed'),
+('standard_job_application.application_closed.hired', 'end'),
+('standard_job_application.application_closed.not_hired', 'end')
+;
+```
+
 
 REFERENCES: 
 - https://www.vertabelo.com/blog/technical-articles/the-workflow-pattern-part-1-using-workflow-patterns-to-manage-the-state-of-any-entity
 - https://www.vertabelo.com/blog/technical-articles/the-workflow-pattern-part-2-using-configuration-tables-to-define-the-actual-workflow
+
+
