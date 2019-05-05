@@ -415,6 +415,35 @@ INSERT INTO workflow_state_option
 ```
 
 
+## Modelling it in Golang
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+type Status string
+
+type Transition func() Status
+
+type Statuses map[Status][]Status
+
+func main() {
+	var statuses = Statuses{
+		ApplicationReceived: []Status{ApplicationReview, ApplicationClosed},
+		ApplicationReview:   []Status{InvitedToInterview, ApplicationClosed},
+		InvitedToInterview:  []Status{Interview, ApplicationClosed},
+		Interview:           []Status{MakeOffer, SeekReferences, ApplicationClosed, InvitedToInterview},
+		MakeOffer:           []Status{SeekReferences, ApplicationClosed},
+		SeekReferences:      []Status{Hired, ApplicationClosed},
+		Hired:               []Status{},
+		ApplicationClosed:   []Status{},
+	}
+}
+```
+
 REFERENCES: 
 - https://www.vertabelo.com/blog/technical-articles/the-workflow-pattern-part-1-using-workflow-patterns-to-manage-the-state-of-any-entity
 - https://www.vertabelo.com/blog/technical-articles/the-workflow-pattern-part-2-using-configuration-tables-to-define-the-actual-workflow
