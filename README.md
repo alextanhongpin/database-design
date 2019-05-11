@@ -2,7 +2,8 @@
 
 - use singular noun
 - ~~use uuid if possible~~
-- use ordered UUID v1, stored as BINARY(16) when the data is dynamically generated. For reference table, stick to auto-incremented primary keys since the values are static and won't change that much either. If the number of items can be less than [a-z0-9], then use char(1) as primary key, since they can be more verbose than just int (`m` for male, `f` for female, `o` for others etc) 
+- use ordered UUID v1 (only v1 can be ordered sequentially), stored as BINARY(16) when the data is dynamically generated. For reference table, stick to auto-incremented primary keys since the values are static and won't change that much either. If the number of items can be less than [a-z0-9], then use char(1) as primary key, since they can be more verbose than just int (`m` for male, `f` for female, `o` for others etc) 
+- some issues with auto-incremented id is that it needs to be converted to the correct type (int64/uint64) in the application to prevent users from submitting string alphabets. The same complexity lies with UUID, which needs validation too. This is only necessary if we want to avoid the call to the db.
 - use soft delete
 - no null fields, except date
 
