@@ -322,6 +322,10 @@ CREATE TABLE IF NOT EXISTS preference (
 https://www.ip2location.com/free/country-multilingual
 
 
+## Issues
+
+There was a scenario where User A is logged in User B account (bug), the reason is very simple. User A previous user `id` is 2, and the JWT token is not expired. When the db was cleared, and User B recreated two new users, which has user id `1` and `2`. So now, the JWT token only store the user id `2`, when User A calls the API, since the previous id is `2`, User A can view User B profile. Pitfalls of integer id.
+
 ## Thoughts
 
 - Should I create a differen table for user profile and password? No.
