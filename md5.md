@@ -12,3 +12,6 @@ CREATE TABLE IF NOT EXISTS tablename (
 -- Insert
 UNHEX(MD5(str))
 ```
+
+
+Why should I store the md5 hash of the string as the unique indexed column? If we have two long text with 65 characters, and the first 64 characters are the same, then MySQL will detect it as duplicate since the first 64 characters are compared. But if we hash them, then a unique 32 characters hash will be created, and we can ensure that they are both unique and not treated as duplicate by mysql.
