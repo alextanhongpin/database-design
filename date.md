@@ -224,3 +224,18 @@ Rather than setting the timezone information for the user, set the timezone info
 Why does this matter? Because if there's a promotion in Malaysia (GMT+8), then if the sale is supposed to end at 12:00 am GMT+8, if the server time is set to UTC instead, the closing time would have been different (it would end earlier) and this could cause a lot of miscommunication.
 
 That said, it is best to store the dates as UTC in the database. But the timezone information should be stored somewhere else too so that the dates can be computed correctly.
+
+
+## Date Range
+
+
+When calculating the date difference Use `curdate()/current_date()`, not `now()` since `now()` includes the time.
+
+```sql
+# Get policy expiring in 7 days, UTC time
+policy.end_date = DATE_ADD(CURDATE(), INTERVAL 7 DAY);
+
+# Get policy expiring in 30 days, UTC time
+policy.end_date = DATE_ADD(CURDATE(), INTERVAL 30 DAY);
+```
+
