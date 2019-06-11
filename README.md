@@ -121,6 +121,7 @@ city VARCHAR(58) NOT NULL DEFAULT '',
 
 -- Longest state name: The State of Rhode Island and Providence Plantations (52 chars.)
 state VARCHAR(56) NOT NULL DEFAULT '',
+-- There is no maximum size for a postcode. Currently, the longest postal code is 10 char. Iran has 10 diguts and the US have 4 and 5 seperated by a hyphen. Brazil is 9 and Canada is 7, I think.
 postal_code VARCHAR(16) NOT NULL DEFAULT '',
 country VARCHAR(74) NOT NULL DEFAULT '',
 ```
@@ -237,7 +238,7 @@ References:
 Column naming can be `sex`, or alternatively `gender`:
 
 ```sql
--- Probably the best bet, but needs to be validated. 
+-- Probably the best bet, but needs to be validated. When in doubt, use this.
 sex char(1) 
 insert into table (gender) values (IF(? in ('m', 'f', 'x', 'o'), LOWER(?), ''));
 
