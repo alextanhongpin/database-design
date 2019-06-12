@@ -240,7 +240,9 @@ Column naming can be `sex`, or alternatively `gender`:
 ```sql
 -- Probably the best bet, but needs to be validated. When in doubt, use this.
 sex char(1) 
-insert into table (gender) values (IF(? in ('m', 'f', 'x', 'o'), LOWER(?), ''));
+insert into table (gender) values (IF(LEFT(?,1) in ('m', 'f', 'x', 'o'), LOWER(LEFT(?,1)), ''));
+-- We can also just take the first character of the string with the left function.
+insert into table(gender) values (LEFT('female', 1));
 
 -- With enum. Allows only 'm', 'f', 'M', or 'F'. Don't use enum - it will rebuild the whole database when we update it.
 sex enum('m','f') DEFAULT 'm' 
