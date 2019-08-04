@@ -38,3 +38,55 @@ from amazon_revenue
 
 More on postgres window functions:
 http://www.postgresqltutorial.com/postgresql-window-function/
+
+
+## The following is the results of the queries performed with the dataset from `data/order.sql` with postgres.
+
+```sql
+SELECT 	EXTRACT(MONTH FROM ord_date) AS month, 
+		COUNT(*) 
+FROM 	t_order
+GROUP BY EXTRACT(MONTH FROM ord_date) 
+ORDER BY EXTRACT(MONTH FROM ord_date);
+```
+
+Output: 
+```
+ month | count
+-------+-------
+     2 |     1
+     3 |     1
+     4 |     2
+     5 |     3
+     6 |     4
+     7 |    11
+     8 |     4
+     9 |     6
+    10 |     2
+(9 rows)
+```
+
+```sql
+SELECT 	EXTRACT(MONTH FROM ord_date) AS month, 
+		COUNT(*),
+		SUM(COUNT(*)) OVER (ORDER BY EXTRACT(MONTH FROM ord_date))
+FROM 	t_order
+GROUP BY EXTRACT(MONTH FROM ord_date) 
+ORDER BY EXTRACT(MONTH FROM ord_date);
+```
+
+Output:
+```
+ month | count | sum
+-------+-------+-----
+     2 |     1 |   1
+     3 |     1 |   2
+     4 |     2 |   4
+     5 |     3 |   7
+     6 |     4 |  11
+     7 |    11 |  22
+     8 |     4 |  26
+     9 |     6 |  32
+    10 |     2 |  34
+(9 rows)
+```
