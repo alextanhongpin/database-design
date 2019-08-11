@@ -107,3 +107,10 @@ If there's only one status - it's a fact. If each row have the same fact, it bec
 If there are two, ask yourself if it can be more. If not, consider storing it as tinyint(1) bool to reduce storage.
 
 If there are more, create a reference table to store the statuses. 
+
+## Postgres
+
+There are no native implementation, but there is a `temporal_tables` extensions available for postgres.
+
+http://clarkdave.net/2015/02/historical-records-with-postgresql-and-temporal-tables-and-sql-2011/
+https://wiki.postgresql.org/images/6/64/Fosdem20150130PostgresqlTemporal.pdf
