@@ -114,3 +114,11 @@ There are no native implementation, but there is a `temporal_tables` extensions 
 
 http://clarkdave.net/2015/02/historical-records-with-postgresql-and-temporal-tables-and-sql-2011/
 https://wiki.postgresql.org/images/6/64/Fosdem20150130PostgresqlTemporal.pdf
+
+
+## Working with temporal data structure
+
+Items may expire, say a product or events, or maybe user accounts that are deactivated or friends that has been removed . When performing data analytics or recommendations, care needs to be taken to prevent recommending this to users.
+
+Another thing to consider is not when the item expires, but when it is updated with new values. Take for example product pricing. We cannot update the product directly, since other users will reference this product if they have purchased it before. This could lead to inconsistency of the data. Therefor, a better way is to deprecate the old product, and create new row. New users will only have access to the new product, while old users will maintain their old product relationship.
+
