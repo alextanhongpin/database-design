@@ -14,6 +14,12 @@
 - use optimized uuid for faster querying
 - include the default auto incremented id
 
+# Migration file naming convention
+
+Reference the naming convention from active record:
+
+https://edgeguides.rubyonrails.org/active_record_migrations.html#using-the-change-method
+
 
 ## Useful Statements
 
