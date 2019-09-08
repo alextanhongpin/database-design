@@ -14,6 +14,12 @@
 - use optimized uuid for faster querying
 - include the default auto incremented id
 
+## Styleguides
+
+Yes, there are styleguide (and perhaps linters) for everything.
+
+https://www.sqlstyle.guide/
+
 # Migration file naming convention
 
 Reference the naming convention from active record:
