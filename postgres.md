@@ -36,3 +36,13 @@ In postgres, use TEXT for everything, it should be equally performant as VARCHAR
 - Postgres does not have timestamp on update, you need to manually implement a trigger
 - Postgres does not allow table name to be user, use account instead
 - In node js, selecting a column as a name must be lowercase, not camecase. In node library it is automatically converted to lowercase even if we set it as camelcase.
+
+
+## UUID
+
+http://www.postgresqltutorial.com/postgresql-uuid/
+```
+SELECT * FROM pg_available_extensions;
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
