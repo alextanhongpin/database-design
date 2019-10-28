@@ -1,7 +1,8 @@
 ## Things I learn about postgres
 
 Tools
-- using DBeaver for GUI visualization on MacOS
+- ~using DBeaver for GUI visualization on MacOS~
+- use Postico insteand
 
 Query
 - somehow table name must be surrounded by double quote `"`
@@ -46,3 +47,31 @@ SELECT * FROM pg_available_extensions;
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 ```
+
+
+## On Conflict Update
+```sql
+INSERT INTO product (user_id, name) 
+VALUES ('fa633b7c-f865-11e9-9537-7b2b141b65eb', 'iphone')
+ON CONFLICT(name) DO UPDATE SET updated_at = now()
+RETURNING id;
+```
+
+## Golang Errors
+
+## postgres pqerror 
+Constraint unique column.
+
+```go
+var pqerr *pq.Error
+if errors.As(err, &pqerr) {
+	fmt.Printf("%#v\n", pqerr)
+}
+```
+
+Output:
+
+```
+&pq.Error{Severity:"ERROR", Code:"23505", Message:"duplicate key value violates unique constraint \"product_name_key\"", Detail:"Key (name)=(ENkZWiilbpvnSWOnPBYRkrqRJ) already exists.", Hint:"", Position:"", InternalPosition:"", InternalQuery:"", Where:"", Schema:"public", Table:"product", Column:"", DataTypeName:"", Constraint:"product_name_key", File:"nbtinsert.c", Line:"570", Routine:"_bt_check_unique"}
+```
+
