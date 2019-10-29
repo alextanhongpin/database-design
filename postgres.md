@@ -75,3 +75,16 @@ Output:
 &pq.Error{Severity:"ERROR", Code:"23505", Message:"duplicate key value violates unique constraint \"product_name_key\"", Detail:"Key (name)=(ENkZWiilbpvnSWOnPBYRkrqRJ) already exists.", Hint:"", Position:"", InternalPosition:"", InternalQuery:"", Where:"", Schema:"public", Table:"product", Column:"", DataTypeName:"", Constraint:"product_name_key", File:"nbtinsert.c", Line:"570", Routine:"_bt_check_unique"}
 ```
 
+Handling duplicate:
+```go
+const DuplicatePrimaryKeyViolation = "23505"
+
+...
+
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) {
+		if pqErr.Code == DuplicatePrimaryKeyViolation {
+			return false, shorturl.ErrAlreadyExists
+		}
+	}
+```
