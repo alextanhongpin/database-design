@@ -88,3 +88,35 @@ const DuplicatePrimaryKeyViolation = "23505"
 		}
 	}
 ```
+
+## Useful Postgres query
+
+```sql
+
+-- Apply ranking to all rows, and find the current rank of the existing user.
+SELECT 	login, rank FROM (
+	SELECT 	login, rank() OVER (ORDER BY updated_at) AS rank 
+	FROM 	login
+) ranked 
+WHERE login = 'alextanhongpin';
+
+-- Select the rows where the column contains the prefix word jav*.
+SELECT 	distinct(trim(primary_language)) 
+FROM 	repository 
+WHERE 	to_tsvector(primary_language) @@ to_tsquery('jav:*');
+
+-- Select the rows where the column contains either the word first or word with prefix sec...
+SELECT 	* 
+FROM 	login 
+WHERE 	to_tsvector(company) @@ to_tsquery('first & sec:*');
+
+-- Select the rows where the JSON array contains the search text.
+SELECT 	login, organizations 
+FROM 	login 
+WHERE 	organizations ? 'text'::text;
+
+-- Concat JSON array, but only take the distinct values.
+SELECT 	JSON_AGG(distinct trim(value)) 
+FROM 	login, jsonb_array_elements_text(organizations) 
+WHERE 	organizations <> 'null';
+```
