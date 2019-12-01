@@ -120,3 +120,28 @@ SELECT 	JSON_AGG(distinct trim(value))
 FROM 	login, jsonb_array_elements_text(organizations) 
 WHERE 	organizations <> 'null';
 ```
+
+
+## Installing a new postgres version
+
+To debug issue:
+```
+$ tail -n 10 /usr/local/var/log/postgres.log
+```
+```
+2019-11-25 16:47:19.036 +08 [3896] FATAL:  database files are incompatible with server
+2019-11-25 16:47:19.036 +08 [3896] DETAIL:  The data directory was initialized by PostgreSQL version 11, which is not compatible with this version 12.1.
+2019-11-25 16:47:29.061 +08 [3899] FATAL:  database files are incompatible with server
+2019-11-25 16:47:29.061 +08 [3899] DETAIL:  The data directory was initialized by PostgreSQL version 11, which is not compatible with this version 12.1.
+2019-11-25 16:47:33.625 +08 [4067] FATAL:  database files are incompatible with server
+2019-11-25 16:47:33.625 +08 [4067] DETAIL:  The data directory was initialized by PostgreSQL version 11, which is not compatible with this version 12.1.
+2019-11-25 16:47:43.648 +08 [4264] FATAL:  database files are incompatible with server
+2019-11-25 16:47:43.648 +08 [4264] DETAIL:  The data directory was initialized by PostgreSQL version 11, which is not compatible with this version 12.1.
+2019-11-25 16:47:53.671 +08 [4265] FATAL:  database files are incompatible with server
+2019-11-25 16:47:53.671 +08 [4265] DETAIL:  The data directory was initialized by PostgreSQL version 11, which is not compatible with this version 12.1.
+```
+
+Solution:
+```
+$ brew postgresql-upgrade-database
+```
