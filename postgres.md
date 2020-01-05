@@ -145,3 +145,36 @@ Solution:
 ```
 $ brew postgresql-upgrade-database
 ```
+
+
+## Show all tables in Postgres
+
+```sql
+select table_name from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE';
+```
+
+## Check connections to database
+
+```sql
+select * from pg_stat_activity;
+```
+
+## Check number of prepared statements for the given connection
+```sql
+select * from pg_prepared_statements;
+```
+
+## Ordering result by the given id
+
+```sql
+select * 
+from product_items 
+join unnest('{223, 212, 2, 226, 333, 3, 1, 224, 8, 281}'::int[]) with ordinality t(id, ord)
+using (id)
+order by t.ord;
+```
+
+## Lateral Join for Postgres
+
+What is the use case?
+
