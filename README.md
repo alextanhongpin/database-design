@@ -403,3 +403,9 @@ from (
 	) tmp
 order by total;
 ```
+
+## Null
+
+Advantages of null fields (or when to use null):
+- we can use null field with unique values, so that empty strings will not be counted (they are considered unique)
+- It depends on the domain you are working on. NULL means absence of value (i.e. there is no value), while empty string means there is a string value of zero length.
