@@ -347,3 +347,59 @@ There was a scenario where User A is logged in User B account (bug), the reason 
 https://stackoverflow.com/questions/17683571/should-i-create-2-tables-first-for-usernames-and-passwords-and-other-for-user
 https://www.quora.com/Should-we-keep-the-user-name-and-password-in-the-same-table-where-the-other-personal-information-is
 https://dba.stackexchange.com/questions/148909/is-it-a-good-practice-to-isolate-login-information-username-password-in-a-sep
+
+
+## Useful features for postgres
+
+- lateral join
+- sum conditional
+- filter option
+- RANK, DENSE_RANK, ROW_NUMBER
+- partial index
+
+```sql
+select id, name, 
+	review_count_rank,
+	recent_review_count_rank,
+	rating_rank,
+	word_count_rank,
+	review_count_rank + recent_review_count_rank + rating_rank + word_count_rank as total
+from (
+	select 
+		product_items.id as id,
+		product_items.name,
+		
+	--	product_items.cached_reviews_count,
+		DENSE_RANK() OVER (order by product_items.cached_reviews_count desc) review_count_rank,
+		
+	--	COALESCE(tmp.review_count, 0) as recent_review_count,
+		DENSE_RANK() OVER (order by COALESCE(tmp.review_count, 0) desc) recent_review_count_rank,
+		
+	--	product_items.cached_rating,
+		DENSE_RANK() OVER (order by product_items.cached_rating desc) rating_rank,
+		
+	--	COALESCE(tmp.word_count, 0) as word_count,
+		DENSE_RANK() OVER (order by COALESCE(tmp.word_count,0) desc) word_count_rank
+	from product_items 
+	left join (
+		select 
+			pir.item_id as item_id, 
+			count(*) as review_count,
+			sum(array_length(regexp_split_to_array(pir.text, '\s'),1)) as word_count
+		from product_items pi
+		left join product_item_reviews pir
+			on (pi.id = pir.item_id)
+		where pir.deleted_at is null
+			and pi.deleted_at is null
+			and pir.created_at >= current_timestamp - interval '30 day'
+		group by pir.item_id
+	) tmp on (tmp.item_id = product_items.id)
+	where category_id = 6
+		and product_items.deleted_at is null
+	order by review_count_rank, 
+		rating_rank,
+		recent_review_count_rank,
+		word_count_rank
+	) tmp
+order by total;
+```
