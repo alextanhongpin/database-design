@@ -61,3 +61,9 @@ Posts in WordPress can have one of 8 statuses:
 
 
 https://wordpress.org/support/article/post-status/
+
+
+## Bitmask status pattern
+
+
+http://mark-story.com/posts/view/using-bitmasks-to-indicate-status
