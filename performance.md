@@ -60,3 +60,11 @@ FROM
 References:
 - https://www.citusdata.com/blog/2016/10/12/count-performance/
 - http://www.craigkerstiens.com/2012/10/01/understanding-postgres-performance/
+ 
+## Checking Postgres performance
+
+```
+BEGIN;
+    EXPLAIN ANALYZE sql_statement;
+ROLLBACK;
+```
