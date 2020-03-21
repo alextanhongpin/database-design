@@ -1,3 +1,4 @@
+# Fermi estimates on postgres performance
 ## Check the number of full scans
 
 The output from EXPLAIN shows ALL in the type column when MySQL uses a full table scan to resolve a query.
@@ -67,4 +68,17 @@ References:
 BEGIN;
     EXPLAIN ANALYZE sql_statement;
 ROLLBACK;
+```
+
+## Top unused indexes
+```
+SELECT 
+	schemaname || '.' || relname AS table,
+	indexrelname AS index,
+	pg_size_pretty(pg_relation_size(i.indexrelid)) AS index_size,
+	idx_scan AS index_scans
+FROM pg_stat_user_indexes ui
+JOIN pg_index i ON (idx_scan < 50 AND pg_relation_size(relid) > 5 * 8192)
+ORDER BY pg_relation_size(i.indexrelid) / nullif(idx_scan, 0) DESC NULLS FIRST,
+pg_relation_size(i.indexrelid) DESC;
 ```
