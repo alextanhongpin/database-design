@@ -13,3 +13,19 @@ SELECT * FROM table ORDER BY column * 1 DESC
 -- Order by length of the string first, then the string itself. Benchmark if this is the fastest.
 SELECT * FROM table ORDER BY ORDER BY LENGTH(column), column DESC
 ```
+
+# Sorting by Secondary Column
+
+When you sort by secondary sort with the same name, it will not override the first one. This is useful when you only want to make the primary sort criteria dynamic, and when the values are the same, then sort by the secondary/tertiary ones. Secondary sort is important so that we can rank the items correctly. 
+
+```
+select * from users
+order by name desc, name asc.
+[result => sorted by name desc]
+
+select * from users
+order by name asc, name asc.
+[result => sorted by name asc]
+
+
+```
