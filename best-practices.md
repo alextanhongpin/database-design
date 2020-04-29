@@ -31,3 +31,6 @@ Here's when not to add logic into database:
 ## Log as external database?
 
 The single source of truth. But somehow this is not analysed at all.
+
+# storage
+you can save storage by sorting the columns, aka column tetris https://stackoverflow.com/questions/2966524/calculating-and-saving-space-in-postgresql
