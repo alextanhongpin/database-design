@@ -8,6 +8,24 @@ Query
 - somehow table name must be surrounded by double quote `"`
 - somehow string values must be surrounded by single quote `'`, and not double-quote `"`
 
+## Difference between mysql
+
+- does no support update timestamp, need to create a trigger
+- uuid does not need to be ordered
+- no need to set utf8 mb4 
+- use `serial` or `bigserial` for postgres, use `auto_increment` for mysql.
+
+postgres:
+```
+CREATE TABLE fruits(
+   id SERIAL PRIMARY KEY,
+   name VARCHAR NOT NULL
+);
+```
+mysql:
+```
+    Personid int NOT NULL AUTO_INCREMENT,
+```
 ## Useful commands
 
 Equivalent of `show tables` in MySQL:
