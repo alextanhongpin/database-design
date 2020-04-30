@@ -1,3 +1,12 @@
+# Isolation level
+
+MySQL default isolation level is `repeatable read`:
+https://dev.mysql.com/doc/refman/5.6/en/set-transaction.html
+
+Postgres default isolation level is `Read committed`:
+https://www.postgresql.org/docs/current/sql-set-transaction.html
+
+
 # Sample transaction with Node.js
 
 ```js
