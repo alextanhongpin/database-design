@@ -58,3 +58,10 @@ with array:
 }
 ```
 
+## Json or not?
+
+Don’t use json
+- no protection against referential integrity (if something gets deleted etc)
+- no sorting
+- no joining
+- no constraints (uniqueness)
