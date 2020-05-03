@@ -89,3 +89,16 @@ func OrderedUUID(uuid string) string {
 	return out
 }
 ```
+
+# Binary UUID MySQL
+
+The correct way of storing a 36-char uuid as binary (16). Supports re-arranging time time component of the uuid to enhance indexing performance (by ordering it sequentially). Only workds for uuid v1.
+
+```sql
+INSERT INTO foo (uuid) VALUES (UUID_TO_BIN('3f06af63-a93c-11e4-9797-00505690773f', true));
+```
+
+
+```sql
+SELECT BIN_TO_UUID(uuid, true) AS uuid FROM foo;
+```
