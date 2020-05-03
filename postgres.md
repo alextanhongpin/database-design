@@ -21,11 +21,25 @@ CREATE TABLE fruits(
    id SERIAL PRIMARY KEY,
    name VARCHAR NOT NULL
 );
+CREATE EXTENSIONS IF NOT EXISTS “uuid-ossp”;
+
+CREATE TABLE IF NOT EXISTS user (
+	id UUID PRIMARY KEY default uuid_generate_v4(),
+	name TEXT NOT NULL DEFAULT ‘’,
+	created_at TIMESTAMP WITH TIME ZONE NOT NULL 	DEFAULT current_timestamp,
+)
 ```
 mysql:
 ```
-    Personid int NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS user (
+	id BIGINT UNSIGNED AUTO_INCREMENT,
+ 	email VARCHAR(255) NOT NULL UNIQUE,
+	created_at DATETIME NOT NULL DEFAULT current_timestamp,
+	updated_at DATETIME NOT NULL DEFAULT current_timestamp ON UPDATE current_timestamp,
+	PRIMARY KEY (id)
+)
 ```
+
 ## Useful commands
 
 Equivalent of `show tables` in MySQL:
