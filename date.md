@@ -239,3 +239,9 @@ policy.end_date = DATE_ADD(CURDATE(), INTERVAL 7 DAY);
 policy.end_date = DATE_ADD(CURDATE(), INTERVAL 30 DAY);
 ```
 
+
+## Get Unix Timestamp (Postgres)
+
+```sql
+select extract(epoch from created_at) from your_table;
+```
