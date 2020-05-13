@@ -13,7 +13,7 @@ try {
 ```
 
 ## go
-
+With Mysql:
 ```go
 err := db.QueryRow(stmt).Scan(&res)
 // https://dev.mysql.com/doc/refman/5.7/en/server-error-reference.html
@@ -30,6 +30,29 @@ if mysqlError, ok := err.(*mysql.MySQLError); ok {
   if mysqlError.Number == mysqlerr.ER_DUP_KEY {
     // Duplicate key.
   }
+}
+```
+
+With Postgres:
+```go
+package database
+
+import (
+	"errors"
+
+	"github.com/lib/pq"
+)
+
+const DuplicatePrimaryKeyViolation = "23505"
+
+var ErrDuplicatePrimaryKey = errors.New("Duplicate entity error")
+
+func IsDuplicate(err error) bool {
+	var pqErr *pq.Error
+	if errors.As(err, &pqErr) {
+		return pqErr.Code == DuplicatePrimaryKeyViolation
+	}
+	return false
 }
 ```
 
