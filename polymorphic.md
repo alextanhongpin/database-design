@@ -18,6 +18,35 @@ add constraint test_subscription_check
 check ((type = 'question' and question_id is not null) or (type = 'answer' and answer_id is not null) or (type = 'comment' and comment_id is not null));
 ```
 
+Improvement (removed unnecessay type column), adding partial index:
+```sql
+create table subscription_type (
+	id serial primary key,
+	category text not null,
+	action text not null,
+	unique (category, action)
+);
+
+
+create table subscription (
+	subscription_type_id int not null references subscription_type(id),
+	answer_id uuid references answer(id),
+	question_id uuid references question(id),
+	comment_id uuid references comment(id),
+	check (
+		(answer_id is not null)::int + 
+		(question_id is not null)::int + 
+		(comment_id is not null)::int
+		= 1
+	)
+);
+
+create unique index on subscription (answer_id, subscription_type_id) where answer_id is not null;
+create unique index on subscription (question_id, subscription_type_id) where question_id is not null;
+create unique index on subscription (comment_id, subscription_type_id) where comment_id is not null;
+```
+
+
 References:
 https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database
 
@@ -47,3 +76,4 @@ CREATE_TABLE family_room (
     CHECK CONSTRAINT room_type  = "family_room"
 );
 ```
+
