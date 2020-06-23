@@ -1,8 +1,10 @@
 ## Using Check Constraint to guard against polymorphic association
 
-```sql
+```diff sql
 create table test_subscription (
-	type text check (type in ('question', 'answer', 'comment')),
++ 	-- NOTE: Don't need to double-check, since we already check it at the bottom
+-	type text check (type in ('question', 'answer', 'comment')),
++	type text not null,
 	answer_id uuid references answer(id),
 	question_id uuid references question(id),
 	comment_id uuid references comment(id),
@@ -14,4 +16,34 @@ alter table test_subscription
 drop constraint test_subscription_check, 
 add constraint test_subscription_check 
 check ((type = 'question' and question_id is not null) or (type = 'answer' and answer_id is not null) or (type = 'comment' and comment_id is not null));
+```
+
+References:
+https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database
+
+## Class Table Inheritance
+
+```sql
+CREATE TABLE room (
+    room_id serial primary key,
+    room_type VARCHAR not null,
+
+    CHECK CONSTRAINT room_type in ("standard_room","family_room"),
+    UNIQUE (room_id, room_type)
+);
+
+CREATE_TABLE standard_room (
+    room_id integer primary key,
+    room_type VARCHAR not null default "standard_room",
+
+    FOREIGN KEY (room_id, room_type) REFERENCES room (room_id, room_type),
+    CHECK CONSTRAINT room_type  = "standard_room"
+);
+CREATE_TABLE family_room (
+    room_id integer primary key,
+    room_type VARCHAR not null default "family_room",
+
+    FOREIGN KEY (room_id, room_type) REFERENCES room (room_id, room_type),
+    CHECK CONSTRAINT room_type  = "family_room"
+);
 ```
