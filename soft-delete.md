@@ -12,7 +12,7 @@ CREATE OR REPLACE RULE delete_venue AS
 
 
 
-## soft delete vs hard delete
+## Soft delete vs hard delete
 - how does it work for nested entities?
 
 hard delete
@@ -33,3 +33,15 @@ other alternatives?
 **References**:
 http://abstraction.blog/2015/06/28/soft-vs-hard-delete
 https://docs.sourcegraph.com/dev/postgresql
+
+
+## Soft delete in real world
+
+In real world, delete is rarely practical. Say we have a product, iphone in our list of database. Then it is discontinued and we decided not to show them anymore. But we should not delete the product, because it exists. Instead of setting it to deleted at only (which does not provide any context to the users viewing the database), it is better to add a status, e.g. `DISCONTINUED` to indicate that the product is not longer manufactured. Also, if the product has a specific lifespan, we can also provide a more precise daate range (e.g. **valid_from** and **valid_till** columns) in which the product was valid (e.g. events, product pricing, promotions, sales all share this quality). 
+
+From the UI perspective, we have two options:
+
+1. don't show the product anymore
+2. show the product with the discontinued label
+
+
