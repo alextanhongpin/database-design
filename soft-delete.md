@@ -45,3 +45,52 @@ From the UI perspective, we have two options:
 2. show the product with the discontinued label
 
 
+## Using rule vs trigger
+
+https://www.postgresql.org/docs/8.2/rules-triggers.html#:~:text=A%20trigger%20is%20fired%20for,execute%20its%20operations%20many%20times.
+
+
+## Soft delete pattern
+
+Why do people use `id SERIAL PRIMARY KEY NOT NULL` when primary key can never be null?
+
+Create a sample table:
+```sql
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL
+);
+```
+
+Create another table with additional `deleted_at` field.
+The `INCLUDING ALL` copies all table definitions of the original table to the newly created table. Note that if we change the original table, we need to update this table too.
+```sql
+CREATE SCHEMA deleted;
+CREATE TABLE deleted.posts (
+  deleted_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  LIKE posts INCLUDING ALL
+)
+```
+
+If we want to query both tables (yes, we can join across different schemas):
+
+```sql
+CREATE SCHEMA combined;
+CREATE VIEW combined.posts AS 
+  SELECT null AS deleted_at, * FROM posts
+  UNION ALL
+  SELECT * FROM deleted.posts;
+```
+
+
+To perform delete, copy the row from the posts table to the deleted posts table and then delete the original (use trigger/rules for this?).
+
+```sql
+INSERT INTO deleted.posts
+  SELECT NOW() AS deleted_at, * FROM posts
+  WHERE posts.id = 2;
+
+DELETE FROM posts
+  WHERE posts.id = 2;
+```
