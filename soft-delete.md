@@ -22,7 +22,7 @@ soft delete
 - soft delete parent will not automatically soft delete the children. Needs to be performed manually in the reverse order
 - but normally soft deleting child means there’s a possibility you won’t be able to access the children anymore from the ui
 - if there are unique constraint, then when handling constraint, we need to set deleted at to null
-- need to add filter for deleted at is null for each queries
+- need to add filter for deleted at is null for each queries (solution: use view)
 - need to add handling for unique constraint for create
 
 other alternatives?
