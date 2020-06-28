@@ -409,3 +409,15 @@ order by total;
 Advantages of null fields (or when to use null):
 - we can use null field with unique values, so that empty strings will not be counted (they are considered unique)
 - It depends on the domain you are working on. NULL means absence of value (i.e. there is no value), while empty string means there is a string value of zero length.
+
+## Ways to sort array alphabetically in postgres.
+```sql
+select (select array(select unnest (ARRAY[user_id, friend_id]) as x ORDER BY x)  as j) from relationship;
+select md5(array_to_string(array_agg(id), '')) 
+from (
+	select * 
+	from (values ('6769d922-ac68-11ea-8c70-9b8806d7aa41'), ('6769d922-ac68-11ea-8c70-9b8806d7aa41')) 
+	as f(id) 
+	order by f
+) tmp;
+```
