@@ -245,3 +245,20 @@ policy.end_date = DATE_ADD(CURDATE(), INTERVAL 30 DAY);
 ```sql
 select extract(epoch from created_at) from your_table;
 ```
+
+## Postgres End of month 
+
+```sql
+  SELECT TO_CHAR(
+    DATE_TRUNC('month', CURRENT_DATE)  
+      + INTERVAL '1 month'            
+      - INTERVAL '1 day',              
+    'YYYY-MM-DD HH-MM-SS'              
+  ) AS end_of_month
+```
+
+## Postgres Start of month
+
+```sql
+  SELECT date_trunc('month', current_date) AS start_of_month
+```
