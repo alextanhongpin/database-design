@@ -77,3 +77,13 @@ CREATE_TABLE family_room (
 );
 ```
 
+## Other approaches for performing polymorphism in database
+- the rails way (creating a `polymorphic_type` and `polymorphic_id` column. Don't do this. Even though it is simple, you really lose the referential integrity. Deleting the associations will also leave the association "hanging")
+- multiple database
+- table inheritance
+- using union to provide interface for polymorphic types!
+- multiple foreign keys, with a constraint to check the type
+
+https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database
+http://duhallowgreygeek.com/polymorphic-association-bad-sql-smell/
+
