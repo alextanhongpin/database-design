@@ -411,6 +411,8 @@ Advantages of null fields (or when to use null):
 - It depends on the domain you are working on. NULL means absence of value (i.e. there is no value), while empty string means there is a string value of zero length.
 
 ## Ways to sort array alphabetically in postgres.
+
+This is one interesting problem that I faced when designing a friendship table - I need to create two rows with both the user id (user_id, friend_id) pair. However, querying becomes complex, as now I querying for the pair requires a union (and indices on both side). One way to solve it is to create another column that is the hash of both ids, sorted. The idea is to create a trigger that will sort both ids, hash them as md5, and store it in another column.
 ```sql
 select (select array(select unnest (ARRAY[user_id, friend_id]) as x ORDER BY x)  as j) from relationship;
 select md5(array_to_string(array_agg(id), '')) 
@@ -420,4 +422,22 @@ from (
 	as f(id) 
 	order by f
 ) tmp;
+```
+
+Alternative way:
+
+```sql
+select 
+	MD5(row(
+		case 
+			when user_id < friend_id 
+			then (user_id, friend_id)
+			else (friend_id, user_id)
+		end
+	)::text)
+from (
+	values 
+	('7d7849d0-b94f-11ea-92be-43016fd48059', '8175c79c-b94f-11ea-92be-ab6d21fe7fb3'),
+	('8175c79c-b94f-11ea-92be-ab6d21fe7fb3', '7d7849d0-b94f-11ea-92be-43016fd48059')
+) as f(user_id, friend_id);
 ```
