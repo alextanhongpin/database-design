@@ -105,9 +105,16 @@ CREATE TABLE subject (
 	id serial PRIMARY KEY,
 	name text NOT NULL UNIQUE,
 	parent_id INT REFERENCES subject(id),
-	CHECK (id <> parent_id), -- Cannot be a parent to itself.
-	UNIQUE (name, parent_id) -- Cannot have same permissions.
+	CHECK (id <> parent_id) -- Cannot be a parent to itself.
 );
+
+-- Giving a name to index prevent us from creating duplicate indices.
+
+-- Translation: Subject that belongs to a group must be unique.
+CREATE UNIQUE INDEX subject_name_parent_id_idx ON subject(name, parent_id) WHERE parent_id IS NOT NULL;
+-- Translation: Subject must be unique.
+CREATE UNIQUE INDEX subject_name_idx ON subject(name) WHERE parent_id IS NULL;
+
 DROP TABLE subject;
 ```
 
@@ -218,4 +225,296 @@ alice	book	write
 bob	book	read
 bob	book	update
 john	book	read
+```
+
+
+## Using modern postgres features to model a simple ABAC
+
+- recursive CTE
+- partial index
+- variadic functions
+- setof return type
+- using `CREATE TYPE`
+
+### Creating tables
+
+```sql
+-- Cleanup.
+DROP TABLE action CASCADE;
+DROP TABLE object CASCADE;
+DROP TABLE policy CASCADE;
+DROP TABLE subject CASCADE;
+```
+
+Create the `action` table:
+```sql
+CREATE TABLE IF NOT EXISTS action (
+	id serial PRIMARY KEY,
+	name text NOT NULL UNIQUE
+);
+```
+
+Create the `object` table:
+```sql
+CREATE TABLE IF NOT EXISTS object (
+	id serial PRIMARY KEY,
+	name text NOT NULL UNIQUE
+);
+```
+
+Create the `subject` table:
+```sql
+CREATE TABLE subject (
+	id serial PRIMARY KEY,
+	name text NOT NULL,
+	parent_id INT REFERENCES subject(id),
+	CHECK (id <> parent_id) -- Cannot be a parent to itself.
+);
+
+-- Giving a name to index prevent us from creating duplicate indices.
+CREATE UNIQUE INDEX subject_name_parent_id_idx ON subject(name, parent_id) WHERE parent_id IS NOT NULL;
+CREATE UNIQUE INDEX subject_name_idx ON subject(name) WHERE parent_id IS NULL;
+```
+
+Create the `policy` table:
+```sql
+CREATE TABLE IF NOT EXISTS policy (
+	id serial PRIMARY KEY,
+	subject_id int NOT NULL REFERENCES subject(id),
+	object_id int NOT NULL REFERENCES object(id),
+	action_id int NOT NULL REFERENCES action(id),
+	UNIQUE (subject_id, object_id, action_id)
+);
+```
+
+Query to find all groups:
+```sql
+WITH groups AS (
+	SELECT
+		child.id AS id,
+		child.name AS subject,
+		parent.name AS group
+	FROM subject parent
+	JOIN subject child ON (child.parent_id = parent.id)
+)
+SELECT * 
+FROM groups;
+```
+
+Query to find all roles and parent groups:
+```sql
+SELECT 
+	subject.name AS subject,
+	object.name AS object,
+	action.name AS action
+FROM policy
+JOIN subject ON (policy.subject_id = subject.parent_id)
+JOIN object ON (policy.object_id = object.id)
+JOIN action ON (policy.action_id = action.id)
+
+UNION
+
+SELECT 
+	subject.name AS subject,
+	object.name AS object,
+	action.name AS action
+FROM policy
+JOIN subject ON (policy.subject_id = subject.id)
+JOIN object ON (policy.object_id = object.id)
+JOIN action ON (policy.action_id = action.id)
+
+ORDER BY subject, object, action;
+```
+
+## Functions
+
+We want to create useful functions that we can use to model the ABAC:
+
+- `create_object(...text)`: creates one or more resources, e.g. `book`, `car`, the domain we are modelling
+- `create_subject(...text)`: creates one or more subjects. Subject can be a group, e.g. `store-owner`, `employee` or just a person `alice`, `bob` etc.
+- `create_action(...text)`: creates a list of actions, e.g. `create`, `read`, `update`, `delete` to model CRUD
+- `add_subjects_to_group(group_name, ...subjects)`: adds one or more subject to a group. Note that groups cannot be nested - a group cannot belong to another group. Only individual subject can belong to a group. This is to ensure we don't introduce cyclic relationship (`alice` belongs to `store-owner`, `store-owner` belongs to `alice`)
+- `remove_subjects_from_group(group_name, ...subjects)`: removes one or more subjecs from a group (if it exists). 
+- `create_policy(subject, object, action)`: create a policy for a given subject (or group), e.g. `create_policy('store-owner', 'book', 'create')`
+- `check_policy(subject, object, action)`: checks if a policy existed for a given subject (or group), e.g. `check_policy('store-owner', 'book', 'create')` will return `true` if it exists
+- `check_permissions(subject_name text, object_name text)`: checks the given subject's permission on a given object. This will be recursive - if the `subject` belongs to a `group`, it will return the roles as well
+
+```sql
+CREATE OR REPLACE FUNCTION create_object(VARIADIC names text[]) RETURNS SETOF object
+AS $$
+	INSERT INTO object (name)
+	SELECT unnest(names::text[])
+	ON CONFLICT (name) DO NOTHING
+	RETURNING *;
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION create_subject(VARIADIC names text[]) RETURNS SETOF subject AS $$
+	INSERT INTO subject (name)
+	SELECT unnest(names::text[])
+	ON CONFLICT (name) WHERE parent_id IS NULL DO NOTHING
+	RETURNING *;
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION create_action(VARIADIC names text[]) RETURNS SETOF action AS $$
+	INSERT INTO action (name)
+	SELECT unnest(names::text[])
+	ON CONFLICT (name) DO NOTHING
+	RETURNING *;
+$$ LANGUAGE SQL;
+
+
+CREATE OR REPLACE FUNCTION add_subjects_to_group(group_name text, VARIADIC subject_names text[]) RETURNS SETOF subject AS $$
+	WITH groups AS (
+		SELECT id 
+		FROM subject 
+		WHERE name = group_name
+		AND parent_id IS NULL -- Avoid having nested groups.
+	)
+	INSERT INTO subject (name, parent_id)
+	SELECT UNNEST(subject_names), (SELECT id FROM groups) AS parent_id
+	ON CONFLICT (name, parent_id) WHERE parent_id IS NOT NULL DO NOTHING
+	RETURNING *;
+$$ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION remove_subjects_from_group(group_name text, VARIADIC subject_names text[]) RETURNS SETOF subject AS $$
+	WITH current_group AS (
+		SELECT id
+		FROM subject
+		WHERE name = group_name
+	)
+	DELETE FROM subject
+	WHERE name = ANY(subject_names::text[])
+	AND parent_id = (SELECT id FROM current_group)
+	RETURNING *
+$$ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION create_policy(subject_name text, object_name text, action_name text) RETURNS SETOF policy AS $$
+	DECLARE 
+		sid int;
+		oid int;
+		aid int;
+	BEGIN
+		SELECT id INTO sid FROM subject WHERE name = subject_name;
+		SELECT id INTO oid FROM object WHERE name = object_name;
+		SELECT id INTO aid FROM action WHERE name = action_name;
+		RETURN query
+		WITH p AS (
+			INSERT INTO policy (subject_id, object_id, action_id)
+			VALUES (sid, oid, aid)
+			ON CONFLICT (subject_id, object_id, action_id) DO NOTHING
+			RETURNING *
+		) 
+		TABLE p;
+	END;
+$$ LANGUAGE plpgsql; 
+
+
+CREATE OR REPLACE FUNCTION check_policy(subject_name text, object_name text, action_name text) RETURNS boolean AS $$
+	WITH RECURSIVE subjects(id, name, parent_id) AS (
+		SELECT id, name, parent_id
+		FROM subject
+		WHERE name = subject_name
+		
+		UNION
+		
+		SELECT s.id, s.name, s.parent_id 
+		FROM subjects, subject s
+		WHERE s.id = subjects.parent_id
+	)
+	SELECT EXISTS (
+		SELECT 1 
+		FROM policy
+		WHERE subject_id IN (SELECT id FROM subjects)
+			AND action_id IN (SELECT id FROM action WHERE name = action_name)
+			AND object_id IN (SELECT id FROM object WHERE name = object_name)
+	)
+$$ LANGUAGE sql; 
+
+
+DROP TYPE permission CASCADE;
+CREATE TYPE permission AS (subject text, object text, action text, group_name text);
+
+CREATE OR REPLACE FUNCTION check_permissions(subject_name text, object_name text) RETURNS SETOF permission AS $$
+	WITH RECURSIVE SUBJECTS(id, name, parent_id) AS (
+		SELECT id, name, parent_id
+		FROM subject
+		WHERE name = subject_name
+		
+		UNION
+		
+		SELECT s.id, s.name, s.parent_id 
+		FROM subjects, subject s
+		WHERE s.id = subjects.parent_id
+	)
+	SELECT subject_name, object.name, action.name, NULLIF(subject.name, subject_name)
+	FROM policy
+	JOIN action ON (action.id = policy.action_id)
+	JOIN object ON (object.id = policy.object_id)
+	JOIN subject ON (subject.id = policy.subject_id)
+	WHERE subject_id IN (SELECT id FROM subjects)
+		AND object_id IN (SELECT id FROM object WHERE name = object_name)
+$$ LANGUAGE sql; 
+
+-- Show all created functions.
+SELECT
+	routine_name,
+    routine_definition
+FROM
+    information_schema.routines 
+WHERE
+    specific_schema LIKE 'public';
+    
+
+select * from create_subject('alice', 'bob', 'john', 'store-owner', 'employee');
+select * from create_action('create', 'read', 'update', 'delete');
+select * from create_object('book');
+
+select * from add_subjects_to_group('store-owner', 'alice', 'bob');
+select * from add_subjects_to_group('employee', 'bob', 'john');
+select * from remove_subjects_from_group('store-owner', 'bob');
+
+select * from create_policy('store-owner', 'book', 'create');
+select * from create_policy('store-owner', 'book', 'read');
+select * from create_policy('store-owner', 'book', 'update');
+select * from create_policy('store-owner', 'book', 'delete');
+
+select * from create_policy('employee', 'book', 'update');
+select * from create_policy('employee', 'book', 'read');
+
+-- Let's check the employee's permission.
+select * from check_policy('employee', 'book', 'create');
+select * from check_policy('employee', 'book', 'read');
+select * from check_policy('employee', 'book', 'update');
+select * from check_policy('employee', 'book', 'delete');
+
+-- Let's check John's permission, who is an employee.
+select * from check_policy('john', 'book', 'read');
+
+select * from check_permissions('store-owner', 'book');
+select exists (select 1 from check_permissions('store-owner', 'book'));
+select * from check_permissions('alice', 'book');
+select * from check_permissions('john', 'book');
+select * from check_permissions('unknown', 'book');
+select exists (select 1 from check_permissions('unknown', 'book'));
+```
+
+
+Output for `select * from check_permissions('store-owner', 'book')`:
+```
+subject.        object. action.  group_name.
+store-owner	book	delete	 NULL
+store-owner	book	update	 NULL
+store-owner	book	read	 NULL
+store-owner	book	create	 NULL
+```
+
+
+Output for `select * from check_permissions('john', 'book')`:
+```
+subject. object. action.  group_name.
+john	 book	 update	  employee
+john	 book	 read	  employee
 ```
