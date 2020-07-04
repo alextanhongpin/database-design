@@ -1,23 +1,30 @@
 ## Attribute-Based Access Control
 
-Implementing basic attribute-based Access Control (based on go's Caspbin, modelling `object`, `subject`, `action`):
+Implementing basic attribute-based Access Control (based on go's Caspbin, modelling `object`, `subject`, `action`).
 
+**Action** is what a `subject` performs on an `object`. For example, if we want to setup basic permissions for a CRUD api to restrict access to the resource `books`, then we will have the following:
+
+- `books:create`
+- `books:update`
+- `books:read`
+- `books:delete`
+
+We will setup the `action` table as shown below:
 ```sql
--- object, subject, action
 CREATE TABLE IF NOT EXISTS action (
 	id serial PRIMARY KEY,
 	name text NOT NULL UNIQUE
 );
 DROP TABLE action;
-
-
 INSERT INTO action (name) VALUES
 ('read'), 
 ('write'),
 ('update'),
 ('delete');
+```
 
-
+**Object**, or **resource** is the entity in which we can apply actions on. To keep things simple, we will store only singular naming of the entity in the database. You can choose to use singular naming, but the point is to be consistent!
+```sql
 CREATE TABLE IF NOT EXISTS object (
 	id serial PRIMARY KEY,
 	name text NOT NULL UNIQUE
@@ -27,8 +34,10 @@ DROP TABLE object;
 
 INSERT INTO object (name)
 VALUES ('book');
+```
 
-
+**Subject** is the user that we identify that can perform (or not) action/actions on object/objects. Note that the `subject` table is not necessarily the `user` table. In a more complex case where we want to create `groups` of permissions, subject can be referring to a particular group. But for simplicity, we just assume here that subject refers to a user. We can use `names`, `email` or any other unique identifier to identify them:
+```sql
 CREATE TABLE subject (
 	id serial PRIMARY KEY,
 	name text NOT NULL UNIQUE
@@ -37,7 +46,10 @@ DROP TABLE subject;
 
 INSERT INTO subject (name)
 VALUES ('john');
+```
 
+**Policy** is the access control layer that defines who (`subject`) can do what (`action`) on a particular resource (`object`). Note again that this is just a naive implementation, without groups etc.
+```
 CREATE TABLE IF NOT EXISTS policy (
 	id serial PRIMARY KEY,
 	subject_id int NOT NULL REFERENCES subject(id),
