@@ -105,7 +105,8 @@ CREATE TABLE subject (
 	id serial PRIMARY KEY,
 	name text NOT NULL UNIQUE,
 	parent_id INT REFERENCES subject(id),
-	CHECK (id <> parent_id) -- Cannot be a parent to itself.
+	CHECK (id <> parent_id), -- Cannot be a parent to itself.
+	UNIQUE (name, parent_id) -- Cannot have same permissions.
 );
 DROP TABLE subject;
 ```
