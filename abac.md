@@ -518,3 +518,17 @@ subject. object. action.  group_name.
 john	 book	 update	  employee
 john	 book	 read	  employee
 ```
+
+### Best practices
+
+We need to deal with the following constraints
+- most of the logic involves creating unique entities
+- the operation should be idempotent - running the same create will not create duplicate records, it will just not throw errors too
+- we can only create, not update. This makes it easier to prevent changing the user's role unknowingly. 
+- a user can belong to several groups, not just one
+- any entity that has nested entity cannot be deleted, unless those entities are deleted first (no cascade delete)
+
+To avoid creating too many policies, we can come up with a simple rule:
+- create only policy for owners (users with roles). e.g. bookstore owner
+- assume guest mode (readonly) for all users, so we don’t need to create those rule. Create only mutation roles (update, delete, create) for specific users. If the user does not have create access (like most web applications) we can skip it too. 
+
