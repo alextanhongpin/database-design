@@ -7,6 +7,9 @@ There are several ways to achieve this
 - materialized views
 - computed values (in postgres, there’s only generated values now)
 
+# Why store counters in db?
+Allow us to query them with conditions on counters (e.g. select all questions and order them in descending order of comment, show questions and their comments count, etc)
+
 ## Implementing Rail's counter cache using trigger
 
 ```sql
@@ -146,3 +149,24 @@ with updated_question as (
 delete from fake_comment where (id, question_id) = (select 3, question_id from updated_question)
 returning *;
 ```
+
+
+## Other dynamic data
+
+storing rating in db
+storing counts in db
+storing breakdowns in db
+- 1 star: 100
+- 2.star: 56
+- 3.star …
+
+
+complexity: 
+- values might not be up to date
+- values changes (on create, on delete)
+- computing would be not performant
+- value can be negative if decrement done wrongly (use minmax ensure min is always 0)
+
+
+constraints
+alter table ratings add constraint check_rating check(rating between 0 and 5);
