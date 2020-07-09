@@ -13,6 +13,8 @@
 - apply logic in the database if you are going to have many different applications
 - use optimized uuid for faster querying
 - include the default auto incremented id
+- PostgreSQL automatically creates indexes on primary keys and unique constraints, but not on the referencing side of foreign key relationships.
+- put shared logic in template databases - they are like your `common` folders
 
 ## Styleguides
 
@@ -440,4 +442,10 @@ from (
 	('7d7849d0-b94f-11ea-92be-43016fd48059', '8175c79c-b94f-11ea-92be-ab6d21fe7fb3'),
 	('8175c79c-b94f-11ea-92be-ab6d21fe7fb3', '7d7849d0-b94f-11ea-92be-43016fd48059')
 ) as f(user_id, friend_id);
+```
+
+## Finding missing index on foreign keys:
+
+https://stackoverflow.com/questions/970562/postgres-and-indexes-on-foreign-keys-and-primary-keys
+```sql
 ```
