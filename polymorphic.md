@@ -86,4 +86,5 @@ CREATE_TABLE family_room (
 
 https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relational-database
 http://duhallowgreygeek.com/polymorphic-association-bad-sql-smell/
-
+https://www.vertabelo.com/blog/inheritance-in-a-relational-database/
+https://stackoverflow.com/questions/5466163/same-data-from-different-entities-in-database-best-practice-phone-numbers-ex/5471265#5471265
