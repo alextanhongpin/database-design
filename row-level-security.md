@@ -110,3 +110,9 @@ BEGIN;
 	RETURNING *;
 COMMIT;
 ```
+
+## Advance
+
+How to prevent users for abusing the connection and overriding the row-level-security for those who have SQL access:
+
+https://www.2ndquadrant.com/en/blog/application-users-vs-row-level-security/
