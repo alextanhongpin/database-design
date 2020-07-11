@@ -66,3 +66,78 @@ Best practices:
 
 References:
 - https://www.kdobson.net/2019/ultimate-postgresql-slug-function/
+
+
+## Unique slug with incrementing counter
+
+Say that you are given a task to implement unique slug in your existing application:
+
+Hypothesis:
+- we can add unique constraints on slugs in the database
+- we can write a function to increment the counter when the same slug exists, e.g. john-doe, john-doe-1
+
+Slugs should be case insensitive (ideally lowercase), so we will be working with the `citext` extension, which stands for case-insensitive extension:
+
+```sql
+CREATE EXTENSION citext;
+
+-- Use a unique namespace.
+CREATE SCHEMA slugs;
+
+CREATE TABLE IF NOT EXISTS slugs.slug (
+	id serial primary key,
+	name citext unique NOT NULL,
+	counter int NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS users (
+	id serial PRIMARY KEY,
+	slug citext UNIQUE NOT NULL
+);
+```
+
+Let's add a function `increment` under the namespace `slugs`. This function does the following:
+
+- upsert into the slug table, if it already exists, increment the counter
+- if the counter is 0 (the first entry), return the slug as it is
+- else, increment it, and add the counter suffix to the slug
+
+```sql
+CREATE OR REPLACE FUNCTION slugs.increment(name text) RETURNS text as $$
+	INSERT INTO slugs.slug (name)
+		VALUES (name)
+	ON CONFLICT (name)
+	DO UPDATE 
+		SET counter = slug.counter + 1
+	RETURNING 
+		CASE 
+			WHEN counter = 0 THEN name 
+			ELSE format('%s-%s', name, counter) 
+		END 
+	AS slug
+$$ LANGUAGE SQL;
+```
+
+We can also add a basic utility function to just check if the slug exists (it's not thread safe, so it might return false positive, e.g. slug might be entered the next time user call this function):
+```sql
+CREATE OR REPLACE FUNCTION slugs.exists(name text) RETURNS boolean AS $$
+	SELECT EXISTS (SELECT 1 FROM slugs.slug WHERE name = $1);
+$$ LANGUAGE SQL;
+```
+
+Test:
+```sql
+SELECT slugs.increment('jane-doe');
+SELECT slugs.exists('john');
+
+INSERT INTO users (slug)
+VALUES (slugs.increment('john'))
+RETURNING *;
+```
+
+To check all functions created under this namespace:
+```sql
+SELECT * 
+FROM information_schema.routines
+WHERE specific_schema = 'slugs';
+```
