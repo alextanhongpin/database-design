@@ -7,6 +7,7 @@
 - use soft delete
 - no null fields, except date
 
+
 # Notes
 
 - inner joins is faster that subquery most of the time
@@ -15,6 +16,11 @@
 - include the default auto incremented id
 - PostgreSQL automatically creates indexes on primary keys and unique constraints, but not on the referencing side of foreign key relationships.
 - put shared logic in template databases - they are like your `common` folders
+- don't use `serial`, use `generated as always identity` for primary keys postgres if non-uuid keys are required
+- for reference table, use the naming convention `entity_type`, e.g. notification_type, role_type, and use identity keys
+- you can use custom function as default keys, this is useful when require insert into a different table as foreign keys (e.g. party relationship)
+- the equivalent of `api` is schema `views`
+- use `schema` to split migrations and functionality, e.g. `auth` schema contains all auth related operations
 
 ## Styleguides
 
@@ -447,5 +453,51 @@ from (
 ## Finding missing index on foreign keys:
 
 https://stackoverflow.com/questions/970562/postgres-and-indexes-on-foreign-keys-and-primary-keys
+
+## Using Identity Column (Postgres)
+
+^ All postgres related topics should be tagged.
+
+Identity column is the recommended approach over serial.
+
+```diff sql
+CREATE TABLE IF NOT EXISTS world (
+-	id serial PRIMARY KEY,
++	id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	name text
+);
+```
+
+One advantage is we can't directly override the id:
+
 ```sql
+INSERT INTO world (name) VALUES('will produce id 1');
+INSERT INTO world (id, name) OVERRIDING SYSTEM VALUE VALUES(10, 'will produce id 10');
+INSERT INTO world (name) VALUES('will produce id 2');
+```
+
+## Using custom function as default key (Postgres)
+
+We can actually use custom functions to generate the default key in Postgres. The example below shows an example of `party` and `organization` table.
+- we always have to create a party first before creating a `person` or `organization`, and the reference the id
+- this can be simplified by using a function
+
+```sql
+CREATE TABLE IF NOT EXISTS party(
+	id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+	type text not null check (type in ('person', 'organization'))
+)
+
+CREATE OR REPLACE FUNCTION gen_party_id(_type text) 
+RETURNS uuid AS $$
+	INSERT INTO party (type) VALUES (_type)
+	RETURNING id;
+$$ LANGUAGE SQL VOLATILE;
+
+CREATE TABLE IF NOT EXISTS organization (
+	id uuid PRIMARY KEY NOT NULL DEFAULT gen_party_id('organization'),
+	type text NOT NULL DEFAULT 'organization' CHECK (type = 'organization'),
+	name text,
+	foreign key (id, type) references party(id, type)
+);
 ```
