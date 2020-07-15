@@ -30,3 +30,26 @@ SET validity = tstzrange(
 	lower(validity), now(), '[)'
 );
 ```
+
+## Temporal Data
+
+Useful for data with the following characteristic:
+- cannot be deleted once created
+- can only be `effective`, which means it has not expired
+- no overlapping data with the same `effective` period
+
+E.g. room reservation. There can be only one person making a reservation for a hotel room at a given period. 
+```sql
+CREATE EXTENSION btree_gist;
+CREATE TABLE IF NOT EXISTS reservation (
+	room text NOT NULL,
+	period tstzrange NOT NULL,
+	EXCLUDE USING GIST (room WITH =, period WITH &&)
+);
+INSERT INTO reservation(room, period) VALUES 
+('1', tstzrange(now(), now() + interval '1 day'));
+
+TABLE reservation;
+INSERT INTO reservation(room, period) VALUES 
+('1', tstzrange(now() + interval '1 day', now() + interval '2 day'));
+```
