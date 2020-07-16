@@ -21,6 +21,17 @@
 - you can use custom function as default keys, this is useful when require insert into a different table as foreign keys (e.g. party relationship)
 - the equivalent of `api` is schema `views`
 - use `schema` to split migrations and functionality, e.g. `auth` schema contains all auth related operations
+- use `extra/other` column naming for jsonb
+- use `valid_through` for tstzrange
+- use `<entities>_count` for counts
+- use `id`, `created_at`, `updated_at`, `deleted_at` 
+
+## Search Path
+```sql
+SET search_path=onetsoc,public;
+SHOW search_path;
+SET search_path TO default;
+```
 
 ## Styleguides
 
