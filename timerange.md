@@ -2,8 +2,8 @@
 
 This will produce default constant value:
 ```diff sql
-	- validity tstzrange NOT NULL DEFAULT '[now,)',
-	+ validity tstzrange NOT NULL DEFAULT tstzrange(now(), null, ‘[)’),
+	-validity tstzrange NOT NULL DEFAULT '[now,)',
+	+validity tstzrange NOT NULL DEFAULT tstzrange(now(), null, ‘[)’),
 ```
 
 ## Using timestamp range in Postgres
@@ -52,4 +52,17 @@ INSERT INTO reservation(room, period) VALUES
 TABLE reservation;
 INSERT INTO reservation(room, period) VALUES 
 ('1', tstzrange(now() + interval '1 day', now() + interval '2 day'));
+```
+
+## Null
+
+```sql
+select tstzrange(now(), null); -- ["2020-07-15 17:26:58.875943+00",)
+select tstzrange(now(), timestamptz 'infinity'); -- ["2020-07-15 17:27:09.516742+00",infinity)
+select now() + interval '1 day' <@ tstzrange(now(), null); -- t
+select now() + interval '1 day' <@ tstzrange(now(), timestamptz 'infinity'); -- t
+select upper_inf(tstzrange(now(), null)); -- t
+select upper_inf(tstzrange(now(), timestamptz 'infinity')); --f
+
+select '[,)'::int4range;
 ```
