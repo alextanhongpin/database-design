@@ -37,3 +37,71 @@ Here's how we can implement them:
 - set redis key cache to the `md5-ied` value, and the redis value to the `json` data
 - when client requests the data, we can now cached it locally
 - whenever the client connects, compare the data and refetch when necessary (example using service-worker)
+
+
+## Using int vs text for reference keys
+
+We often see primary int key being used for reference table. While it is usually not obvious what an id of 1, 2 or 3 means, it is usually a better practice to use `int` id as the primary key instead of `text`.
+```
+id | person_name | country_id
+1. | john        | 1
+```
+
+
+Sure, `text` makes it a possibility that you don't need to join the table to infer what the foreign key means:
+```
+id | person_name | country_id
+1. | john        | my
+```
+
+But there are reasons why using `int` id is a better choice:
+- varchars use more space than ints
+- you are more likely to have to update a varchar value than an int value, causing cascading updates
+- might not be appropriate in internationalized applications (i.e. different values for different languages)
+
+
+If joins is not your thing, you can always write a lookup function to map id to values and vice versa:
+
+```sql
+CREATE OR REPLACE FUNCTION lookup_country_iso_from_name(_name citext) RETURNS text AS $country_iso$
+	SELECT iso
+	FROM country
+	WHERE name = _name
+$country_iso$ LANGUAGE SQL STABLE;
+
+CREATE OR REPLACE FUNCTION lookup_country_name_from_iso(_iso citext) RETURNS text AS $country_name$
+	SELECT name
+	FROM country
+	WHERE iso = _iso
+$country_name$ LANGUAGE SQL STABLE;
+```
+
+Then, we can use it when reading and writing:
+```sql
+-- Reading person table, and mapping the country_iso back to the desired text label.
+SELECT id, name, lookup_country_name_from_iso(country_iso) AS country
+FROM person;
+
+-- Compared to using join. Imagine you have 10 columns that you need to map, which means 10 table joins.
+-- In terms of performance, joins will definitely be faster, but this approach keeps the code cleaner (subject to individual).
+-- Also, we can index the country table with INCLUDE columns for index-only scan.
+SELECT id, name, country.name AS country
+FROM person
+JOIN country ON (country_iso = country.iso)
+JOIN ...
+JOIN ...
+JOIN ...
+JOIN ...
+JOIN ...
+JOIN ...
+```
+
+```sql
+-- Writing to person table, and providing the raw text value which will be mapped back to id
+-- in a single statement.
+INSERT INTO person(name, country_iso) VALUES 
+('John Doe', lookup_country_iso_from_name('Malaysia'))
+```
+
+Some other thoughts:
+- when joining reference table, and when the value is small, why not "preload" the data with the CTE statement, and join them?
