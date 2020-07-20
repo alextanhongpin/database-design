@@ -40,3 +40,26 @@ AND p.proname like '%auth%'
 order by function_schema,
          function_name;
 ```
+
+
+## Lookup Functions
+Use lookup functions for cleaner code. Performance-wise, it is not so bad, and it reduces a lot of complexity (joining on application side):
+```sql
+-- With Joins.
+EXPLAIN ANALYZE
+SELECT *,
+	et.name AS employment_type,
+	c.name AS salary_currency
+FROM job
+JOIN employment_type et ON (et.id = employment_type_id)
+JOIN currency c ON (c.id = salary_currency_id);
+
+-- With functions.
+-- Clean SQL
+-- Lookup can be improved by using covering index to include the columns when querying.
+EXPLAIN ANALYZE
+SELECT *,
+	lookup_employment_type_name_from_id(employment_type_id) AS employment_type,
+	lookup_currency_code_from_id(salary_currency_id) AS salary_currency 
+FROM job;
+```
