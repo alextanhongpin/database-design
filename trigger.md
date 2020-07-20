@@ -57,5 +57,48 @@ INSERT INTO users VALUES ('car');
 LISTEN usercreated;
 NOTIFY usercreated, 'hello';
 UNLISTEN usercreated;
-
 ```
+
+
+## Trigger to update timestamp
+
+We can disable the update timestamp trigger by setting the `session_replication_role` to `local`. This is useful for bulk updating data, and leaving the timestamp untouched.
+
+```sql
+CREATE OR REPLACE FUNCTION update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF current_setting('session_replication_role') = 'local' THEN
+		RETURN NEW;
+	END IF;
+
+	NEW.updated_at = now();
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+This is how you change the session replication role. The default session replication role is `origin`.
+```sql
+SHOW session_replication_role; -- Defaults to origin
+
+BEGIN;
+SET LOCAL session_replication_role = 'local';
+UPDATE tag SET name = 'hello name';
+COMMIT;
+```
+
+Alternatively, we can set the condition during trigger. Note that the disadvantage is that we have to define it every single time. Defining the condition in function is easier, since it is applied to all triggers (this can be pros or cons):
+
+```sql
+CREATE TRIGGER update_timestamp
+BEFORE UPDATE ON table_name
+FOR EACH ROW
+WHEN (current_setting('session_replication_role') <> 'local')
+EXECUTE PROCEDURE update_timestamp();
+```
+
+Alternatively, we can also use a custom config name, e.g. `application_name = skiptrig`.
+
+References:
+https://www.endpoint.com/blog/2015/07/15/selectively-firing-postgres-triggers
