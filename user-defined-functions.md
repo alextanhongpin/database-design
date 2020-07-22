@@ -1,3 +1,22 @@
+## Functions best practices
+
+- use functions to simplify database operations, e.g. generating custom ids, slugifying url, updating timestamps
+- functions can be used to enforce business rules quite efficiently
+- create functions under `pg_temp` for testing, it is done per session, and will be removed once the session is disconnected. Don't use this for production! The point of having functions in the database is so that every application has access to them
+
+
+## Creating temporary functions for development
+
+```sql
+CREATE OR REPLACE FUNCTION pg_temp.sum() RETURNS int AS $$
+BEGIN
+	RETURN 1 + 1;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+SELECT pg_temp.sum();
+```
+
 # UDF
 
 ```sql
