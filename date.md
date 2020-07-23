@@ -262,3 +262,26 @@ select extract(epoch from created_at) from your_table;
 ```sql
   SELECT date_trunc('month', current_date) AS start_of_month
 ```
+
+
+## Pretty print dates
+
+```sql
+SELECT to_char(now(), 'YYYY-MM-DD HH24:MI:SS');
+
+-- Saturday , 25 July      2020 04:00 AM
+SELECT
+to_char(lower(appointment_at), 'Day, DD Month YYYY HH12:MI AM'),
+to_char(upper(appointment_at), 'Day, DD Month YYYY HH12:MI AM')
+FROM party_appointment;
+```
+
+## Interval
+
+```sql
+SELECT INTERVAL '1 day';
+SELECT '1 day'::INTERVAL;
+-- How many seconds are there in one day?
+SELECT EXTRACT(epoch FROM '1 day'::interval);
+SELECT EXTRACT(epoch FROM '1 hour'::interval);
+```
