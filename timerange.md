@@ -66,3 +66,10 @@ select upper_inf(tstzrange(now(), timestamptz 'infinity')); --f
 
 select '[,)'::int4range;
 ```
+
+## Alternative approach to check overlapping dates
+
+```sql
+SELECT (now(), now() + '1 day'::interval) 
+OVERLAPS (now() + '1 day'::interval, now() + '2 day'::interval);
+```
