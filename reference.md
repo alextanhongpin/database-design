@@ -105,3 +105,35 @@ INSERT INTO person(name, country_iso) VALUES
 
 Some other thoughts:
 - when joining reference table, and when the value is small, why not "preload" the data with the CTE statement, and join them?
+
+
+## Hardcoding reference data in client, vs storing in separate table and returning in API
+
+There are always cases where we need to return some reference data, and the question is whether to hardcode it on a client, vs storing it in database and returning it through API. There are several pros and cons, let's explore them:
+
+
+Types of data
+- static 
+	- this data is mostly static, and the values are known ahead of time
+	- this data can normally be hardcoded, since it will almost not change
+	- e.g. gender (male, female, others), marital status (single, married, divorced), application type (web, mobile), country/currency list
+- "mostly" static
+	- this data are mostly static, but if the ids are generated to our application (e.g. surrogate keys, auto-incremented keys), we might still want to return them the list
+	- e.g. domain specific types, e.g. employment type in job domain
+- dynamic
+	- the values almost always change, can be added/removed
+	- e.g. status types, category types, dynamic forms
+	
+Pros of hardcoding:
+- simpler on the server side, less endpoints, less service (but not necessarily better)
+- simpler on the client side, don't have to asynchronously fetch the data to populate component (select, dropdown)
+- automatic allowlist - just add what is needed by the application, don't have to validate on the server (?! which is wrong)
+
+Cons of hardcoding:
+- must be updated manually on all the clients that called the data (e.g. mobile, web, other backends) whenever a value change/added/removed
+- denylist means updating the application to remove the options available
+- more validation is necessary, since we can't trust client's input, especially if there's no referential integrity (in NoSQL, no foreign key)
+- return types might be different for different clients (e.g. return allowlist category list a for tenant-a, category list b for tenant-b)
+
+
+When in doubt, return from the server.
