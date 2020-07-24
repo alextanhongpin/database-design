@@ -285,3 +285,16 @@ SELECT '1 day'::INTERVAL;
 SELECT EXTRACT(epoch FROM '1 day'::interval);
 SELECT EXTRACT(epoch FROM '1 hour'::interval);
 ```
+
+## Timezone with Postgres
+
+```sql
+  SELECT   
+  lower(appointment_at)::timestamptz,
+  upper(appointment_at)::timestamptz,
+  lower(appointment_at) AS appointment_start_date,
+  upper(appointment_at) AS appointment_end_date,
+  lower(appointment_at) AT TIME ZONE 'Singapore' AS appointment_start_date,
+  upper(appointment_at) AT TIME ZONE 'Singapore' AS appointment_end_date
+  FROM party_appointment
+```
