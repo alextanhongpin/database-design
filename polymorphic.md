@@ -88,3 +88,99 @@ https://hashrocket.com/blog/posts/modeling-polymorphic-associations-in-a-relatio
 http://duhallowgreygeek.com/polymorphic-association-bad-sql-smell/
 https://www.vertabelo.com/blog/inheritance-in-a-relational-database/
 https://stackoverflow.com/questions/5466163/same-data-from-different-entities-in-database-best-practice-phone-numbers-ex/5471265#5471265
+
+
+## Achieving true polymorphic?
+
+This is inspired from graphql [global object identification](https://graphql.org/learn/global-object-identification/) implementation, where all entities inherit a single node and each entity has a unique id.
+
+
+```sql
+create table if not exists pg_temp.node (
+	id uuid not null default gen_random_uuid(),
+	type text not null check (type in ('feed', 'post', 'comment', 'human')),
+	primary key (id, type),
+	unique (id)
+);
+
+create or replace function pg_temp.gen_node_id(_type text) returns uuid as $$
+	declare
+		_id uuid;
+	begin
+		insert into pg_temp.node (type) values (_type)
+		returning id into _id;
+		return _id;
+	end;
+$$ language plpgsql;
+
+
+create table if not exists pg_temp.human (
+	id uuid not null default pg_temp.gen_node_id('human'),
+	type text not null default 'human' check (type = 'human'),
+	name text not null,
+	email text not null,
+	unique (email),
+	primary key(id), -- We don't need to define the 'type' here as primary key, because the constraint will have already been applied in the node table.
+	foreign key(id, type) references node(id, type)
+);
+
+insert into pg_temp.human(name, email) values ('john', 'john.doe@mail.com');
+
+
+create table if not exists pg_temp.feed (
+	id uuid not null default pg_temp.gen_node_id('feed'),
+	type text not null default 'feed' check (type = 'feed'),
+	user_id uuid not null,
+	body text not null,
+	primary key(id),
+	foreign key(id, type) references pg_temp.node(id, type),
+	foreign key(user_id) references pg_temp.human(id)
+);
+
+create table if not exists pg_temp.post (
+	id uuid not null default pg_temp.gen_node_id('post'),
+	type text not null default 'post' check (type = 'post'),
+	user_id uuid not null,
+	body text not null,
+	primary key(id),
+	foreign key(id, type) references pg_temp.node(id, type),
+	foreign key(user_id) references pg_temp.human(id)
+);
+
+create table if not exists pg_temp.comment (
+	id uuid not null default pg_temp.gen_node_id('comment'),
+	type text not null default 'comment' check (type = 'comment'),
+	user_id uuid not null,
+	body text not null,
+	commentable_id uuid not null,
+	commentable_type text not null check (commentable_type in ('post', 'feed')),
+	primary key(id),
+	foreign key(id, type) references node(id, type),
+	foreign key(commentable_id, commentable_type) references node(id, type),
+	foreign key(user_id) references pg_temp.human(id)
+);
+
+
+insert into pg_temp.feed(user_id, body) values 
+((select id from pg_temp.human), 'this is a new feed');
+
+insert into pg_temp.post(user_id, body) values 
+((select id from pg_temp.human), 'this is a new post');
+
+insert into pg_temp.comment (commentable_id, commentable_type, user_id, body) values
+((select id from pg_temp.post), 'post', (select id from pg_temp.human), 'this is a comment on post');
+
+insert into pg_temp.comment (commentable_id, commentable_type, user_id, body) values
+((select id from pg_temp.feed), 'feed', (select id from pg_temp.human), 'this is a comment on feed');
+```
+
+Polymorphic table comment:
+```sql
+select * from pg_temp.comment;
+```
+
+
+| id | type | user_id | body | commentable_id | commentable_type |
+| -- | ---- | --------| ---- | -------------- | ---------------- |
+| 31e12f91-ea42-492f-988e-3eb17bb1b9dc	| comment	| 396b8bae-fff9-44cc-b28e-49a22625a671	| this is a comment on post	| 09b8ccb0-8dd9-4a8e-b0d6-a28b296ac7a4	| post| 
+| 6704d0cb-4d83-41c0-b3eb-1d32bc05452f| 	comment| 	396b8bae-fff9-44cc-b28e-49a22625a671| 	this is a comment on feed| 	b64b571b-02ae-4c55-b786-cc6764b40eda| 	feed| 
