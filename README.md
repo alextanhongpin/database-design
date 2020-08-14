@@ -25,7 +25,7 @@
 - use `valid_through` for tstzrange
 - use `<entities>_count` for counts
 - use `id`, `created_at`, `updated_at`, `deleted_at` 
-
+- be careful when using auto incremented ids. Some application have slug for username, and if there is no checking on the username, and the user used an integer id as a name, then the query will always resolve wrongly
 ## Search Path
 ```sql
 SET search_path=onetsoc,public;
