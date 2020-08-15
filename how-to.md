@@ -17,3 +17,5 @@ How to design the schema
 - [ ] how to design bill of material
 - [ ] how to design workflow system
 - [ ] how to design subscription system
+- [x] how to design counter cache
+- [x] how to design soft delete
