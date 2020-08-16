@@ -1,7 +1,7 @@
 How to design the schema
 
-- [x] how to design unique slug with auto increment table
-- how to design tagging system
+- [x] how to design unique slug with auto increment table. see [here](https://github.com/alextanhongpin/database-design/blob/master/slug.md#unique-slug-with-incrementing-counter)
+- [ ] how to design tagging system
 - [x] how to design Auth system
 - [x] how to design relationship system
 - [x] how to design roles and permission system
