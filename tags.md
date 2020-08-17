@@ -46,7 +46,7 @@ Cons:
 
 A solution that stores the array of tags (denormalization) as well as creating a junction table with triggers.
 
-```postgres
+```sql
 create table if not exists pg_temp.posts (
 	id int generated always as identity,
 	body text not null,
