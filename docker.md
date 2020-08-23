@@ -39,3 +39,14 @@ if [ -n "$POSTGRES_MULTIPLE_DATABASES" ]; then
 	echo "Multiple databases created"
 fi
 ```
+
+
+## Easily setup docker-compose
+
+In your `.zshrc`, include this alias:
+
+```sh
+alias init-db='svn export https://github.com/alextanhongpin/docker-samples/trunk/postgres/docker-compose.yml'
+```
+
+Now you can just run `init-db` anytime to setup a local `docker-compose.yml`. `svn` will just download one file from the given url.
