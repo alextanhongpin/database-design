@@ -531,4 +531,5 @@ We need to deal with the following constraints
 To avoid creating too many policies, we can come up with a simple rule:
 - create only policy for owners (users with roles). e.g. bookstore owner
 - assume guest mode (readonly) for all users, so we don’t need to create those rule. Create only mutation roles (update, delete, create) for specific users. If the user does not have create access (like most web applications) we can skip it too. 
-
+- create group to group policies
+- each group can be attached to a user to extend their roles and permissions
