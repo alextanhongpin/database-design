@@ -16,7 +16,8 @@
 - include the default auto incremented id
 - PostgreSQL automatically creates indexes on primary keys and unique constraints, but not on the referencing side of foreign key relationships.
 - put shared logic in template databases - they are like your `common` folders
-- don't use `serial`, use `generated as always identity` for primary keys postgres if non-uuid keys are required
+- (postgres) don't use `serial`, use `generated as always identity` for primary keys postgres if non-uuid keys are required 
+- (postgres) use `text`, for postgres, `text` and `varchar` has no performance difference unlink `mysql` (which don't even has `text`)
 - for reference table, use the naming convention `entity_type`, e.g. notification_type, role_type, and use identity keys
 - you can use custom function as default keys, this is useful when require insert into a different table as foreign keys (e.g. party relationship)
 - the equivalent of `api` is schema `views`
@@ -26,6 +27,7 @@
 - use `<entities>_count` for counts
 - use `id`, `created_at`, `updated_at`, `deleted_at` 
 - be careful when using auto incremented ids. Some application have slug for username, and if there is no checking on the username, and the user used an integer id as a name, then the query will always resolve wrongly
+
 ## Search Path
 ```sql
 SET search_path=onetsoc,public;
