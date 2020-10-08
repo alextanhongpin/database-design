@@ -1,3 +1,17 @@
+# Database Design
+
+Useful tips for designing robust database schema. This guide is more of a decision reference (1) for people wanting to design better database schema for startups (2).
+
+- Decision reference: You will probably come across any one of the problems below when designing database schema (e.g. should I use `JSONB`? How do I design `tagging` schema? How do I keep historical records?) and be presented with different options and trade-offs. If two standards are equal (should table name be singular or plural), then it's up to you to pick one and make it a standard and keeping it consistent. Rather than giving you a `it depends` answer, this guide is meant to share the `what-ifs`, that is the decision I made, and the outcome. Yes, the codes are actually being written and used in different applications I wrote. You don't have to agree with the approaches - I used to take some of the more complex approaches (for the sake of _best practice_), but over time I realised that it is unnecessary. Simple is best.
+- Startups: A lot of startups starts by using ORMs or frameworks that provides a lot of convenience when it comes to dealing with database. If you are thinking _hey, we need to be agile, that's why we are okay introducing some technical debts_ let me tell you something, you can be both fast and produce quality work (not compromising database design). Most of the time, when new features are being introduced, or when new situation aroses (e.g. analytics are not accurate, because we did not store timestamp with timezones in database, using integer id instead of uuid, and people start _hacking_ your system, etc), the application just won't cut it anymore. The last thing I want to live with is a poorly designed database schema. You can switch language and frameworks for your frontend/backend servers, but if you design your database wrongly, you have to live with it. Also, I mentioned `startups` because my knowledge on database design is limited to a user scale of `<5m`. Also, the approach taken by larger companies might vary, and the technology used might differ as they are focusing a lot on performance, reliability and running databases across the world. For this guide, we are talking specifically about `mysql` and `postgres`, and probably just running them in cloud providers like AWS/Google Cloud.
+
+## HELP ME IMPROVE THIS GUIDE :) 
+
+There are few things you could help me with:
+- provide feedback (is the topic relevant? did you find another way to approach it? or did you find some edge cases not covered)
+- give me opportunity to work on something 🙃
+- help me with writing (I don't have a structured way of writing 😞, and I want to improve on it)
+
 # principles
 
 - use singular noun
@@ -5,7 +19,7 @@
 - use ordered UUID v1 (only v1 can be ordered sequentially), stored as BINARY(16) when the data is dynamically generated. For reference table, stick to auto-incremented primary keys since the values are static and won't change that much either. If the number of items can be less than [a-z0-9], then use char(1) as primary key, since they can be more verbose than just int (`m` for male, `f` for female, `o` for others etc) 
 - some issues with auto-incremented id is that it needs to be converted to the correct type (int64/uint64) in the application to prevent users from submitting string alphabets. The same complexity lies with UUID, which needs validation too. This is only necessary if we want to avoid the call to the db. Casting the type to `int8` means only up to `127` ids are supported!
 - use soft delete
-- no null fields, except date
+- no null fields, except date (why? When using a strongly typed language as the database client, dealing with null (or nil pointer) is a pain. It is easier to go with sane default values. Also, when you start working with reporting tools, there's some additional logic or edge cases with database `NULL` that you need to handle)
 
 
 # Notes
