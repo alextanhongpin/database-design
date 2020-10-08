@@ -1,3 +1,13 @@
+# Slugs
+
+
+Slugs are pretty common when designing web applications. Some use case includes generating a unique slug for users, or perhaps products or organizations, and maybe even article. Each has their own requirements.
+
+Say if we have a user, we want to just navigate to the profile by visiting /users/john.doe. The user name does not change frequently (it should not change!). On the other hand, if we have an article content for blog, say Medium,, every time the user update the article title, the slug would have been dynamically generated. This is bad for the user experience, as well as us, because now when the user visits the old slug, the page would no longer be there. To mitigate this, we need to keep a historical slug for each changes (which again requires a lot of logic, since we need to ensure its unique, but at the same time does not prevent new articles from using the same slug).
+The solution for this is to just slugify part of the title (mainly for SEO, though I'm hesitant to say it would make a huge difference), and then appending the article unique uuid behind the slug. When checking for article, we then need to just take the article uuid part to query from the database.
+
+This example demonstrates how to generate the slug in the database, but you should consider placing this logic in your application instead if you need to deal with different locales and accents, this example assumes all text are just alphanumeric text.
+
 ## Creating slug with postgres function
 
 ```sql
