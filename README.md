@@ -41,6 +41,7 @@ There are few things you could help me with:
 - use `<entities>_count` for counts
 - use `id`, `created_at`, `updated_at`, `deleted_at` 
 - be careful when using auto incremented ids. Some application have slug for username, and if there is no checking on the username, and the user used an integer id as a name, then the query will always resolve wrongly
+- (postgres) adding new column to existing table will always end up in the last position. In Mysql, you can specify to place it before or after an column.
 
 ## Search Path
 ```sql
