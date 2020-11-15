@@ -7,6 +7,7 @@
 
 ## Creating temporary functions for development
 
+Instead of creating actual tables and functions, add the path `pg_temp` for testing. Example of temporary functions:
 ```sql
 CREATE OR REPLACE FUNCTION pg_temp.sum() RETURNS int AS $$
 BEGIN
@@ -15,6 +16,18 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 SELECT pg_temp.sum();
+```
+
+Example of temporary tables:
+
+```sql
+CREATE TABLE IF NOT EXISTS pg_temp.account_type (
+	id int GENERATED ALWAYS AS IDENTITY,
+	
+	PRIMARY KEY (id)
+);
+
+DROP TABLE pg_temp.account_type;
 ```
 
 # UDF
