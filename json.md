@@ -65,3 +65,11 @@ Don’t use json
 - no sorting
 - no joining
 - no constraints (uniqueness)
+
+
+## Converting JSON to a database row
+
+```sql
+SELECT * 
+FROM json_populate_record(null::account, '{"email": "john.doe@mail.com"}');
+```
