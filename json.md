@@ -69,7 +69,16 @@ Don’t use json
 
 ## Converting JSON to a database row
 
+For single row:
 ```sql
 SELECT * 
 FROM json_populate_record(null::account, '{"email": "john.doe@mail.com"}');
+```
+
+
+For multiple rows:
+
+```sql
+SELECT * 
+FROM json_populate_recordset(null::account, '[{"email": "john.doe@mail.com"}, {"email": "janedoe@mail.com"}]');
 ```
