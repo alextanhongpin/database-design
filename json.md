@@ -67,7 +67,7 @@ Don’t use json
 - no constraints (uniqueness)
 
 
-## Converting JSON to a database row
+## Converting JSON to a database row (Postgres)
 
 For single row:
 ```sql
@@ -93,7 +93,7 @@ SELECT * FROM json_populate_record(null::account, ('{"email": "john.doe@mail.com
 SELECT * FROM json_populate_recordset(null::account, '[{"email": "john.doe@mail.com"}, {"email": "janedoe@mail.com"}]');
 ```
 
-## Building json object
+## Building json object (Postgres)
 
 The merge only works for `jsonb`, not `json`:
 
@@ -103,7 +103,7 @@ SELECT '{"email": "john.doe@mail.com"}'::json || '{"token": "hello"}'; -- {"emai
 ```
 
 
-## Insert json into table
+## Insert json into table (Postgres)
 
 Some limitations - if the field value is not provided in json, it will be treated as null. So for strings, it will throw an error if there is a text column with `not null` constraint.
 ```sql
@@ -115,4 +115,10 @@ Some limitations - if the field value is not provided in json, it will be treate
       (_extra::jsonb || json_build_object('name', _name, 'display_name', _display_name)::jsonb)::json
     )
   RETURNING *
+```
+
+## Check if a json field exists (Postgres)
+
+```sql
+SELECT '{"name": "a", "age": 10}' ? 'age';
 ```
