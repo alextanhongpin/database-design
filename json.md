@@ -101,3 +101,18 @@ The merge only works for `jsonb`, not `json`:
 SELECT '{"email": "john.doe@mail.com"}'::jsonb || '{"token": "hello"}'; -- {"email": "john.doe@mail.com", "token": "hello"}
 SELECT '{"email": "john.doe@mail.com"}'::json || '{"token": "hello"}'; -- {"email": "john.doe@mail.com"}{"token": "hello"}
 ```
+
+
+## Insert json into table
+
+Some limitations - if the field value is not provided in json, it will be treated as null. So for strings, it will throw an error if there is a text column with `not null` constraint.
+```sql
+  INSERT INTO pg_temp.person (name, picture, display_name)
+  -- Don't include fields like ids.
+  SELECT name, picture, display_name
+    FROM json_populate_record(
+      null::pg_temp.person, 
+      (_extra::jsonb || json_build_object('name', _name, 'display_name', _display_name)::jsonb)::json
+    )
+  RETURNING *
+```
