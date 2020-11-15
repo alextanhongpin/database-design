@@ -82,3 +82,22 @@ For multiple rows:
 SELECT * 
 FROM json_populate_recordset(null::account, '[{"email": "john.doe@mail.com"}, {"email": "janedoe@mail.com"}]');
 ```
+
+
+To build it from a dynamic list:
+
+```sql
+-- json_populate_record(record, json) <- convert the jsonb format to json. Merge with || only works with jsonb.
+SELECT * FROM json_populate_record(null::account, ('{"email": "john.doe@mail.com"}'::jsonb || '{"token": "hello"}')::json);
+SELECT * FROM json_populate_record(null::account, ('{"email": "john.doe@mail.com"}'::jsonb || json_build_object('token', 'hello')::jsonb)::json);
+SELECT * FROM json_populate_recordset(null::account, '[{"email": "john.doe@mail.com"}, {"email": "janedoe@mail.com"}]');
+```
+
+## Building json object
+
+The merge only works for `jsonb`, not `json`:
+
+```sql
+SELECT '{"email": "john.doe@mail.com"}'::jsonb || '{"token": "hello"}'; -- {"email": "john.doe@mail.com", "token": "hello"}
+SELECT '{"email": "john.doe@mail.com"}'::json || '{"token": "hello"}'; -- {"email": "john.doe@mail.com"}{"token": "hello"}
+```
