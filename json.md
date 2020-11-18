@@ -122,3 +122,14 @@ Some limitations - if the field value is not provided in json, it will be treate
 ```sql
 SELECT '{"name": "a", "age": 10}' ? 'age';
 ```
+
+## Aggregating rows as json in (Postgres)
+
+There are times we want to aggregate a row as json, so that we can deserialize it back to full objects at the application layer:
+
+```sql
+-- NOTE: The table name (notification) must be specified before the .*
+SELECT array_agg(to_json(notification.*)), subscriber_id, count(*)
+FROM notification
+GROUP BY subscriber_id;
+```
