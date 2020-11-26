@@ -1,7 +1,8 @@
 # Implementing basic event sourcing tables with Postgres
 
-There are three main tables `aggregate`, `event` and `snapshot`.
+*See another more robust solution [here](https://github.com/alextanhongpin/postgres-learn/tree/master/event-sourcing).
 
+There are three main tables `aggregate`, `event` and `snapshot`.
 
 ```sql
 DROP TYPE aggregate_type;
