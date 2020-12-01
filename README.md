@@ -299,7 +299,6 @@ sex enum('m','f') DEFAULT 'm'
 sex set('m', 'f') // Allows '', 'm', 'M', 'f', 'F', or 'm,f'
 ```
 
-
 References:
 - http://komlenic.com/244/8-reasons-why-mysqls-enum-data-type-is-evil/
 - http://download.nust.na/pub6/mysql/tech-resources/articles/mysql-set-datatype.html
@@ -323,6 +322,14 @@ gst DECIMAL(5, 4)
 
 -- For the most common case (0% to 100%) you'd want decimal(3,2).
 discount DECIMAL(3, 2)
+```
+
+## Data Type: Stock Ticker
+
+Tickers on the NYSE range from one to five characters long, with those of length five typically being used for mutual funds and ETFs (VFIAX is the symbol for Vanguard 500 index).
+
+```sql
+symbol VARCHAR(5)
 ```
 
 
