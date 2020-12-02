@@ -61,6 +61,8 @@ UNLISTEN usercreated;
 
 
 ## Trigger to update timestamp
+	
+	Allowing flexibility to update timestamp is essential, especially when working on moderations/internal admin tasks. Say we have a comment website where admins can moderate by editing comments/correcting grammar/removing promo codes or links etc. If the comments are sorted by updated at date, then whenever the admin modify the comment, the date would be updated. The date should not be updated in that case, and therefore we have to disable the trigger. The same goes when there is a need to add new column and populating the data - the updated date should not be modified.
 
 We can disable the update timestamp trigger by setting the `session_replication_role` to `local`. This is useful for bulk updating data, and leaving the timestamp untouched.
 
@@ -102,3 +104,4 @@ Alternatively, we can also use a custom config name, e.g. `application_name = sk
 
 References:
 https://www.endpoint.com/blog/2015/07/15/selectively-firing-postgres-triggers
+
