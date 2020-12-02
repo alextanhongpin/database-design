@@ -133,3 +133,16 @@ SELECT array_agg(to_json(notification.*)), subscriber_id, count(*)
 FROM notification
 GROUP BY subscriber_id;
 ```
+
+## Update json data with jsonb set (Postgres)
+
+Idempotent update of a json object counter.
+```sql
+select jsonb_set(
+	'{"video": 1}'::jsonb, 
+	'{video}', 
+	(SELECT (SELECT '{"video": 1}'::jsonb-> 'video')::int + 1)::text::jsonb
+);
+```
+
+
