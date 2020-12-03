@@ -316,3 +316,9 @@ CREATE TABLE test (
 	UNIQUE (effective_date)
 );
 ```
+
+## Postgres timestamp range default with timezone
+
+```sql
+validity tstzrange NOT NULL DEFAULT tstzrange(now(),null),
+```
