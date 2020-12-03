@@ -309,4 +309,10 @@ SELECT date_trunc('minute', now());
 
 -- Round up to nearest hour.
 SELECT date_trunc('hour', now());
+
+CREATE TABLE test (
+	name text,
+	effective_date timestamptz NOT NULL DEFAULT date_trunc('minute', now()),
+	UNIQUE (effective_date)
+);
 ```
