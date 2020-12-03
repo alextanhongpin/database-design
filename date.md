@@ -298,3 +298,15 @@ SELECT EXTRACT(epoch FROM '1 hour'::interval);
   upper(appointment_at) AT TIME ZONE 'Singapore' AS appointment_end_date
   FROM party_appointment
 ```
+
+## Postgres round to nearest minute/hour
+
+Rounding the time to nearest hour and setting the column to unique ensure there's only unique value per hour:
+```sql
+
+-- Round up to nearest minute.
+SELECT date_trunc('minute', now());
+
+-- Round up to nearest hour.
+SELECT date_trunc('hour', now());
+```
