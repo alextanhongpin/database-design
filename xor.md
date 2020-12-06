@@ -34,3 +34,68 @@ INSERT INTO "order" (type, limit_price) VALUES ('market', NULL);
 INSERT INTO "order" (type, limit_price) VALUES ('limit', NULL); -- Fail
 INSERT INTO "order" (type, limit_price) VALUES ('limit', 13.4);
 ```
+
+
+Alternatives:
+
+```sql
+DROP TABLE IF EXISTS entity_1;
+CREATE TABLE IF NOT EXISTS entity_1 (
+	id uuid DEFAULT gen_random_uuid(),
+	name text NOT NULL,
+	PRIMARY KEY (id)
+);
+
+DROP TABLE IF EXISTS entity_2;
+CREATE TABLE IF NOT EXISTS entity_2 (
+	id uuid DEFAULT gen_random_uuid(),
+	name text NOT NULL,
+	PRIMARY KEY (id)
+);
+```
+If we are only working with two conditions, this is a good approach:
+
+```sql
+DROP TABLE IF EXISTS test;
+CREATE TABLE IF NOT EXISTS test (
+	id uuid DEFAULT gen_random_uuid(),
+	
+	entity_1_id uuid NULL,
+	entity_2_id uuid NULL,
+	
+	PRIMARY KEY (id),
+	FOREIGN KEY (entity_1_id) REFERENCES entity_1(id),
+	FOREIGN KEY (entity_2_id) REFERENCES entity_2(id),
+	CHECK ((entity_1_id IS NULL) != (entity_2_id IS NULL))
+);
+```
+
+Otherwise, for a growing number of conditions, this is a better approach:
+```sql
+DROP TABLE IF EXISTS test;
+CREATE TABLE IF NOT EXISTS test (
+	id uuid DEFAULT gen_random_uuid(),
+	
+	entity_1_id uuid NULL,
+	entity_2_id uuid NULL,
+	
+	PRIMARY KEY (id),
+	FOREIGN KEY (entity_1_id) REFERENCES entity_1(id),
+	FOREIGN KEY (entity_2_id) REFERENCES entity_2(id),
+	CHECK (
+		(entity_1_id IS NULL)::int + 
+		(entity_2_id IS NULL)::int = 1)
+);
+```
+
+
+```
+INSERT INTO entity_1(name) VALUES ('a');
+INSERT INTO entity_2(name) VALUES ('b');
+INSERT INTO test (entity_1_id, entity_2_id) VALUES 
+((SELECT id FROM entity_1), (SELECT id FROM entity_2));
+INSERT INTO test (entity_1_id) VALUES 
+((SELECT id FROM entity_1));
+INSERT INTO test (entity_2_id) VALUES 
+((SELECT id FROM entity_2));
+```
