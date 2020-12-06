@@ -95,3 +95,76 @@ SELECT *,
 	lookup_currency_code_from_id(salary_currency_id) AS salary_currency 
 FROM job;
 ```
+
+## Function enumify Postgres
+
+Simple function to enumify the column:
+
+```sql
+CREATE OR REPLACE FUNCTION enumify (_txt text) RETURNS text AS $$
+	WITH uppercased AS (
+		SELECT upper(_txt) AS txt
+	), 
+	alphabets_only AS (
+		SELECT regexp_replace((SELECT txt FROM uppercased), '[^A-Z]', '_', 'g') AS txt
+	),
+	single_separator AS (
+		SELECT regexp_replace((SELECT txt FROM alphabets_only), '_+', '_', 'g') AS txt
+	)
+	SELECT txt FROM single_separator;
+$$ LANGUAGE SQL IMMUTABLE; -- Must be immutable
+
+SELECT enumify('hello world'); -- HELLO_WORLD
+```
+
+### Three different ways to add enum column
+
+Check validation to ensure the format matches:
+```sql
+DROP TABLE IF EXISTS test;
+CREATE TABLE IF NOT EXISTS test (
+	id uuid DEFAULT gen_random_uuid(),
+	name text NOT NULL,
+	enum text NOT NULL CHECK (enum = enumify(name)), -- No control over enum naming.
+	PRIMARY KEY (id),
+	UNIQUE (enum) -- Name will be unique too. This will not help if we want non-unique name but unique enum.
+);
+
+INSERT INTO test (name, enum) VALUES ('hello world', 'HELLO_WORLD');
+```
+
+Postgres generated column to create the `enum` column from the `name` column:
+```sql
+DROP TABLE IF EXISTS test;
+CREATE TABLE IF NOT EXISTS test (
+	id uuid DEFAULT gen_random_uuid(),
+	name text NOT NULL,
+	-- No control over enum naming. Note that the function used must be IMMUTABLE.
+	-- Redundant column for either name or enum, because only one will be used. But for presentation ui purposes, name will be displayed.
+	enum text GENERATED ALWAYS AS (enumify(name)) STORED, 
+	PRIMARY KEY (id),
+	UNIQUE (enum)
+);
+
+INSERT INTO test (name) VALUES ('hello world');
+```
+
+Use `citext`, case insensitive extension for the `name`. So `hello` and `HELLO` is the same when querying:
+```sql
+CREATE EXTENSION IF NOT EXISTS citext;
+DROP TABLE IF EXISTS test;
+CREATE TABLE IF NOT EXISTS test (
+	id uuid DEFAULT gen_random_uuid(),
+	-- Single enum column. No duplicates. But performance may vary.
+	name citext NOT NULL,
+	PRIMARY KEY (id)
+);
+
+INSERT INTO test (name) VALUES ('hello world');
+```
+
+Other approaches:
+- use trigger on insert/update (lack visibility, hidden business rule)
+- use ENUM type (too static, lack visibility also, prefer to put them in a table, more dynamic and easier to insert/update/delete)
+- use another table for the type, might not work for unique columns that is more dynamic (like slug generation). In other words, the approach above works for reference tables where the number of types are limited.
+
