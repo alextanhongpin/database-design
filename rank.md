@@ -67,3 +67,27 @@ GROUP BY
 WHERE deleted_at IS NULL
 ORDER BY total_rank, total_review_count_rank, score, recent_review_count_rank
 ```
+
+## Ranking
+
+Strategy for ranking multiple columns:
+
+1. rank each columns individually
+2. create a column to store the score of sum of each column rank (the lower the better)
+3. sort by the score, then each column in the desired order
+
+| Price ($) | Distance (KM) | Rating (0-5) |
+| - | - | - |
+| 10 | 5 | 1 |
+| 10 | 20 | 3 |
+| 100 | 20 | 5 |
+
+When ranking each column:
+
+| Price ($) | Distance (KM) | Rating (0-5) | Score |
+| - | - | - | - |
+| 1 | 1 | 3 | 5 |
+| 1 | 2 | 2 | 5 |
+| 100 | 2 | 1 | 5 |
+
+Sort by the score (sum of rank) is the same, sort by the column. The disadavantage of this method is that you have to recompute the scores by taking into account all rows.
