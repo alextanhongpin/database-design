@@ -140,3 +140,12 @@ func transactionUpdate(db *sql.DB) error {
 
 - use only in the scenario when an action fails, all previous action would be reverted as well. In other words, when the states are dependent on one another.
 - don't use it when each item state is independent of one another. Update them separately to reduce errors. If one of the query fails, the rest should still be updated. There was once a scenario in keeping records, when 10 claims have been approved and the entry needs to be inserted into the database. The dev use transaction in order to query and update the data, but this is exactly the wrong usage of transaction, because their states (claims) are independent on one another). The failure in updating one should not affect the remaining transaction.
+
+
+## Setting transaction isolation level in Postgres
+```sql
+begin;
+	set transaction isolation level repeatable read;
+	// Do stuff...
+commit;
+```
