@@ -145,4 +145,10 @@ select jsonb_set(
 );
 ```
 
+## Convert row to json, and add additional fields
+
+```sql
+SELECT row_to_json(reservation_created.*)::jsonb || json_build_object('start_date', lower(validity), 'end_date', upper(validity))::jsonb
+FROM reservation_created
+```
 
