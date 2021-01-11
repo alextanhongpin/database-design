@@ -152,3 +152,9 @@ SELECT row_to_json(reservation_created.*)::jsonb || json_build_object('start_dat
 FROM reservation_created
 ```
 
+## Prettify JSONB array column
+
+```sql
+SELECT id, jsonb_pretty(log::jsonb) FROM saga, UNNEST(logs) AS log;
+```
+
