@@ -1,6 +1,6 @@
 ## Modelling Tags with Postgres Array
 
-
+The performance is faster thanusing join tables, http://www.databasesoup.com/2015/01/tag-all-things.html.
 ```sql
 CREATE TABLE IF NOT EXISTS tags (
 	tags text[] not null default '{}'
@@ -44,7 +44,7 @@ Cons:
 
 ## Tagging v2
 
-A solution that stores the array of tags (denormalization) as well as creating a junction table with triggers.
+A solution that stores the array of tags (denormalization) as well as creating a junction table with triggers. FIX, only delete if counter reaches zero.
 
 ```sql
 create table if not exists pg_temp.posts (
@@ -93,9 +93,10 @@ create or replace function pg_temp.trigger_tag() returns trigger as $$
 			where not array[name] <@ COALESCE(OLD.tags, '{}'::text[])
 		),
 		ids_to_remove as (
-			select id 
-			from pg_temp.tags 
+			update pg_temp.tags 
+			set counter = counter - 1
 			where name in (select name from removed)
+			returning id
 		),
 		ids_to_add  as(
 			insert into pg_temp.tags(name) 
@@ -103,11 +104,11 @@ create or replace function pg_temp.trigger_tag() returns trigger as $$
 				from added 
 			on conflict(name) 
 			do update set counter = pg_temp.tags.counter + 1 
-			returning id
+			returning *
 		)
 		select 
 			array(select id from ids_to_add), 
-			array(select id from ids_to_remove) 
+			array(select id from ids_to_remove where counter = 0) 
 		into adding_ids, removing_ids;
 		
 		RAISE NOTICE 'got adding % and removing %', adding_ids, removing_ids;
@@ -127,6 +128,7 @@ create or replace function pg_temp.trigger_tag() returns trigger as $$
 	end;
 $$ language plpgsql;
 
+-- TODO: Handle delete
 drop trigger update_tags on pg_temp.posts;
 create trigger update_tags 
 after insert or update 
