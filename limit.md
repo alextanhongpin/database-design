@@ -105,14 +105,16 @@ VALUES (1, (SELECT id FROM coupon_locked));
 Using function (provides flexibility, and does not tie the business logic to database unlike triggers):
 
 ```sql
-DROP FUNCTION redeem_coupon(bigint, int);
-CREATE OR REPLACE FUNCTION redeem_coupon(_id bigint, _count int DEFAULT 1) RETURNS bigint AS $$
+DROP FUNCTION redeem_coupon(text, int);
+
+-- Updates the coupon by the code, and returning the coupon id.
+CREATE OR REPLACE FUNCTION redeem_coupon(_code text, _count int DEFAULT 1) RETURNS bigint AS $$
 	UPDATE coupon SET redempted = redempted+_count 
-	WHERE id = _id
+	WHERE code = _code
 	RETURNING id;
 $$ LANGUAGE sql; 
 
 -- Use a coupon.
 INSERT INTO user_coupon(user_id, coupon_id)
-VALUES (1, redeem_coupon(1));
+VALUES (1, redeem_coupon('JOHN'));
 ```
