@@ -46,6 +46,7 @@ Cons:
 
 A solution that stores the array of tags (denormalization) as well as creating a junction table with triggers. FIX, only delete if counter reaches zero.
 
+Todo: we probably don't need the junction table. Just the tags table, and the entity with the tags column will do.
 ```sql
 create table if not exists pg_temp.posts (
 	id int generated always as identity,
