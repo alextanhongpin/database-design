@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS coupon (
 	id bigint GENERATED ALWAYS AS IDENTITY,
   
 	code text NOT NULL,
-  -- Use the check constraint to apply the business logic.
+  	-- Use the check constraint to apply the business logic.
 	max_redemption int NOT NULL CHECK (max_redemption > 0),
 	redempted int NOT NULL DEFAULT 0 CHECK (redempted > -1 AND redempted <= max_redemption),
 	
@@ -50,11 +50,11 @@ CREATE TABLE IF NOT EXISTS  "user"  (
 CREATE TABLE IF NOT EXISTS  user_coupon (
 	id bigint GENERATED ALWAYS AS IDENTITY,
   
-  -- Foreign keys.
+  	-- Foreign keys.
 	user_id bigint NOT NULL,
 	coupon_id bigint NOT NULL,
 	
-  -- Constraints.
+  	-- Constraints.
 	PRIMARY KEY (id),
 	UNIQUE (user_id, coupon_id), -- Each user can only redeem once.
 	FOREIGN KEY (user_id) REFERENCES "user"(id),
@@ -73,11 +73,11 @@ BEGIN;
 	LIMIT 1
 	FOR UPDATE;
 
-  -- Create the user coupon.
+	-- Create the user coupon.
 	INSERT INTO user_coupon (user_id, coupon_id)
 	VALUES (2, (SELECT id FROM coupon WHERE code = 'JOHN'));
 	
-  -- Update the count.
+	-- Update the count.
 	UPDATE coupon 
 	SET redempted = redempted + 1 
 	WHERE id = (SELECT id FROM coupon WHERE code = 'JOHN');
@@ -117,4 +117,19 @@ $$ LANGUAGE sql;
 -- Use a coupon.
 INSERT INTO user_coupon(user_id, coupon_id)
 VALUES (1, redeem_coupon('JOHN'));
+```
+
+A more generic design - if the threshold is set, then the counter cannot be more than the threshold:
+```sql
+CREATE TABLE IF NOT EXISTS counter (
+	id bigint GENERATED ALWAYS AS IDENTITY,
+  
+	code text NOT NULL,
+	-- Use the check constraint to apply the business logic.
+	threshold int NOT NULL DEFAULT 0,
+	counter int NOT NULL DEFAULT 0 CHECK (counter > -1 AND (CASE WHEN threshold = 0 THEN true ELSE counter <= threshold END)),
+	
+	PRIMARY KEY (id),
+	UNIQUE (code)
+);
 ```
