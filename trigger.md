@@ -1,5 +1,7 @@
 # Postgres Triggers
 
+- triggers attached to tables are removed when the table is dropped, so we do not need to include it in the migration down file
+
 ## Finding all Database Triggers
 
 
