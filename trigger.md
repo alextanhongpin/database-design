@@ -1,6 +1,8 @@
 # Postgres Triggers
 
 - triggers attached to tables are removed when the table is dropped, so we do not need to include it in the migration down file
+- triggers can be attached to a single column, or multiple columns, or the whole row
+
 
 ## Finding all Database Triggers
 
@@ -107,3 +109,19 @@ Alternatively, we can also use a custom config name, e.g. `application_name = sk
 References:
 https://www.endpoint.com/blog/2015/07/15/selectively-firing-postgres-triggers
 
+
+
+## Create trigger multiple columns
+```sql
+create trigger save_information 
+     after update of day, month
+     on table_name 
+for each row execute procedure save_function();
+```
+
+## Disable Trigger
+```sql
+ALTER TABLE table_name DISABLE TRIGGER trigger_name
+ALTER TABLE table_name DISABLE TRIGGER all
+ALTER TABLE table_name ENABLE TRIGGER trigger_name
+```
