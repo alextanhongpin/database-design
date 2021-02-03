@@ -26,3 +26,11 @@ CREATE TYPE subscription_type AS ENUM ('question', 'answer', 'comment');
 select enum_range(null::subscription_type);
 ALTER TYPE subscription_type ADD VALUE 'reaction' AFTER 'answer';
 ```
+
+
+ 	
+## Rename enum postgres> 9.6
+
+```sql
+ALTER TYPE status_enum RENAME VALUE 'waiting' TO 'blocked';
+```
