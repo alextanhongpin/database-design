@@ -85,3 +85,14 @@ Sort  (cost=94.38..97.78 rows=1360 width=64)
   Sort Key: name COLLATE case_insensitive
   ->  Seq Scan on sorting  (cost=0.00..23.60 rows=1360 width=64)
 ```
+
+## Random Order
+
+```sql
+CREATE EXTENSION tsm_system_rows;
+SELECT * FROM yourtable TABLESAMPLE SYSTEM_ROWS(50); -- Returns exact result, but not really random.
+
+SELECT * FROM yourtable TABLESAMPLE BERNOULLI((SELECT 50.0*100.0/(count(*))::numeric FROM yourtable)); -- Returns approximation ~50 items, but random.
+
+SELECT * FROM yourtable TABLESAMPLE SYSTEM((SELECT 50.0*100.0/(count(*))::numeric FROM yourtable)); -- Supposed to be more performant than BERNOULLI, but doesn't return results at time.
+```
