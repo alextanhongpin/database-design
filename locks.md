@@ -67,6 +67,7 @@ begin isolation level serializable;
 - Session-level locks needs to be explicitly released
 - Transaction-level locks are bound to transaction, and are released when the transaction ends
 - Pros, no table locking
+- See pitfall with go programming language [7]
 
 Usecases
 - for same applications (multiple nodes) that are connected to the same database, we can use advisory locks as distributed locks
@@ -80,3 +81,4 @@ Usecases
 4. [StackOverflow: Optimistic concurrency control across tables in postgres](https://stackoverflow.com/questions/37801598/optimistic-concurrency-control-across-tables-in-postgres)
 5. [Optimistic-pessimistic locking sql](https://learning-notes.mistermicheels.com/data/sql/optimistic-pessimistic-locking-sql/)
 6. https://particular.net/blog/optimizations-to-scatter-gather-sagas
+7. https://engineering.qubecinema.com/2019/08/26/unlocking-advisory-locks.html
