@@ -262,15 +262,21 @@ References:
 - https://openid.net/specs/openid-connect-core-1_0.html#zoneinfo
 
 ## Data Type: Phone number
-
+Phone numbers are usually stored as E.164.
 ```sql
 phone_number VARCHAR(32) NOT NULL DEFAULT '',
 phone_number_verified BOOLEAN NOT NULL DEFAULT 0,
 ```
+
+TL;DR, don't store phone number as bigint, as trailing zeros will break it.
 References:
 - https://en.wikipedia.org/wiki/Telephone_numbering_plan
 - https://boards.straightdope.com/sdmb/showthread.php?t=417024
 https://stackoverflow.com/questions/723587/whats-the-longest-possible-worldwide-phone-number-i-should-consider-in-sql-varc
+- [Google: Falsehoods Programmers Believe About Phone Numbers](https://github.com/google/libphonenumber/blob/master/FALSEHOODS.md)
+- https://dba.stackexchange.com/questions/164796/how-do-i-store-phone-numbers-in-postgresql
+- https://www.mayerdan.com/programming/2017/06/26/db_phone_types
+- [Twillio: What is E.164?](https://www.google.com/search?q=twillio+e164&oq=twillio+e164&aqs=chrome..69i57j0i13.3516j0j4&sourceid=chrome&ie=UTF-8)
 
 ## Data Type: Name
 Longest name (225 characters)
