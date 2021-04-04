@@ -1,3 +1,7 @@
+## Serial
+
+Why not auto-increment? It leads to many mistakes with many-to-many relationships, e.g. association the wrong id to another entity.
+
 ## In mysql 5.7.8
 
 Creating fallback function for ordered uuid in old mysql version. Example using golang's `goose`:
