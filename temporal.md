@@ -122,3 +122,9 @@ Items may expire, say a product or events, or maybe user accounts that are deact
 
 Another thing to consider is not when the item expires, but when it is updated with new values. Take for example product pricing. We cannot update the product directly, since other users will reference this product if they have purchased it before. This could lead to inconsistency of the data. Therefor, a better way is to deprecate the old product, and create new row. New users will only have access to the new product, while old users will maintain their old product relationship.
 
+
+## Temporal
+
+https://martinfowler.com/eaaDev/TemporalProperty.html
+
+
