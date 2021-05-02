@@ -74,6 +74,31 @@ Usecases
 - to coordinate database migration when there are multiple application
 - for atomicity of external api calls, e.g. call payment api once for a specific id
 
+## Skip Lock 
+
+Can be used to implement job queues in postgres, see [8]:
+
+```sql
+BEGIN;
+DELETE FROM your_table WHERE id = (
+	SELECT * 
+	FROM your_table
+	ORDER BY id
+	FOR UPDATE SKIP LOCKED
+	LIMIT 1
+);
+
+-- do your work
+
+COMMIT;
+```
+
+## Using Postgres to replace redis
+
+See [9]
+- database queue with skip lock
+- application locks with advisory lock
+
 # References
 1. [Postgresql: Explicit Locking](https://www.postgresql.org/docs/current/explicit-locking.html)
 2. [Hibernate Oplocks](https://wiki.postgresql.org/wiki/Hibernate_oplocks)
@@ -82,3 +107,5 @@ Usecases
 5. [Optimistic-pessimistic locking sql](https://learning-notes.mistermicheels.com/data/sql/optimistic-pessimistic-locking-sql/)
 6. https://particular.net/blog/optimizations-to-scatter-gather-sagas
 7. https://engineering.qubecinema.com/2019/08/26/unlocking-advisory-locks.html
+8. https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/
+9. https://spin.atomicobject.com/2021/02/04/redis-postgresql/
