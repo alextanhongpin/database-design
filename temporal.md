@@ -128,3 +128,6 @@ Another thing to consider is not when the item expires, but when it is updated w
 https://martinfowler.com/eaaDev/TemporalProperty.html
 
 
+## how to ensure theres no overlapping time in postgres
+https://dba.stackexchange.com/questions/176474/how-to-check-if-there-are-no-time-gaps-in-postgresql
+
