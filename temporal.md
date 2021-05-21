@@ -131,3 +131,8 @@ https://martinfowler.com/eaaDev/TemporalProperty.html
 ## how to ensure theres no overlapping time in postgres
 https://dba.stackexchange.com/questions/176474/how-to-check-if-there-are-no-time-gaps-in-postgresql
 
+
+## About bitemporal
+
+https://hdombrovskaya.files.wordpress.com/2016/09/bi_temporal_pg_open_2016.pdf
+https://www.marklogic.com/blog/bitemporal/#:~:text=Bitemporal%2C%20which%20was%20released%20in,database%20(the%20system%20time).
