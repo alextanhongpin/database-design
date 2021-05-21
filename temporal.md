@@ -136,3 +136,7 @@ https://dba.stackexchange.com/questions/176474/how-to-check-if-there-are-no-time
 
 https://hdombrovskaya.files.wordpress.com/2016/09/bi_temporal_pg_open_2016.pdf
 https://www.marklogic.com/blog/bitemporal/#:~:text=Bitemporal%2C%20which%20was%20released%20in,database%20(the%20system%20time).
+
+https://en.wikipedia.org/wiki/Temporal_database
+https://wiki.postgresql.org/images/6/64/Fosdem20150130PostgresqlTemporal.pdf
+https://ludwigstuyck.wordpress.com/2013/04/04/history-tracking/
