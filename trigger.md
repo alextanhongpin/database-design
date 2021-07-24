@@ -125,3 +125,28 @@ ALTER TABLE table_name DISABLE TRIGGER trigger_name
 ALTER TABLE table_name DISABLE TRIGGER all
 ALTER TABLE table_name ENABLE TRIGGER trigger_name
 ```
+
+
+## Trigger to update moddtime
+
+Use the [SPI (Server Programming Interface)](https://www.postgresql.org/docs/current/contrib-spi.html) instead of writing your own custom trigger to update the modified at timestamp.
+
+Custom (note that the column is hardcoded, so you can't use it for different columns unless you create a new trigger. SPI module does not have this limitation):
+```sql
+CREATE OR REPLACE FUNCTION sync_updated_at() RETURNS TRIGGER AS $$
+BEGIN
+	NEW.updated_at = now();
+	RETURN NEW;	
+END
+$$ LANGUAGE 'plpgsql';
+DROP FUNCTION sync_updated_at;
+```
+
+With SPI:
+```sql
+CREATE EXTENSION moddatetime;
+CREATE TRIGGER mdt_images 
+	BEFORE UPDATE ON images
+	FOR EACH ROW
+	EXECUTE PROCEDURE moddatetime(updated_at);
+```
