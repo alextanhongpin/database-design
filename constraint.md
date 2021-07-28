@@ -76,9 +76,18 @@ ADD CONSTRAINT hello_type_check CHECK(type = ANY(ARRAY['a']));
 ```
 
 
-## Patterns
+## Column patterns
 
-- two columns must be null or vice versa
+- two columns must be null or vice versa (a AND b)
 - three or more columns must be null or vice versa (create one new column flag to indicate those exists, or better, put them in another table)
 - is draft and published at(hint, you only need one)
 - active and deleted at (maybe both)
+- usecase: publishing products. when is no longer draft, all the columns must be filled, otherwise errors.
+- XOR for polymorphic associations, vs table inheritance
+
+
+# Row patterns
+
+- min max rows
+- at least n row fulfilling condition (usecase: one pending status booking)
+- max one row with condition (unique, and partial unique)
