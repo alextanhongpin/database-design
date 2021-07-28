@@ -15,6 +15,24 @@ count hasThreeOrders = repository.hasThreeOrders()
 // if count > 3, if count > 5 ...
 ```
 
+## implementing rule engine
+
+operators and value
+
+- rules table with operator, expected, and column
+- join table to rules
+
+# domain type
+http://www.postgresonline.com/journal/archives/205-Using-Domains-to-Enforce-Business-Rules.html
+
+# check constraint
+
+# enums
+
+# rule vs trigger
+
+# why business rule in db versus application
+
 http://tdan.com/modeling-business-rules-data-driven-business-rules/5227
 https://databasemanagement.fandom.com/wiki/Business_Rules
 https://martinfowler.com/bliki/RulesEngine.html
