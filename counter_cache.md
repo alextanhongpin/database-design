@@ -170,3 +170,7 @@ complexity:
 
 constraints
 alter table ratings add constraint check_rating check(rating between 0 and 5);
+
+## Count Estimate
+
+https://wiki.postgresql.org/wiki/Count_estimate
