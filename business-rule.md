@@ -38,6 +38,10 @@ http://www.postgresonline.com/journal/archives/205-Using-Domains-to-Enforce-Busi
 # storing dynamic ui
 # access control, roles and permission
 
+# postgres check constraint involving another table
+- usecase, ensuring uniqness from another table
+- usecase, inserting to another table for polymorphic association
+
 http://tdan.com/modeling-business-rules-data-driven-business-rules/5227
 https://databasemanagement.fandom.com/wiki/Business_Rules
 https://martinfowler.com/bliki/RulesEngine.html
