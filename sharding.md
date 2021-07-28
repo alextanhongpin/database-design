@@ -18,5 +18,11 @@ https://www.holistics.io/blog/should-you-use-mongodb-or-sql-databases-for-analyt
 - sorting is a pain
 
 
+## how to shard correctly?
+
+https://stackoverflow.com/questions/6716351/application-level-join-with-where-and-order-by-on-n-postgresql-shards
+
+hash key is user id so that all associations stays on the same db, however, fetching user to user association suffers still.
+
 
 https://www.quora.com/Why-is-it-not-possible-to-do-a-JOIN-on-a-sharded-database
