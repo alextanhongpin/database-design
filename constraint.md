@@ -74,3 +74,11 @@ ALTER TABLE pg_temp.hello
 DROP CONSTRAINT hello_type_check,
 ADD CONSTRAINT hello_type_check CHECK(type = ANY(ARRAY['a']));
 ```
+
+
+## Patterns
+
+- two columns must be null or vice versa
+- three or more columns must be null or vice versa (create one new column flag to indicate those exists, or better, put them in another table)
+- is draft and published at(hint, you only need one)
+- active and deleted at (maybe both)
