@@ -31,7 +31,12 @@ http://www.postgresonline.com/journal/archives/205-Using-Domains-to-Enforce-Busi
 
 # rule vs trigger
 
+# functions
+
 # why business rule in db versus application
+
+# storing dynamic ui
+# access control, roles and permission
 
 http://tdan.com/modeling-business-rules-data-driven-business-rules/5227
 https://databasemanagement.fandom.com/wiki/Business_Rules
