@@ -42,3 +42,5 @@ INSERT INTO category (category, parent_category, description) VALUES ('food.dair
 INSERT INTO category (category, parent_category, description) VALUES ('food.drinks', 'food', 'beverages products category');
 SELECT parent_category, JSON_ARRAYAGG(category) AS subcategories FROM category GROUP BY parent_category;
 ```
+
+## Using Ltree
