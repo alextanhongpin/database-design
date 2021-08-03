@@ -25,3 +25,29 @@ SELECT id FROM (
 ```
 
 Alternative...aggregate into array, select a position of an item in the array.
+
+
+## Alternatively use table sample
+
+https://www.postgresql.org/docs/9.6/tsm-system-rows.html
+
+Note that tablesample is just a probablity. So if you want to randomise the whole table, it is not possible.
+```sql
+drop table users cascade;
+create table if not exists users (
+	id uuid default gen_random_uuid(),
+	name text not null,
+	
+	primary key (id)
+);
+
+insert into users (name) values 
+('john'), ('jane'), ('jessie'), ('alpha'), ('beta'), ('boy');
+table users;
+
+create extension tsm_system_rows;
+select * 
+from users
+tablesample bernoulli(100) -- 100% sample does not work, it will just return the sorting as it is.
+repeatable (10);
+```
