@@ -5,7 +5,7 @@ Why not auto-increment? It leads to many mistakes with many-to-many relationship
 ## In mysql 5.7.8
 
 Creating fallback function for ordered uuid in old mysql version. Example using golang's `goose`:
-
+note that this only works with uuid v1
 ```sql
 --  https://www.percona.com/blog/2014/12/19/store-uuid-optimized-way/
 
@@ -106,3 +106,13 @@ INSERT INTO foo (uuid) VALUES (UUID_TO_BIN('3f06af63-a93c-11e4-9797-00505690773f
 ```sql
 SELECT BIN_TO_UUID(uuid, true) AS uuid FROM foo;
 ```
+
+## Postgres UUID
+
+does not have impact on performance unlike MySQL because it does not have clustered index
+
+https://github.com/atom/teletype-server/issues/25
+
+however, the size and also the lack of sorting by timestamp is still a problem.
+
+look at sequential uuid or v6 uuid. Using uuid is still better than using serial int and hashing them on the Frontend.
