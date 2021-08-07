@@ -147,3 +147,5 @@ https://www.cybertec-postgresql.com/en/implementing-as-of-queries-in-postgresql/
 
 not null
 https://dba.stackexchange.com/questions/51597/postgresql-9-2-tstzrange-null-infinity-constraint-check/51602#51602
+
+https://www.juxt.pro/blog/value-of-bitemporality
