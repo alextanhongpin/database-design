@@ -140,3 +140,7 @@ https://www.marklogic.com/blog/bitemporal/#:~:text=Bitemporal%2C%20which%20was%2
 https://en.wikipedia.org/wiki/Temporal_database
 https://wiki.postgresql.org/images/6/64/Fosdem20150130PostgresqlTemporal.pdf
 https://ludwigstuyck.wordpress.com/2013/04/04/history-tracking/
+
+
+Setting up trigger for continuous time
+https://www.cybertec-postgresql.com/en/implementing-as-of-queries-in-postgresql/
