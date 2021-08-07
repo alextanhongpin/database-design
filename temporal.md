@@ -144,3 +144,6 @@ https://ludwigstuyck.wordpress.com/2013/04/04/history-tracking/
 
 Setting up trigger for continuous time
 https://www.cybertec-postgresql.com/en/implementing-as-of-queries-in-postgresql/
+
+not null
+https://dba.stackexchange.com/questions/51597/postgresql-9-2-tstzrange-null-infinity-constraint-check/51602#51602
