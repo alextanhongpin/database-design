@@ -100,7 +100,10 @@ Note: The design above only considers one value. What if the pricing is affected
 ## Unit
 
 Store the unit amount instead in db, without numeric, and another column called currency. So if you wan to store MYR 1, the value will be 100 in the db. 
-When communicating through API however, you can use MYR, but divide by 100 on server side. This could be relevant if you are using multiple currency and want to aboid leaking business logic to the frontend. 
+
+When communicating through API however, you can use MYR, but multiply by 100 on server side. This could be relevant if you are using multiple currency and want to aboid leaking business logic to the frontend. Stripe however, enforces the client to use unit amount, so user have to send 100 cents instead of MYR 100. This makes sense, since in some cases, payments can be down to several tenth of cents (e.g mobile data usage etc). In that scenario, Stripe has a different convention, which is unit decimal amount. 
+
+So if we allow client to send float, RM 1.4509 vs 145.09 unit amount in cents, we do not know if users explicitly wants to send cents with decimal or not. There will be pain points in converting on client when working with multiple currencies though where you need to know how much to multiply with. 
 
 https://stripe.com/docs/billing/subscriptions/decimal-amounts
 
