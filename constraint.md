@@ -78,12 +78,14 @@ ADD CONSTRAINT hello_type_check CHECK(type = ANY(ARRAY['a']));
 
 ## Column patterns
 
-- two columns must be null or vice versa (a AND b)
+- two columns must be null or vice versa (a AND b). A is not null equal B is not null. Alternative is modulo.
 - three or more columns must be null or vice versa (create one new column flag to indicate those exists, or better, put them in another table)
 - is draft and published at(hint, you only need one)
 - active and deleted at (maybe both)
 - usecase: publishing products. when is no longer draft, all the columns must be filled, otherwise errors.
 - XOR for polymorphic associations, vs table inheritance
+- all columns either null (or empty) or filled. We can do the trick by checking the sum of not null modulo length of the column. If we have 5 columns, the modulo of 5 will be zero if we have 0 or 5 empty column.
+- xor, one column filled, the other not filled. if there is two column, then A != B. if more than that, sum of not null must be equal 1. 
 
 
 # Row patterns
