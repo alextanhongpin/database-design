@@ -95,3 +95,13 @@ Note: The design above only considers one value. What if the pricing is affected
 - https://dba.stackexchange.com/questions/216317/pricing-table-mysql-table-design-i-need-the-database-design-for-the-the-plans
 - https://softwareengineering.stackexchange.com/questions/307214/designing-pricing-table-rdbms-agnostic
 - https://stackoverflow.com/questions/14546539/database-design-for-pricing-overview
+
+
+## Unit
+
+Store the unit amount instead in db, without numeric, and another column called currency. So if you wan to store MYR 1, the value will be 100 in the db. 
+When communicating through API however, you can use MYR, but divide by 100 on server side. This could be relevant if you are using multiple currency and want to aboid leaking business logic to the frontend. 
+
+https://stripe.com/docs/billing/subscriptions/decimal-amounts
+
+
