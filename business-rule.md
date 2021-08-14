@@ -1,4 +1,4 @@
-Should business rules be stored in the database?
+# Should business rules be stored in the database?
 
 Constraints are part of business rules. Foreign keys relationship, and also declaring a NOT NULL is part of business rules.
 But placing business rules in database makes testing harder - most of the time, we want to test against the business rules logic, not the database. In a distributed system, it might be advantageous (?) though to store the business rules in the database to ensure they are honored.
@@ -14,6 +14,16 @@ count hasThreeOrders = repository.hasThreeOrders()
 // what if the requirements changed? or if we need to have different conditions for different count?
 // if count > 3, if count > 5 ...
 ```
+
+
+## Business logic in database
+
+Yes, add it where appropriate. It can be a performance improvement. However, testing becomes more complicated. How do you test if the data in the database is accurate? You still have to seed data to test out the results.
+
+- https://martinfowler.com/articles/dblogic.html
+- https://tapoueh.org/blog/2017/06/sql-and-business-logic/
+
+
 
 ## implementing rule engine
 
