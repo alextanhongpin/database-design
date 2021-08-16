@@ -23,6 +23,23 @@ Yes, add it where appropriate. It can be a performance improvement. However, tes
 - https://martinfowler.com/articles/dblogic.html
 - https://tapoueh.org/blog/2017/06/sql-and-business-logic/
 
+## Business logic in application layer
+There are many good reasons why you should keep business logic in application layer
+
+- no full acccess to db to create table/functions etc (though unlikely)
+- you only have a single instancethat connects tothe db, thus limiting access to you only as the sole owner of the db
+- full access to progamming capability
+- able to design more complex rules to apply on thedata
+
+But there are more reasons why keeping it in the database makes sense
+
+- single source of truth. Business rule defined in db must be followed by all client connecting to the db. When done in application layer, multiple instance running multiple logic might lead to data inconsistency. Also, insert or update done directly through postgres cli has no knowledge of business logic in application
+- guard against data race or unwanted insert. A db specifying unique column guarantes that, while application is not data aware.
+- transaction isolation and guarantee when running triggers
+- performant. Finding count doesnt require you to load everything in memory. Same goes for sorting, filtering.
+- one may argue when sharded, you dont get the benefits, because data is now scattered across different db, which is true
+
+
 
 
 ## implementing rule engine
