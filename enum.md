@@ -34,3 +34,18 @@ ALTER TYPE subscription_type ADD VALUE 'reaction' AFTER 'answer';
 ```sql
 ALTER TYPE status_enum RENAME VALUE 'waiting' TO 'blocked';
 ```
+
+
+## enum postgres
+
+Enums is represented as integer internally. So you have both the benefits of performance and also readability when using enum.
+
+One common issue when designing reference table is there's always a hunger for performance. What it means is we want to avoid joins, but at the same need the additional columns for clarity.
+
+
+We can have both now
+
+1. Create the enum type
+2. Create another table and use that enum type as the primary key.
+
+This way, you have readability on your table that references the enum, as well as performance, referential integrity and an option to query the reference table as options for the drop-down on the user interface 
