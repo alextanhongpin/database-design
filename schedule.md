@@ -53,3 +53,10 @@ Take for example, you want to run a Cron to delete stuff, one potential optimiza
 You can do so by querying all future items to delete within the next hour, and then aggregate the IDs by the expired at date up to a minute granularity.
 
 You can then schedule the Cron for the upcoming expiring minutes to clear the rows in the database.
+
+
+# scheduling and data race
+
+Scheduling work will always be prone to data race. Your state might change, or the rows may have already been deleted. As such, all operations must best be idempotent.
+
+Care must be taken for changes that involves state transition. Always guard your transition so that states can't be shifted backwards
