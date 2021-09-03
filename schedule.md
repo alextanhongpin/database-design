@@ -41,3 +41,15 @@ adding a tstzrange allows an entire row to be scheduled.
 
 Column changes scheduling is not possible, unless you move that data to a separate row and do row scheduling.
 
+# scheduling in application
+
+Running Cron in application is probably the safest, and also easiest, since at times you need to rely on the business logic in the application too.
+
+However, running it every minute might not be optimal 
+
+
+Take for example, you want to run a Cron to delete stuff, one potential optimization is to schedule ahead.
+
+You can do so by querying all future items to delete within the next hour, and then aggregate the IDs by the expired at date up to a minute granularity.
+
+You can then schedule the Cron for the upcoming expiring minutes to clear the rows in the database.
