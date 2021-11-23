@@ -174,3 +174,11 @@ alter table ratings add constraint check_rating check(rating between 0 and 5);
 ## Count Estimate
 
 https://wiki.postgresql.org/wiki/Count_estimate
+
+
+counter cache is useful for caching computed single row data.
+
+but what if we want to cache bulk data, e,g product ranks, stock quantity or other derived values?
+
+we can either create a new table, or use materialized view.
+the latter has an option to just refresh the view, useful if your logic seldom chsnges
