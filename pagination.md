@@ -8,3 +8,13 @@
 References:
 - https://jsonapi.org/profiles/ethanresnick/cursor-pagination/
 - https://hackernoon.com/guys-were-doing-pagination-wrong-f6c18a91b232
+
+
+
+## Cursor or keyset pagination 
+
+- preferred over offset limit
+- works under certain condition (best with a single column that is unique, unchanged)
+- how to deal with multiple columns? create a new column that is unique and computed
+- might not work well if you need to sort by values that changes dynamically, e.g. product stocks count, product rating, because when the value changes, the pagination may break (duplicate items etc)
+- might not work if you need to jump between pages
