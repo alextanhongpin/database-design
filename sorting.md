@@ -96,3 +96,18 @@ SELECT * FROM yourtable TABLESAMPLE BERNOULLI((SELECT 50.0*100.0/(count(*))::num
 
 SELECT * FROM yourtable TABLESAMPLE SYSTEM((SELECT 50.0*100.0/(count(*))::numeric FROM yourtable)); -- Supposed to be more performant than BERNOULLI, but doesn't return results at time.
 ```
+
+Simpler
+```sql
+SELECT * FROM yourtable ORDER BY random();
+```
+
+
+## Order by IN queries
+
+```sql
+SELECT c.*
+FROM   comments c
+JOIN   unnest('{1,3,2,4}'::int[]) WITH ORDINALITY t(id, ord) USING (id)
+ORDER  BY t.ord;
+```
