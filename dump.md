@@ -20,3 +20,19 @@ To restore the data:
 ```bash
 mysql -u root -p dbname < dump.sql
 ```
+
+
+## postgres dump and restore
+
+```sql
+select tablename from pg_tables where tableowner ='admin'
+and tablename ilike '%somename' or tablename ilike '%anothername';
+
+restore:
+  export PGPASSWORD=yourpassword
+	pg_restore --dbname dbname-development --data-only --single-transaction --exit-on-error --host=localhost --port=5432 --username=yourusername --no-password ./app/interface/postgres/seed/address.sql
+
+
+dump:
+	pg_dump --data-only --format=custom --table "*your_table" --table "*another_table" dbname-development > dump.sql
+```
