@@ -28,9 +28,12 @@ mysql -u root -p dbname < dump.sql
 select tablename from pg_tables where tableowner ='admin'
 and tablename ilike '%somename' or tablename ilike '%anothername';
 
+# restoring in parallel jobs while disabling triggers brings the restore time from 5 minutes to <5 seconds
 restore:
-  export PGPASSWORD=yourpassword
-	pg_restore --dbname dbname-development --data-only --single-transaction --exit-on-error --host=localhost --port=5432 --username=yourusername --no-password ./app/interface/postgres/seed/address.sql
+  	export PGPASSWORD=yourpassword
+	# Use your superuser credentials to restore the database (required for disabling triggers).
+	pg_restore --dbname your-db --data-only --disable-triggers --superuser ${user} --jobs 4 --exit-on-error --host=localhost --port=5432 --username=${user} --no-password ./your-data-dump.dump
+
 
 
 dump:
