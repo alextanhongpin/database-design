@@ -53,7 +53,7 @@ References:
 | Insert | Insert record | Insert record with valid_end_time as infinity |
 | Update | Update record | - Update "latest" record valid_end_time to now <br> - Insert into T_history with valid end time as infinity |
 | Delete | Delete record | Update valid_end_time with the current time for the "latest" record |
-| Select | Select record | Select from desired date range | 
+| Select | Select record | Select from desired date range |
 
 References:
 
@@ -89,7 +89,7 @@ Event sourcing deals with objects, temporal databases deals with event record.
 When we store data in the database, we need to consider the validity of the data for each specific columns. These will often resort to large redos in the database schema if not planned well. For starters, let's assume that we have the following type of data:
 
 - static: These are facts that are valid forever. Take date of birth for example, this fact will never change over time unless recorded wrongly. Other type of data includes blood type, gender (note that gender could change, unless if we are storing this as a fact)
-- dynamic, uncertain: The value could change over time, say address or occupation etc. But we do not know when. The dates can only be recorded once we know when the value change. E.g. marriage, job title, 
+- dynamic, uncertain: The value could change over time, say address or occupation etc. But we do not know when. The dates can only be recorded once we know when the value change. E.g. marriage, job title,
 - dynamic, range: These data has a specific range of validity, e.g. 1 year for a mobile contract etc. But they may not necessarily be honored (the contract can end early, or they can be extended)
 
 
@@ -101,12 +101,12 @@ This is normally found in approval systems, or system with state machines (statu
 
 ## Conditionals/Statuses
 
-It's common to store status in a database. 
+It's common to store status in a database.
 If there's only one status - it's a fact. If each row have the same fact, it becomes redundant and can probably be excluded from the table. E.g. A software house in MY recorded the country of the user created_location as Malaysia, which is repeated for every row.
 
 If there are two, ask yourself if it can be more. If not, consider storing it as tinyint(1) bool to reduce storage.
 
-If there are more, create a reference table to store the statuses. 
+If there are more, create a reference table to store the statuses.
 
 ## Postgres
 
@@ -149,3 +149,21 @@ not null
 https://dba.stackexchange.com/questions/51597/postgresql-9-2-tstzrange-null-infinity-constraint-check/51602#51602
 
 https://www.juxt.pro/blog/value-of-bitemporality
+
+
+## Postgres extension temporal_tables
+
+
+Tutorial [here](https://blog.koverhoop.com/temporal-tables-keeping-a-record-of-data-changes-in-postgresql-tables-c798863a00d5)
+
+
+## Others
+- [Better range type in Postgres 14](https://blog.crunchydata.com/blog/better-range-types-in-postgres-14-turning-100-lines-of-sql-into-3)
+- [Postgresql datetime cheat sheet](https://andreipall.github.io/sql/postgresql-time-and-temporal-data/)
+- [Non-overlapping temporal range](https://codereview.stackexchange.com/questions/195090/postgresql-maintaining-non-overlapping-temporal-ranges)
+- [Example room reservations](https://gist.github.com/fphilipe/0a2a3d50a9f3834683bf)
+- [Time range constraints](https://blog.crunchydata.com/blog/postgres-constraints-for-newbies)
+- [Prevent overlapping/adjacent time range](https://stackoverflow.com/questions/19504727/preventing-adjacent-overlapping-entries-with-exclude-in-postgresql)
+- [History table implementation with Temporal](https://snippets.aktagon.com/snippets/875-temporal-tables-in-postgresql)
+- [A Tardis for your ORM](https://www.hagander.net/talks/tardis_orm.pdf)
+- [BiTemporal with Envelope](https://blog.cloudera.com/bi-temporal-data-modeling-with-envelope/)
