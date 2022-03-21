@@ -1,6 +1,5 @@
 ## Dealing with slowly changing dimensions
 
-
 Schema used from the book `Developing Time-Oriented Database Application in SQL`, https://www2.cs.arizona.edu/~rts/tdbbook.pdf:
 ```
 VT_Begin
