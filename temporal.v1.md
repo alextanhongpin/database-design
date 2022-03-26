@@ -1,6 +1,15 @@
 # Temporal with single date column
 
 
+- History table captures only events that happened in the past.
+- In short, we are not allowed to modify the past.
+- We can only add new events.
+- effective at is the date when the fact is valid.
+- If we add new entries that are effective in the future, as long as it has not happened yet, we can delete it.
+- There is no concept of delete in history, we can however set the entry to `null` as a tombstone entry, to indicate it is no longer effective. We can however resume it in the future.
+- For entries that requires correction in the past, use [facts table](temporal.facts.md).
+
+
 ```sql
 create table if not exists products (
 	id int generated always as identity,
