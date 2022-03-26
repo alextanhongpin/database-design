@@ -119,3 +119,6 @@ from user_address_bitemporal
 where system_period @> now()
 and active_period @> now();
 ```
+
+References
+- https://www.marklogic.com/blog/bitemporal/
