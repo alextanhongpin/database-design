@@ -96,7 +96,7 @@ create table if not exists product_price_tiers (
 	min_quantity int not null,
 	price int, -- Price is set to be nullable, which means it's deleted
 
-	effective_at timestamptz not null default now(),
+	effective_at timestamptz not null default now() CHECK (effective_at >= now()), -- Can only insert future data
 	created_at timestamptz not null default now(),
 
 	primary key (id),
@@ -107,24 +107,24 @@ create table if not exists product_price_tiers (
 
 insert into products(name) values ('chair');
 insert into product_price_tiers (product_id, min_quantity, price, effective_at) values
-(1, 1, 100, clock_timestamp()),
-(1, 1, 250, clock_timestamp()),
-(1, 1, 175, now() + interval '1 hour'),
-(1, 1, 200, timestamptz 'tomorrow'),
-(1, 1, null, now() + interval '2 hour'),
-(1, 1, 250, now() + interval '3 hour'),
-(1, 2, 100, clock_timestamp()),
-(1, 2, 250, clock_timestamp()),
-(1, 2, 175, now() + interval '1 hour'),
-(1, 2, 200, timestamptz 'tomorrow'),
-(2, 1, 100, clock_timestamp()),
-(2, 1, 250, clock_timestamp()),
-(2, 1, 175, now() + interval '1 hour'),
-(2, 1, 200, timestamptz 'tomorrow'),
-(2, 2, 100, clock_timestamp()),
-(2, 2, 250, clock_timestamp()),
-(2, 2, 175, now() + interval '1 hour'),
-(2, 2, 200, timestamptz 'tomorrow');
+	(1, 1, 100, clock_timestamp()),
+	(1, 1, 250, clock_timestamp()),
+	(1, 1, 175, now() + interval '1 hour'),
+	(1, 1, 200, timestamptz 'tomorrow'),
+	(1, 1, null, now() + interval '2 hour'),
+	(1, 1, 250, now() + interval '3 hour'),
+	(1, 2, 100, clock_timestamp()),
+	(1, 2, 250, clock_timestamp()),
+	(1, 2, 175, now() + interval '1 hour'),
+	(1, 2, 200, timestamptz 'tomorrow'),
+	(2, 1, 100, clock_timestamp()),
+	(2, 1, 250, clock_timestamp()),
+	(2, 1, 175, now() + interval '1 hour'),
+	(2, 1, 200, timestamptz 'tomorrow'),
+	(2, 2, 100, clock_timestamp()),
+	(2, 2, 250, clock_timestamp()),
+	(2, 2, 175, now() + interval '1 hour'),
+	(2, 2, 200, timestamptz 'tomorrow');
 
 
 select * from product_price_tiers;
@@ -174,4 +174,28 @@ where
 -- How do we represent deleted at?
 -- Allow setting the price to null, and filtering it later. So this creates a tombstone.
 
+
+create or replace function freeze_past_product_price () returns trigger as $$
+begin
+	IF OLD.effective_at < now() THEN
+		RAISE EXCEPTION 'ProductPrice<id=%, price=%, min_quantity=%, effective_at=%> is effective', OLD.id, OLD.price, OLD.min_quantity, OLD.effective_at
+		USING HINT = 'Cannot change product price that is already effective';
+		RETURN NULL;
+	END IF;
+
+	IF TG_OP = 'DELETE' THEN
+		RETURN OLD;
+	END IF;
+
+	RETURN NEW;
+end;
+$$ language plpgsql;
+
+CREATE TRIGGER freeze_past_product_price
+BEFORE UPDATE OR DELETE ON product_price_tiers
+FOR EACH ROW
+EXECUTE PROCEDURE freeze_past_product_price();
+
+select * from product_price_tiers;
+delete from product_price_tiers where id = 2;
 ```
