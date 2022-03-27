@@ -1,4 +1,12 @@
-User defined ordering
+## User defined ordering
+
+User-defined ordering refers to custom ordering that is determined by user, rather than sorting alphabetically or numerically.
+
+There are many usecases for UDF, such as
+- ordering layers in Figma
+- ordering todo lists
+- custom ordering by variations, e.g. showing sizes in `S, M, L` instead of alphabetically `L, M, S`
+
 
 https://stackoverflow.com/questions/38923376/return-a-new-string-that-sorts-between-two-given-strings/38927158#38927158
 
@@ -40,4 +48,35 @@ select *
 from t 
 join (select * from unnest('{2,1}'::int[]) with ordinality t(id, idx)) o on (o.id = t.id) 
 order by idx;
+```
+
+
+## Sorting by variations
+
+In e-commerce application, usually there are requirements to sort product variations by name. However, sorting alphabetically won't work for most cases, since for example sizes will be shown as `L, M, S` instead of `S, M, L`.
+
+
+```sql
+with variations (id) as (values 
+	('blue'),
+	('green'),
+	('red'),
+	('35'),
+	('34'),
+	('XXS'),
+	('XS'),
+	('S'),
+	('M'),
+	('L'),
+	('XL'),
+	('XXL'),
+	('3XL') -- Just to illustrate that the pattern can be random.
+),
+randomized as (
+	select * from variations order by random()
+)
+select 
+	id
+from randomized
+order by array_position(array['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'], id), id
 ```
