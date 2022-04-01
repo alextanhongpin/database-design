@@ -8,9 +8,11 @@
 - If we add new entries that are effective in the future, as long as it has not happened yet, we can delete it.
 - There is no concept of delete in history, we can however set the entry to `null` as a tombstone entry, to indicate it is no longer effective. We can however resume it in the future.
 - For entries that requires correction in the past, use [facts table](temporal.facts.md).
+- If the previous active value is the same as the new value, we should skip the update.
 
 
 ```sql
+drop table if exists products;
 create table if not exists products (
 	id int generated always as identity,
 
@@ -25,9 +27,11 @@ create table if not exists product_prices (
 	id int generated always as identity,
 
 	product_id int not null,
-	price int not null,
+	price int not null, -- If we want to allow
 
 	effective_at timestamptz not null default now(),
+	-- See below if you need to prepopulate the data in the past.
+	-- effective_at timestamptz not null default now() CHECK (effective_at >= now()),
 	created_at timestamptz not null default now(),
 
 	primary key (id),
@@ -35,6 +39,7 @@ create table if not exists product_prices (
 	unique (product_id, effective_at)
 );
 
+-- Seed data.
 insert into products(name) values ('chair');
 insert into product_prices (product_id, price) values (1, 100);
 insert into product_prices (product_id, price) values (1, 250);
@@ -47,10 +52,20 @@ insert into product_prices (product_id, price) values (2, 250);
 insert into product_prices (product_id, price, effective_at) values (2, 175, now() + interval '1 hour');
 insert into product_prices (product_id, price, effective_at) values (2, 200, timestamptz 'tomorrow');
 
+
+-- Refresher on timestamptz operations.
 select timestamptz 'yesterday';
 select timestamptz 'today';
 select timestamptz 'tomorrow';
 select now() + interval '1 hour';
+
+
+-- Once we seeded data in the past, we can add the constraint to allow only future data.
+-- The `not valid` does not check against past data, but new data be validated.
+alter table product_prices add constraint allow_only_future_events check (effective_at >= now()) not valid;
+-- This will now fail.
+insert into product_prices (product_id, price, effective_at) values (1, 175, timestamptz 'yesterday');
+
 
 select * from product_prices;
 
@@ -85,14 +100,58 @@ create or replace view product_price_history as (
 
 
 select * from product_price_history;
-select *, active_period @> now() as is_current
+select *, active_period @> now() as is_current, (id, product_id, price) is not distinct from (5, 2, 100)
 from product_price_history
-where product_id = 1
-order by active_period asc
--- and active_period @> timestamptz 'tomorrow';
--- and active_period @> now();
-;
+where product_id = 2
+order by active_period asc;
 
+-- We do not want to insert the new values if the value is the same as the current active price.
+CREATE OR REPLACE FUNCTION skip_insert_if_unchanged() RETURNS TRIGGER AS $$
+DECLARE
+	unchanged bool;
+BEGIN
+	SELECT price = NEW.price
+	INTO unchanged
+	FROM product_price_history
+	WHERE product_id = NEW.product_id
+	AND active_period @> NEW.effective_at;
+
+	IF unchanged THEN
+		RAISE EXCEPTION 'product_id % with price % already exists at %', NEW.product_id, NEW.price, NEW.effective_at
+		USING HINT = 'Price exists at the given effective period';
+		-- RETURN NULL;
+	END IF;
+
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER skip_insert_if_unchanged
+	BEFORE INSERT ON product_prices
+	FOR EACH ROW
+	EXECUTE PROCEDURE skip_insert_if_unchanged();
+
+CREATE OR REPLACE FUNCTION freeze_product_price() RETURNS TRIGGER AS $$
+BEGIN
+	RAISE EXCEPTION 'Cannot perform % on table product_prices', TG_OP
+	USING HINT = 'Run ALTER TABLE DISABLE TRIGGER freeze_product_price()';
+	RETURN NULL;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER freeze_product_price
+	BEFORE UPDATE OR DELETE ON product_prices
+	FOR EACH ROW
+	EXECUTE PROCEDURE freeze_product_price();
+
+```
+
+## With Multiple Constraints
+
+
+Similar to the above, but with compound primary key.
+
+```sql
 --- With multiple constraints
 
 drop table if exists product_price_tiers cascade;
