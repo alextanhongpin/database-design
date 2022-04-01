@@ -234,6 +234,7 @@ SELECT *
 FROM photos
 WHERE tags @@ '#swim:*';
 
+
 -- This does not work, they are array of array of tags.
 SELECT array_agg(DISTINCT tags)
 FROM photos;
@@ -274,4 +275,14 @@ SELECT
 	count(*)
 FROM photos
 group by tag;
+
+
+-- Insert 1,000,000 data. Will take ~2 minutes.
+insert into photos (tags)
+select
+    ('#' || left(md5(1::text), 4) ||
+    ' #' || left(md5(random()::text), 4)||
+    ' #' || left(md5(random()::text), 4)
+    )::tsvector
+from generate_series(1, 1000000) s(i);
 ```
