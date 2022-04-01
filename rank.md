@@ -91,3 +91,11 @@ When ranking each column:
 | 100 | 2 | 1 | 5 |
 
 Sort by the score (sum of rank) is the same, sort by the column. The disadavantage of this method is that you have to recompute the scores by taking into account all rows.
+
+
+## ranking with computed columns
+
+
+Sometimes we just want to sort a product by rank.
+
+We can just create another view that ranks the table, find the IDs after pagination, and make another query to fetch the full rows.
