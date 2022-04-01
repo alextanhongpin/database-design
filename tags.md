@@ -280,7 +280,7 @@ group by tag;
 -- Insert 1,000,000 data. Will take ~2 minutes.
 insert into photos (tags)
 select
-    ('#' || left(md5(1::text), 4) ||
+    ('#' || left(md5(i::text), 4) ||
     ' #' || left(md5(random()::text), 4)||
     ' #' || left(md5(random()::text), 4)
     )::tsvector
