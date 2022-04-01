@@ -79,51 +79,51 @@ create or replace function pg_temp.trigger_tag() returns trigger as $$
 	begin
 		with combined as (
 			select distinct unnest(
-				COALESCE(OLD.tags, '{}'::text[]) || 
+				COALESCE(OLD.tags, '{}'::text[]) ||
 				COALESCE(NEW.tags, '{}'::text[])
 			) as name
 		),
 		removed as (
-			select name 
+			select name
 			from combined
 			where not ARRAY[name] <@ COALESCE(NEW.tags, '{}'::text[])
 		),
 		added as (
-			select name 
-			from combined 
+			select name
+			from combined
 			where not array[name] <@ COALESCE(OLD.tags, '{}'::text[])
 		),
 		ids_to_remove as (
-			update pg_temp.tags 
+			update pg_temp.tags
 			set counter = counter - 1
 			where name in (select name from removed)
 			returning id
 		),
 		ids_to_add  as(
-			insert into pg_temp.tags(name) 
-				select name 
-				from added 
-			on conflict(name) 
-			do update set counter = pg_temp.tags.counter + 1 
+			insert into pg_temp.tags(name)
+				select name
+				from added
+			on conflict(name)
+			do update set counter = pg_temp.tags.counter + 1
 			returning *
 		)
-		select 
-			array(select id from ids_to_add), 
-			array(select id from ids_to_remove where counter = 0) 
+		select
+			array(select id from ids_to_add),
+			array(select id from ids_to_remove where counter = 0)
 		into adding_ids, removing_ids;
-		
+
 		RAISE NOTICE 'got adding % and removing %', adding_ids, removing_ids;
 
 		-- Clear the junction table.
 		execute format('
-			delete from %I 
-			where %I = $1 and tag_id = ANY($2::int[])', junction_table, entity_column) 
+			delete from %I
+			where %I = $1 and tag_id = ANY($2::int[])', junction_table, entity_column)
 			using NEW.id, removing_ids;
-			
+
 		execute format('
-			insert into %I (%I, tag_id) 
-				select $1, tmp.id 
-				from (select unnest($2::int[]) as id) tmp 
+			insert into %I (%I, tag_id)
+				select $1, tmp.id
+				from (select unnest($2::int[]) as id) tmp
 			returning id', junction_table, entity_column) using NEW.id, adding_ids;
 		RETURN NEW;
 	end;
@@ -131,9 +131,9 @@ $$ language plpgsql;
 
 -- TODO: Handle delete
 drop trigger update_tags on pg_temp.posts;
-create trigger update_tags 
-after insert or update 
-on pg_temp.posts 
+create trigger update_tags
+after insert or update
+on pg_temp.posts
 for each row
 execute procedure pg_temp.trigger_tag('post_tag', 'post_id');
 
@@ -142,3 +142,136 @@ update pg_temp.posts set tags = '{hello, alice}'::text[];
 update pg_temp.posts set tags = '{john, doe}'::text[];
 ```
 
+
+
+## Using tsvector to store tags
+
+
+
+```sql
+DROP TABLE IF EXISTS photos;
+CREATE TABLE IF NOT EXISTS photos (
+	id int GENERATED ALWAYS AS IDENTITY,
+
+	tags tsvector,
+
+	PRIMARY KEY (id)
+);
+
+INSERT INTO photos (tags) VALUES
+('#nofilter #amazing #cool'::tsvector),
+('#nofilter #notlikethis'::tsvector),
+('#swimming #diving'::tsvector),
+('#swim #dive'::tsvector),
+(array_to_tsvector('{#swim, #swimming, #living}'::text[])),
+(NULL);
+
+-- Add index to improve performance.
+-- There's GIN and GIST index
+-- https://www.compose.com/articles/indexing-for-full-text-search-in-postgresql/#:~:text=PostgreSQL%20provides%20two%20index%20types,document%20collection%20will%20be%20situational.
+-- https://stackoverflow.com/questions/28975517/difference-between-gist-and-gin-index
+-- TL;DR: Use gist for faster update and smaller size.
+-- Also see the usage of generated columns here.
+-- https://www.postgresql.org/docs/current/textsearch-tables.html
+
+-- CREATE INDEX weighted_tsv_idx ON photos USING GIST (tags);
+CREATE INDEX photos_tags_idx ON photos USING GIN (tags);
+
+
+VACUUM ANALYZE photos;
+REINDEX TABLE photos;
+
+
+
+-- This does not do any preprocesing and assumes the vectors are normalized.
+SELECT 'I like swimming'::tsvector;
+SELECT ' I  like  swimming'::tsvector;
+SELECT '#nofilter #instaworthy'::tsvector;
+
+-- If whitespace between words needs to be preserved, wrap them in double single quotes.
+SELECT 'I like ''to swim'''::tsvector;
+
+-- This handles normalization, probably not what we want to use for tags.
+SELECT to_tsvector('english', 'I like swimming');
+
+
+
+
+
+-- View all.
+SELECT *
+FROM photos;
+
+
+-- To query, we use tsquery.
+-- This does not normalize the vector.
+SELECT 'swimming:*'::tsquery; 				-- swimming:*
+
+-- This normalizes the vector.
+SELECT to_tsquery('english', 'swimming:*'); -- swim:*
+
+
+-- Filter with specific tags.
+SELECT *
+FROM photos
+WHERE tags @@ '#nofilter'::tsquery;
+
+-- This is valid too. The text is automatically cast to tsquery, not to_tsquery.
+SELECT *
+FROM photos
+WHERE tags @@ '#nofilter';
+
+-- Find by prefix.
+SELECT *
+FROM photos
+WHERE tags @@ '#:*';
+
+
+-- Disable seqscan because there's not much rows.
+SET enable_seqscan = OFF;
+EXPLAIN ANALYZE
+SELECT *
+FROM photos
+WHERE tags @@ '#swim:*';
+
+-- This does not work, they are array of array of tags.
+SELECT array_agg(DISTINCT tags)
+FROM photos;
+
+
+SELECT to_tsvector('english', string_agg(tags::text, ' '))
+FROM photos;
+
+EXPLAIN ANALYZE
+SELECT string_agg(tags::text, ' ')::tsvector
+FROM photos;
+
+-- Using custom aggregate.
+CREATE AGGREGATE tsvector_agg(tsvector) (
+   STYPE = pg_catalog.tsvector,
+   SFUNC = pg_catalog.tsvector_concat,
+   INITCOND = ''
+);
+
+SELECT tsvector_agg(tags)
+FROM photos;
+
+SELECT string_agg(tags::text, ' ')::tsvector
+FROM photos;
+
+-- Get all unique occurances.
+SELECT distinct unnest(tsvector_to_array(tags)) tag
+FROM photos order by tag;
+
+SELECT to_tsvector(string_agg(tags::text, ' '))
+FROM photos;
+
+-- https://www.postgresql.org/docs/current/functions-textsearch.html
+
+-- Find count of all tags.
+SELECT
+	unnest(tsvector_to_array(tags)) tag,
+	count(*)
+FROM photos
+group by tag;
+```
