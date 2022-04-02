@@ -1,6 +1,6 @@
 ## Modelling Tags with Postgres Array
 
-The performance is faster thanusing join tables, http://www.databasesoup.com/2015/01/tag-all-things.html.
+The performance is faster than using join tables, http://www.databasesoup.com/2015/01/tag-all-things.html.
 ```sql
 CREATE TABLE IF NOT EXISTS tags (
 	tags text[] not null default '{}'
@@ -146,6 +146,12 @@ update pg_temp.posts set tags = '{john, doe}'::text[];
 
 ## Using tsvector to store tags
 
+
+Advantages:
+- fast search
+- stores only unique values
+- there is a native for conversion between array and tsvector
+- tsvector is sorted alphabetically by default
 
 
 ```sql
