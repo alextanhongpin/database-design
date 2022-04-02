@@ -46,7 +46,11 @@ C: received (100 - 33 - 33) = 34
 Total disbursed: 100
 ```
 
-In SQL, it is hard to achieve this.
+In SQL, it is hard to achieve this. Note that using `ceil/floor` instead of `round` will lead to largely imbalance distribution. Rounding seems to ideal for most cases. For more advance usecases, also look at [banker's rounding](https://en.wikipedia.org/wiki/Rounding#Round_half_to_even).
+
+
+Square also does [banker's rounding](https://squareup.com/help/us/en/article/5092-rounding#:~:text=When%20using%20standard%20rounding%2C%20you,closer%20to%20the%20actual%20amount.).
+
 
 ```sql
 drop table product_prices;
