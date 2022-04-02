@@ -19,3 +19,10 @@ from generate_series(1, 1000000) s(i)
 ```sql
 select left(md5(i::text), round(random() * 5 + 5)::int) from generate_series(1, 100) i;
 ```
+
+## Setting seed
+
+```sql
+-- Ensure reproducibility.
+SELECT setseed(0.42);
+```
