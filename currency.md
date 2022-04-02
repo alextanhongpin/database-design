@@ -30,3 +30,74 @@ INSERT INTO product_prices(price) VALUES
 
 SELECT * FROM product_prices;
 ```
+
+## Dealing with division between currency.
+
+
+Say if you have MYR 100 to be divided equally between 3 people, you will soon face the issue with decimal.
+
+The proper solution is to divide the amount between two people first, with the values rounded (up or down, it depends on your impementation), and take  the total minus the amount already disbursed.
+
+```
+A, B and C
+A: received 33
+B: received 33
+C: received (100 - 33 - 33) = 34
+Total disbursed: 100
+```
+
+In SQL, it is hard to achieve this.
+
+```sql
+drop table product_prices;
+
+CREATE TABLE IF NOT EXISTS product_prices (
+	id int GENERATED ALWAYS AS IDENTITY,
+
+	price int NOT NULL,
+
+	PRIMARY KEY (id)
+);
+truncate table product_prices;
+SELECT setseed(0.42);
+INSERT INTO product_prices(price)
+SELECT round(100*random())
+FROM generate_series(1, 10);
+
+
+-- Underflow: When total is 591, and you have 595 to disburse, due to rounding, only 593 is disbursed.
+-- Overflow: When total is 700, the values round up to 701, but you can only disburse 700.
+
+with data as (
+	select 700 as amount_to_divide_by
+),
+max_id as (
+	-- to check last row.
+	select max(id) from product_prices
+),
+total as (
+	select sum(price) as total_price
+	from product_prices
+),
+projected as (
+SELECT *,
+	round(price / total_price::numeric * amount_to_divide_by) as projected_amount,
+	sum(round(price / total_price::numeric * amount_to_divide_by)) over (order by id) as total_amount,
+	case when id = (select max from max_id)
+	then
+		amount_to_divide_by
+	else
+		least(sum(
+			round(price / total_price::numeric * amount_to_divide_by)
+	) OVER (order by id), amount_to_divide_by)
+	end  as corrected_amount
+FROM product_prices,
+	lateral (select total_price from total) t,
+	lateral (select amount_to_divide_by from data) d
+)
+SELECT *,
+	projected_amount - (total_amount - corrected_amount),
+	sum(projected_amount - (total_amount - corrected_amount)) over (order by id)
+FROM projected;
+
+```
