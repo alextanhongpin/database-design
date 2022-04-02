@@ -69,35 +69,31 @@ FROM generate_series(1, 10);
 -- Overflow: When total is 700, the values round up to 701, but you can only disburse 700.
 
 with data as (
-	select 700 as amount_to_divide_by
-),
-max_id as (
-	-- to check last row.
-	select max(id) from product_prices
-),
-total as (
-	select sum(price) as total_price
+	select
+		sum(price) 	as total_price,
+		max(id) 	as last_id,
+		700  		as amount_to_divide_by
 	from product_prices
 ),
 projected as (
-SELECT *,
-	round(price / total_price::numeric * amount_to_divide_by) as projected_amount,
-	sum(round(price / total_price::numeric * amount_to_divide_by)) over (order by id) as total_amount,
-	case when id = (select max from max_id)
-	then
-		amount_to_divide_by
-	else
-		least(sum(
-			round(price / total_price::numeric * amount_to_divide_by)
-	) OVER (order by id), amount_to_divide_by)
-	end  as corrected_amount
-FROM product_prices,
-	lateral (select total_price from total) t,
-	lateral (select amount_to_divide_by from data) d
+	select *,
+		round(price / total_price::numeric * 100, 2) as ratio,
+		round(price / total_price::numeric * amount_to_divide_by) as projected_amount
+	from product_prices,
+	lateral (select * from data) t
+),
+corrected as (
+	select *,
+		sum(projected_amount) over (order by id) as projected_cumulative_amount,
+		case when id = last_id
+			then amount_to_divide_by
+			else least(sum(projected_amount) over (order by id), amount_to_divide_by)
+		end as corrected_cumulative_amount
+	from projected
 )
 SELECT *,
-	projected_amount - (total_amount - corrected_amount),
-	sum(projected_amount - (total_amount - corrected_amount)) over (order by id)
-FROM projected;
-
+	projected_amount - (projected_cumulative_amount - corrected_cumulative_amount) as distributed,
+	(projected_amount - (projected_cumulative_amount - corrected_cumulative_amount)) - price as gain,
+	sum(projected_amount - (projected_cumulative_amount - corrected_cumulative_amount)) over (order by id) as cumulative_distributed
+FROM corrected;
 ```
