@@ -30,7 +30,9 @@ create table if not exists product_prices (
 	product_id int not null,
 	price int not null, -- If we want to allow
 
+	-- To allow 'from the beginning of time', allow null effective at, and order by nulls first
 	effective_at timestamptz not null default now(),
+
 	-- See below if you need to prepopulate the data in the past.
 	-- effective_at timestamptz not null default now() CHECK (effective_at >= now()),
 	created_at timestamptz not null default now(),
@@ -267,4 +269,80 @@ EXECUTE PROCEDURE freeze_past_product_price();
 
 select * from product_price_tiers;
 delete from product_price_tiers where id = 2;
+```
+
+## Improvements
+
+
+Astute readers will realize that the implementation above does not cover the time range from the beginning of time. Say if we insert two effective period, now and tomorrow
+
+```
+# What we got
+now, tomorrow
+tomorrow, until the end of time
+
+
+# What we desired
+from beginning, now
+now, tomorrow
+tomorrow, until the end of time
+```
+
+
+Attempting to use the `lag` window function instead of `lead` does not produce the desired result either:
+
+```sql
+create or replace view product_price_history as (
+	select
+		id,
+		product_id,
+		price,
+		tstzrange(
+			lag(effective_at, 1) over (partition by product_id order by effective_at asc),
+			effective_at,
+			'(]'
+		) as active_period,
+		created_at
+	from product_prices
+	where product_id =1
+	order by effective_at asc
+);
+```
+
+Output from `lag`:
+
+```
+from beginning, now
+now, tomorrow
+```
+
+Even worse, it now limits the end time range to basically mean "effective until".
+
+
+The solution is to allow `null` effective at as a marker for the beginning of time.
+
+
+```sql
+-- Special timestamp to indicate from the beginning of time.
+alter table product_prices alter column effective_at drop not null;
+insert into product_prices (product_id, price, effective_at) values (1, 200, null);
+```
+
+
+We also update our views to sort by `nulls first`:
+
+```sql
+create or replace view product_price_history as (
+	select
+		id,
+		product_id,
+		price,
+		tstzrange(
+			effective_at,
+			lead(effective_at, 1) over (partition by product_id order by effective_at asc nulls first),
+			'[)'
+		) as active_period,
+		created_at
+	from product_prices
+);
 ```
