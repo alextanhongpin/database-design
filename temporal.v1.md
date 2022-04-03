@@ -9,6 +9,7 @@
 - There is no concept of delete in history, we can however set the entry to `null` as a tombstone entry, to indicate it is no longer effective. We can however resume it in the future.
 - For entries that requires correction in the past, use [facts table](temporal.facts.md).
 - If the previous active value is the same as the new value, we should skip the update.
+- Note the boundary, `[)` the `)` is exclusive.
 
 
 ```sql

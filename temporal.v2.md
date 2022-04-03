@@ -52,7 +52,7 @@ begin
 					),
 					upper(active_period)
 				),
-				'(]'
+				'[)'
 			) = active_period as matched
 		from product_prices
 		where product_id = _product_id
@@ -74,7 +74,7 @@ select
 			),
 			upper(active_period)
 		),
-		'(]'
+		'[)'
 	) = active_period as matched
 from product_prices
 where product_id = 1
@@ -97,11 +97,11 @@ table products;
 table product_prices;
 
 insert into product_prices(product_id, price, active_period) values
-	(1, 100, tstzrange(timestamptz 'yesterday', now(), '(]')),
-	(1, 200, tstzrange(now(), timestamptz 'tomorrow', '(]'))
+	(1, 100, tstzrange(timestamptz 'yesterday', now(), '[)')),
+	(1, 200, tstzrange(now(), timestamptz 'tomorrow', '[)'))
 ;
 insert into product_prices(product_id, price, active_period) values
-(1, 200, tstzrange(timestamptz 'tomorrow', null, '(]'));
+(1, 200, tstzrange(timestamptz 'tomorrow', null, '[)'));
 
 truncate table product_prices;
 
@@ -132,7 +132,7 @@ update_old as (
 	set active_period = tstzrange(
 		t.lower_active_period,
 		t.effective_at,
-		'(]'
+		'[)'
 	)
 	from (select * from old_data) t
 	where id = t.old_id
@@ -140,7 +140,7 @@ update_old as (
 ),
 insert_new as (
 	insert into product_prices (product_id, price, active_period)
-	select target_product_id, target_price, tstzrange(effective_at, upper_active_period, '(]')
+	select target_product_id, target_price, tstzrange(effective_at, upper_active_period, '[)')
 	from old_data
 	returning *
 )
