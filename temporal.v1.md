@@ -329,7 +329,7 @@ insert into product_prices (product_id, price, effective_at) values (1, 200, nul
 ```
 
 
-We also update our views to sort by `nulls first`:
+We also update our views to sort by `nulls first` (default is `nulls last`):
 
 ```sql
 create or replace view product_price_history as (
