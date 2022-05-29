@@ -310,3 +310,10 @@ invoice
 - amount
 - for_date (what month/year is this invoice for?)
 ```
+
+## Monthly subscription
+
+https://stackoverflow.com/questions/23507200/good-practices-for-designing-monthly-subscription-system-in-database
+https://vertabelo.com/blog/creating-a-dwh-part-one-a-subscription-business-data-model/
+https://docs.microsoft.com/en-us/sql/reporting-services/lesson-1-creating-a-sample-subscriber-database?view=sql-server-ver15
+https://softwareengineering.stackexchange.com/questions/361940/how-should-i-go-about-creating-a-db-schema-for-news-subscription-and-connectin
