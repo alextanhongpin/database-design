@@ -63,12 +63,23 @@ with array:
 
 ## Json or not?
 
-Don’t use json
+Why json is not a good candidate
 
 - no protection against referential integrity (if something gets deleted etc)
 - no sorting
 - no joining
 - no constraints (uniqueness)
+- no aggregation (actually it is possible, but not performant)
+
+When to use json column
+
+- if the payload is highly dynamic unstructured, then json is a good candidate. For example, when you are storing `json schema` or `api response payload` in the column. For the opposite, if the shape is almost fixed, store those fields in separate columns instead, or store a custom type as the column
+
+- when you don't need to apply other contraints etc, this is best done at column level
+
+
+
+Using `custom type` is akin to strongly typed language vs using `json`. In most cases, having a type to represent data makes a difference. Prefer this over dynamic json.
 
 ## Converting JSON to a database row (Postgres)
 

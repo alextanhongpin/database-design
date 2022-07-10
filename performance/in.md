@@ -2,14 +2,13 @@ https://stackoverflow.com/questions/24647503/performance-issue-in-update-query
 
 Join to values instead of using IN for large values of IN
 
-
 ```sql
 CREATE TABLE IF NOT EXISTS words (
-	id int GENERATED ALWAYS AS IDENTITY,
+    id int GENERATED ALWAYS AS IDENTITY,
 
-	word TEXT NOT NULL,
+    word TEXT NOT NULL,
 
-	PRIMARY KEY (id)
+    PRIMARY KEY (id)
 );
 
 -- Takes ~30s
@@ -18,7 +17,6 @@ SELECT md5(i::text)
 FROM generate_series(1, 1000000) i;
 ```
 
-
 ## Sampling repeatable data for testing
 
 ```sql
@@ -26,9 +24,9 @@ FROM generate_series(1, 1000000) i;
 SELECT *
 FROM words
 WHERE word IN (
-	SELECT word
-	FROM words
-	TABLESAMPLE BERNOULLI(0.1) REPEATABLE(0)
+    SELECT word
+    FROM words
+    TABLESAMPLE BERNOULLI(0.1) REPEATABLE(0)
 );
 ```
 
@@ -46,7 +44,7 @@ EXPLAIN ANALYZE
 SELECT *
 FROM words
 WHERE word IN (
-	-- Copy values from Example 1.
+    -- Copy values from Example 1.
 );
 ```
 
@@ -76,12 +74,13 @@ EXPLAIN ANALYZE
 SELECT *
 FROM words
 JOIN (VALUES
-	-- Copy values from Example 2
+    -- Copy values from Example 2
 ) vals (v)
 ON (word = v);
 ```
 
 Output:
+
 ```sql
 Gather  (cost=1025.05..15192.60 rows=1002 width=69) (actual time=13.278..286.691 rows=1002 loops=1)
   Workers Planned: 2
@@ -98,15 +97,14 @@ Execution Time: 287.476 ms
 
 ## Using Subquery
 
-
 ```sql
 EXPLAIN ANALYZE
 SELECT *
 FROM words
 WHERE word IN (
-	SELECT word
-	FROM words
-	TABLESAMPLE BERNOULLI(0.1) REPEATABLE(0)
+    SELECT word
+    FROM words
+    TABLESAMPLE BERNOULLI(0.1) REPEATABLE(0)
 );
 ```
 

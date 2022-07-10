@@ -4,8 +4,8 @@
 $ brew install postgresql@9.6
 ```
 
-
 # Check if port 5432 is being used
+
 ```bash
 $ lsof -i :5432
 
