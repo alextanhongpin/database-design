@@ -1,6 +1,6 @@
 # Database Design
 
-Useful tips for designing robust database schema. This guide is more of a decision reference (1) for people wanting to design better database schema for startups (2).
+Useful tips for designing a robust database schema. This guide is more of a decision reference (1) for people wanting to design better database schemas for startups (2).
 
 - Decision reference: You will probably come across any one of the problems below when designing database schema (e.g. should I use `JSONB`? How do I design `tagging` schema? How do I keep historical records?) and be presented with different options and trade-offs. If two standards are equal (should table name be singular or plural), then it's up to you to pick one and make it a standard and keeping it consistent. Rather than giving you a `it depends` answer, this guide is meant to share the `what-ifs`, that is the decision I made, and the outcome. Yes, the codes are actually being written and used in different applications I wrote. You don't have to agree with the approaches - I used to take some of the more complex approaches (for the sake of _best practice_), but over time I realised that it is unnecessary. Simple is best.
 - Startups: A lot of startups starts by using ORMs or frameworks that provides a lot of convenience when it comes to dealing with database. If you are thinking _hey, we need to be agile, that's why we are okay introducing some technical debts_ let me tell you something, you can be both fast and produce quality work (not compromising database design). Most of the time, when new features are being introduced, or when new situation aroses (e.g. analytics are not accurate, because we did not store timestamp with timezones in database, using integer id instead of uuid, and people start _hacking_ your system, etc), the application just won't cut it anymore. The last thing I want to live with is a poorly designed database schema. You can switch language and frameworks for your frontend/backend servers, but if you design your database wrongly, you have to live with it. Also, I mentioned `startups` because my knowledge on database design is limited to a user scale of `<5m`. Also, the approach taken by larger companies might vary, and the technology used might differ as they are focusing a lot on performance, reliability and running databases across the world. For this guide, we are talking specifically about `mysql` and `postgres`, and probably just running them in cloud providers like AWS/Google Cloud.
@@ -24,7 +24,7 @@ There are few things you could help me with:
 
 # Notes
 
-- inner joins is faster that subquery most of the time
+- inner joins are faster than subqueries most of the time
 - apply logic in the database if you are going to have many different applications
 - use optimized uuid for faster querying
 - include the default auto incremented id
@@ -392,10 +392,10 @@ There was a scenario where User A is logged in User B account (bug), the reason 
 
 ## Thoughts
 
-- Should I create a differen table for user profile and password? No.
-https://stackoverflow.com/questions/17683571/should-i-create-2-tables-first-for-usernames-and-passwords-and-other-for-user
-https://www.quora.com/Should-we-keep-the-user-name-and-password-in-the-same-table-where-the-other-personal-information-is
-https://dba.stackexchange.com/questions/148909/is-it-a-good-practice-to-isolate-login-information-username-password-in-a-sep
+- Should I create a different table for user profile and password? No.
+   - https://stackoverflow.com/questions/17683571/should-i-create-2-tables-first-for-usernames-and-passwords-and-other-for-user
+   - https://www.quora.com/Should-we-keep-the-user-name-and-password-in-the-same-table-where-the-other-personal-information-is
+   - https://dba.stackexchange.com/questions/148909/is-it-a-good-practice-to-isolate-login-information-username-password-in-a-sep
 
 
 ## Useful features for postgres
