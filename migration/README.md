@@ -37,3 +37,21 @@ This has the following implications:
 - There's no need to write custom migration (e.g. `alter table add column ...`). The tool should be smart enough to generate the statements required to perform the migration.
 
 - Schema will not go out of sync (for example, if there's an attempt to run the migration outside of the application, this will be sync back to follow the application schema).
+
+
+
+
+
+## Anti-pattern
+
+
+
+Don't mix data migration with schema migration:
+
+- data migration is when you attempt to populate tables with data. This is fine when the table is for example a `reference table`, where the values are finite. However, seeding the table with 1 million rows of data which could potentially not be used will only slow down migration. Also, attempting to seed fixtures for testing in the migrations will not end up well.
+
+- If there are new columns added, you have to update the old seed migration to include the new columns, which is anti-pattern, since old migration file should not be modified
+
+- the solution is to create a separate seed migration, or better, create the fixtures during the test only.
+  
+  
