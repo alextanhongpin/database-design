@@ -82,3 +82,12 @@ JOIN pg_index i ON (idx_scan < 50 AND pg_relation_size(relid) > 5 * 8192)
 ORDER BY pg_relation_size(i.indexrelid) / nullif(idx_scan, 0) DESC NULLS FIRST,
 pg_relation_size(i.indexrelid) DESC;
 ```
+
+
+## High CPU usage
+
+Mostly due to sorting, which could be due to lack of indices too.
+
+- https://use-the-index-luke.com/sql/sorting-grouping/order-by-asc-desc-nulls-last
+- https://hakibenita.com/postgresql-unused-index-size
+- https://stackoverflow.com/questions/63625228/optimizing-very-slow-postgresql-left-join-between-two-large-tables

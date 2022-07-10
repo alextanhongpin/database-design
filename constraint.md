@@ -223,3 +223,16 @@ create table if not exists likes (
 	)
 );
 ```
+
+## Constraints Trigger
+
+We can set more advance constraints using triggers
+
+- freeze rows once certain status is achieved
+- using WHEN on trigger to check if the primary key is changed
+- trigger per column change
+- limit number of rows 
+
+
+The advantage of using trigger vs check constraints is that we can disable/enable it when required.
+
