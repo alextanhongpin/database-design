@@ -5,18 +5,17 @@
 ```sql
 DROP TYPE employee_contact;
 CREATE TYPE employee_contact AS (
-	name text,
+    name text,
 --   NOTE: constraints does not work.
---	 name text not null,
---	 name text check (name ~ '\s'),
-	phone_number text
+--     name text not null,
+--     name text check (name ~ '\s'),
+    phone_number text
 );
 
 select ('john', '12345678')::employee_contact;
 ```
 
 ## Adding validation
-
 
 `CREATE TYPE` does not allow constraints. To do so, we use `CREATE DOMAIN` to either add field level validation, or type level validation.
 
@@ -28,8 +27,8 @@ CREATE DOMAIN check_name AS TEXT NOT NULL CHECK (VALUE ~ '^\w([\w\s]+\w)?$');
 
 DROP TYPE employee_contact;
 CREATE TYPE employee_contact AS (
-	name check_name,
-	phone_number text
+    name check_name,
+    phone_number text
 );
 
 select ''::check_name;
@@ -50,24 +49,23 @@ SELECT -1::uint2;
 
 DROP TYPE IF EXISTS dimensions;
 CREATE TYPE dimensions AS (
-	width uint2,
-	height uint2,
-	length uint2
+    width uint2,
+    height uint2,
+    length uint2
 );
 
 -- Adding type-level validation.
 DROP DOMAIN IF EXISTS check_dimensions;
 CREATE DOMAIN check_dimensions AS dimensions NOT NULL
-	CHECK (
-		((VALUE).width, (VALUE).height, (VALUE).length) IS NOT NULL
-	);
+    CHECK (
+        ((VALUE).width, (VALUE).height, (VALUE).length) IS NOT NULL
+    );
 
 
 select '(1,1,)'::dimensions;
 select '(1,1,)'::check_dimensions;
 select '(1,1,-1)'::check_dimensions;
 ```
-
 
 ## List all domain types
 
@@ -89,4 +87,20 @@ AND    n.nspname <> 'pg_catalog'
 AND    n.nspname <> 'information_schema'
 AND    pg_catalog.pg_type_is_visible(t.oid)
 ORDER  BY 1, 2;
+```
+
+### Casting from one type to another
+
+
+
+```sql
+create type t1 as (a int, b text);
+create type t2 as (a int, b date, c bool);
+
+create table t(x t1);
+insert into t values ((1, '2022-01-01'));
+
+
+alter table t alter column x type t2 using((x).a, (x).b::date, false);
+select * from t;
 ```
