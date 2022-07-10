@@ -1,6 +1,6 @@
 # Comment
 
-Comments can be added for tables, columns as well as functions. Sometimes it is useful to add comments to allow others to understand the design better (single source of truth). Some people use comments too to store error messages (when creating a custom postgres type for example). 
+Comments can be added for tables, columns as well as functions. Sometimes it is useful to add comments to allow others to understand the design better (single source of truth). Some people use comments too to store error messages (when creating a custom postgres type for example).
 
 
 ## mysql: Adding comment after table has been created
@@ -25,6 +25,21 @@ WITH recent_accounts AS (
   WHERE created_at < now() - interval '1 month' -- #A
 )
 SELECT *, RANK() OVER (ORDER BY created_at DESC) -- #B
+FROM recent_accounts
+```
+
+Alternative:
+
+```sql
+-- Retrieve recent accounts and rank them
+-- (1) Accounts created in the last month, including today
+-- (2) Give each account a rank, sorted by created at.
+WITH recent_accounts AS (
+  SELECT *
+  FROM accounts
+  WHERE created_at < now() - interval '1 month' -- (1)
+)
+SELECT *, RANK() OVER (ORDER BY created_at DESC) -- (2)
 FROM recent_accounts
 ```
 
