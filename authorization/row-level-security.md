@@ -32,6 +32,9 @@ VALUES
 (1, 'hello world'),
 (2, 'hello world');
 
+-- set_config(setting_name, new_value, is_local)
+SELECT set_config('role', 'app_user', true), set_config('user_id', '2', true)
+
 -- Superuser can view all.
 SELECT * FROM comments;
 
