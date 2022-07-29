@@ -225,6 +225,8 @@ https://stackoverflow.com/questions/8242567/acceptable-field-type-and-size-for-e
 email VARCHAR(255) NOT NULL UNIQUE
 ```
 
+Alos, consider using citext for email, as it should be case insensitive.
+
 ## Data Type: Geolocation
 
 With `MySQL <8.0`:
