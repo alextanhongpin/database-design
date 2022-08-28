@@ -1,6 +1,6 @@
 https://stackoverflow.com/questions/24647503/performance-issue-in-update-query
 
-Join to values instead of using IN for large values of IN
+Join to values instead of using IN for large values of IN. This no longer has impact in newer Postures version:
 
 ```sql
 CREATE TABLE IF NOT EXISTS words (
