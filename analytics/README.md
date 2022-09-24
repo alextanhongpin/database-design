@@ -5,6 +5,10 @@ http://www.silota.com/docs/recipes/
 
 Some recipes for sql analytics
 
+- data cleaning
+- data preparation
+- analytics
+
 ## Smoothing data
 Raw data can be noisy. To reduce noise, we perform smoothing on the data before presenting it.
 
