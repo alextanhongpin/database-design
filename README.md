@@ -1,5 +1,12 @@
 # Database Design
 
+
+## Posgres 15
+
+- Merge command
+- public schema no longer recommended, namespace instead?
+- use BRIN index for created at column?
+
 ## Postgres 14 in 2023
 
 - use `identity` columns instead of `serial`
