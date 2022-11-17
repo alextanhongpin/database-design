@@ -12,5 +12,10 @@ What are the goals and values you would bring when learning good database design
 Tradeoffs between rows and columns
 - using columns allows the usage of constraints, something that is hard to be done with rows (can only be done using triggers)
 - e.g. modelling can only have two rows could also be done by using two columns, the second is non nullable
-- we don't have to count the rows that way
+- we don't have to count the rows that
+
+- learn the tradeoffs between different schema decision 
+
+
+
 
