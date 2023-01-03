@@ -44,3 +44,8 @@ SELECT parent_category, JSON_ARRAYAGG(category) AS subcategories FROM category G
 ```
 
 ## Using Ltree
+
+
+## Using adjacency list vs nested sets
+
+https://www.google.com/search?q=adjance+list+vs+nested+sets+postgres&oq=adjance+list+vs+nested+sets+postgres&aqs=chrome..69i57j33i10i160.5456j1j7&sourceid=chrome&ie=UTF-8
