@@ -61,7 +61,7 @@ type SearchResult struct {
 }
 
 func search(db *sql.DB, q string) ([]SearchResult, error) {
-	rows, err := db.Query(`select path, snippet(docs_idx, 1, '<b>', '</b>', '...', 32) from docs_idx(?) order by rank`, q)
+	rows, err := db.Query(`select path, snippet(docs_idx, 1, '<b>', '</b>', '...', 32) from docs_idx where docs_idx match ? order by rank`, q)
 	if err != nil {
 		return nil, err
 	}
