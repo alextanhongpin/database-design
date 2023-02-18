@@ -1,21 +1,32 @@
 include .env
 export
 
+cli := ./cmd/cli/main
+
 up:
 	@docker-compose up -d
+
 
 down:
 	@docker-compose down
 
 
 compile:
-	@go build -o=./cmd/main --tags "fts5" ./cmd/main.go
+	@go build -o=${cli} --tags "fts5" ./cmd/cli/main.go
+
 
 init:
-	@./cmd/main init
+	@${cli} init
+
 
 index:
-	@./cmd/main index
+	@${cli} index
+
 
 search:
-	@./cmd/main search -q ${q}
+	@${cli} search -q ${q}
+
+
+server:
+	@go build -o=./cmd/server/main --tags "fts5" ./cmd/server/main.go
+	@./cmd/server/main
