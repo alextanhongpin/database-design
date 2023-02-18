@@ -17,6 +17,9 @@ var templateFunc = map[string]any{
 	"unescapeHTML": func(s string) template.HTML {
 		return template.HTML(s)
 	},
+	"inc": func(i int) int {
+		return i + 1
+	},
 }
 
 var layout = template.Must(template.ParseFS(files, "html/layout.html")).Funcs(templateFunc)

@@ -3,28 +3,28 @@
 <html lang="en">
   <head>
     <title>Search</title>
+    <style>
+      body {
+        font-family: Helvetica, Arial;
+      }
+      .li {
+        white-space: pre-line;
+        font-family: monospace;
+        padding: 1rem;
+      }
+      .li-header {
+        font-weight: bold;
+      }
+      .li b {
+        background: #fcfca0;
+      }
+    </style>
   </head>
-
-  <input id="search" type="search" value="{{.Q}}" />
 
   <body>
     {{block "content" .}}
     <!--Fallback, if no content provided here.-->
     No content {{end}}
   </body>
-
-  <script>
-    (() => {
-      const search = document.getElementById("search");
-      search.addEventListener("keypress", (evt) => {
-        if (evt.key === "Enter") {
-          const url = new window.URL(window.location.href);
-          url.searchParams.set("q", search.value);
-
-          window.location.assign(url.search);
-        }
-      });
-    })();
-  </script>
 </html>
 {{end}}

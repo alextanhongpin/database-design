@@ -1,13 +1,30 @@
 {{template "layout" .}} {{define "content"}}
+<h1>Search</h1>
+
+<input id="search" type="search" value="{{.Q}}" />
+
+<div>Search result</div>
+
 <div>
-  <h1>Search</h1>
-
-  <div>Search result</div>
-
-  <ol>
-    {{range .Data}}
-    <li><b>{{.Path}}</b> {{.Match | unescapeHTML }}</li>
-    {{end}}
-  </ol>
+  {{range $i, $row := .Data}}
+  <div class="li">
+    <div class="li-header">{{$i | inc}}. {{$row.Path}}</div>
+    {{$row.Match | unescapeHTML }}
+  </div>
+  {{end}}
 </div>
+
+<script>
+  (() => {
+    const search = document.getElementById("search");
+    search.addEventListener("keypress", (evt) => {
+      if (evt.key === "Enter") {
+        const url = new window.URL(window.location.href);
+        url.searchParams.set("q", search.value);
+
+        window.location.assign(url.search);
+      }
+    });
+  })();
+</script>
 {{end}}
