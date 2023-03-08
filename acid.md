@@ -1,6 +1,6 @@
 ## ACID Property
 
-- __Atomicity__: Transaction must be treated as an atomic unit, that is, either all of its operations are executed or none. There must be no state in a database where a transaction is left partially completed. 
+- __Atomicity__: Transaction must be treated as an atomic unit, that is, either all of its operations are executed or none. There must be no state in a database where a transaction is left partially completed.
 - __Consistency__: The database must remain in a consistent state after any transaction. No transactions should have any adverse effect on the data residing in the database.
 - __Isolation__: In a database system where more than one transactions are being executed simultaneously and in parallel, the property of isolation states that all the transactions will be carried out and executed as if it is the only transaction in the system. No transaction will affect the existence of any other transaction.
 - __Durability__: The database should be durable enough to hold all its latest updates even if the system fails or restarts. If a transaction updates a chunk of data in a database and commits but the system fails before the data could be written on to the disk, then that data will be updated once the system springs back into action.
