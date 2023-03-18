@@ -1,6 +1,10 @@
 include .env
 export
 
+
+include *.mk
+
+
 cli := ./cmd/cli/main
 
 up:

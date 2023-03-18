@@ -3,3 +3,4 @@ tmp/
 *.db
 cmd/cli/main
 cmd/server/main
+**.ipynb_checkpoints
