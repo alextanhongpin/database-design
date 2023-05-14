@@ -12,14 +12,14 @@ You can just add the entry `sqldocs/` in `.git/exclude/hook` to exclude the fold
 
 The `sqldocs` will then contain READMEs of the domain for each sql.
 
-```markdown
+````markdown
 <!--readme.md-->
 # Auth Domain
 
 ## Create new users
 
 Creates a new user with email and password. 
-````sql
+```sql
 insert into users (email, password) values
 ('john.doe@mail.com', crypt('new password', gen_salt('md5')) 
 returning *
