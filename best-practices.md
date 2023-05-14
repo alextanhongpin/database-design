@@ -34,3 +34,57 @@ The single source of truth. But somehow this is not analysed at all.
 
 # storage
 you can save storage by sorting the columns, aka column tetris https://stackoverflow.com/questions/2966524/calculating-and-saving-space-in-postgresql
+
+
+
+## Column naming
+
+- keep it short
+- add units to your column, e.g. `weight_g`, `length_cm`
+- use the smallest unit of measurement, e.g. `weight_g` instead of `weight_kg`, cents for currency etc
+- avoid floats, use integer instead, applies to money and unit of measurement
+
+## Column to avoid
+
+- computed column (with exception), store raw column
+- exception is perhaps when we want to have a unique column instead of setting constraints on multiple columns, which can lead to larger index. For this, we create a computed column that hashes multiple column values, and set a unique index on that column
+
+
+## Reference table
+- avoid storing status etc as integer in the column
+- use reference table instead, and apply foreign key association
+- enum sounds like a good choice - only if the values do not change, e.g. days `Sunday`, `Monday`...
+- if the values do change, don't use enum. Use a reference table
+
+
+## Documentation
+- mermaid erd diagram (recommended, because you can embed it as code snippet in Github/Gitlab for rendering)
+- https://dbdiagram.io/home
+- https://dbml.dbdiagram.io/home/
+- https://dbdocs.io/
+
+## BI Tools
+
+-  Metabase (I've used this many times)
+-  Looker Studio (looks promising, haven't explored)
+- [DuckDB](https://duckdb.org/), supposedly super fast
+- https://duckdb.org/2022/09/30/postgres-scanner.html
+
+## Diff tools
+- https://pypi.org/project/migra/ (for postgres)
+- https://www.skeema.io/ (for mysql, used by Github)
+- https://atlasgo.io/
+- https://schemahero.io/
+
+## Viewer
+- https://www.tadviewer.com/
+
+
+## Data transformation
+
+- https://meltano.com/
+- https://sqlmesh.readthedocs.io/en/stable/quick_start/
+- https://prql-lang.org/
+- https://www.benthos.dev/
+- https://clickhouse.com/docs/knowledgebase/postgresql-to-parquet-csv-json (to convert postgres to parquet)
+- https://github.com/rilldata/rill-developer
