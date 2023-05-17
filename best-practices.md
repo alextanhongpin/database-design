@@ -79,6 +79,7 @@ you can save storage by sorting the columns, aka column tetris https://stackover
 ## Viewer
 - https://www.tadviewer.com/
 - https://www.bytebase.com/
+- https://www.dbvis.com/
 
 
 ## Data transformation
@@ -89,3 +90,8 @@ you can save storage by sorting the columns, aka column tetris https://stackover
 - https://www.benthos.dev/
 - https://clickhouse.com/docs/knowledgebase/postgresql-to-parquet-csv-json (to convert postgres to parquet)
 - https://github.com/rilldata/rill-developer
+
+
+## Cli tools
+
+- https://github.com/danvergara/dblab, tried, but doesn't beat psql
