@@ -90,6 +90,9 @@ you can save storage by sorting the columns, aka column tetris https://stackover
 - https://www.benthos.dev/
 - https://clickhouse.com/docs/knowledgebase/postgresql-to-parquet-csv-json (to convert postgres to parquet)
 - https://github.com/rilldata/rill-developer
+- https://github.com/malloydata/malloy
+- https://github.com/erezsh/Preql
+- https://logica.dev/
 
 
 ## Cli tools
