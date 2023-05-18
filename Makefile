@@ -34,3 +34,7 @@ search:
 server:
 	@go build -o=./cmd/server/main --tags "fts5" ./cmd/server/main.go
 	@./cmd/server/main
+
+
+psql:
+	@docker-compose exec db psql -h $(DB_HOST) -U $(DB_USER) -d $(DB_NAME)
