@@ -12,13 +12,18 @@ Stores the user of the application.
 
 - name
 	- Rule: Alphanumeric Column
+	- Rule: Profanity Filter
 - email
 	- [Rule: Email Format](#rule-email-format)
+	- [Rule: Disallow Email Alias](#rule-disallow-email-alias)
 - phone
 	- Rule: Phone Number Format
 
 ### Accounts
-Stores the account details of the user.
+Stores the account details of the user. User usually have one primary email with phone number account, but they can additionally link other providers as well.
+
+There are no max number of providers, but they should be unique.
+
 
 ### Account Types
 
@@ -125,5 +130,10 @@ RETURNING *
 
 The email follows Gmail email design, which is case-insensitive [^1]. In Postgres, there is `citext` extension to help with case-insensitive. If the database you use don't support it, just lowercase it before inserting the data.
 
+### Rule: Disallow Email Alias
+
+Email alias is made popular by Gmail [^2]. However, you might to block it to prevent users from creating spam accounts on your app.
+
 
 [^1]: https://www.tutorialspoint.com/are-gmail-addresses-case-sensitive#:~:text=The%20short%20answer%20to%20this,lowercase%20when%20they%20are%20entered.
+[^2]: https://gmail.googleblog.com/2008/03/2-hidden-ways-to-get-more-from-your.html?m=1
