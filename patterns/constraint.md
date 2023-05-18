@@ -231,8 +231,42 @@ We can set more advance constraints using triggers
 - freeze rows once certain status is achieved
 - using WHEN on trigger to check if the primary key is changed
 - trigger per column change
-- limit number of rows 
+- limit number of rows
 
 
 The advantage of using trigger vs check constraints is that we can disable/enable it when required.
 
+
+## Scenarios where toggling trigger is useful
+
+
+### Frozen row
+
+We can have a table to record a workflow. When a task is approved, the row should be frozen, which means no changes should be made. This can be done in a trigger where we raise exceptions on update trigger.
+
+
+But perhaps there are scenarios where the approval went wrong, and we want to undo the task, but we can't due to the trigger.
+
+This is where disabling trigger comes into play.
+
+### Validation amount
+
+
+Imagine we have a wallet system where we record the user's virtual wallet balance. We can add a check constraint to the balance to ensure it is not less than zero. However, there are times when we want the amount to be negative, for example when the user is detected as fraudulent and we want to punish them.
+
+Instead of using check constraint, we can just add a trigger. Then we can have a method `forceWithdraw` say that will disable the trigger and deduct the amount from the wallet balance. At the end, it will enable the trigger again.
+
+
+Notice that after enabling the trigger, since the balance is less than zero, we will hit errors on any subsequent operation. Hence, the business logic in the trigger should be:
+
+```bash
+if type = withdraw then
+    if balance - amount < 0 then
+        raise insufficient balance
+    else
+        balance = balance - amount
+    end
+else
+    balance = balance + amount
+end
+```
