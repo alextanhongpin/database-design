@@ -98,3 +98,18 @@ you can save storage by sorting the columns, aka column tetris https://stackover
 ## Cli tools
 
 - https://github.com/danvergara/dblab, tried, but doesn't beat psql
+
+
+## Constraints
+
+Name your constraint
+
+```sql
+create table your_table (
+	-- e.g
+	name text not null,
+
+	constraint your_table_name_uk unique (name),
+	constraint your_table_name_alphanumeric_underscore_check check (name ~ '^[a-z][a-z_]*[a-z]$'),
+)
+```

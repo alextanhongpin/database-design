@@ -12,10 +12,14 @@ ALTER SEQUENCE your_sequence_name RESTART WITH 1;
 
 -- To find your sequence name
 SELECT * FROM information_schema.sequences;
+
+
+-- For Postgresql identity:
+truncate table your_table_name restart identity;
 ```
 
 
-## Sortable uuid 
+## Sortable uuid
 
 Rearranging v1 uuid in mysql to make it sortable by time
 https://mysqlserverteam.com/mysql-8-0-uuid-support/
@@ -24,7 +28,7 @@ https://github.com/uuidjs/uuid/issues/75
 v6 uuid
 http://gh.peabody.io/uuidv6/
 
-## Human readable uuid, base32 
+## Human readable uuid, base32
 
 https://github.com/solsson/uuid-base32
 https://connect2id.com/blog/how-to-generate-human-friendly-identifiers

@@ -26,7 +26,15 @@ Some description about the domain
 
 ## Tables
 
-<insert migration script here>
+<details>
+<summary>Migration</summary>
+
+
+```sql
+create table (...)
+```
+
+</details>
 
 ### Table 1
 
