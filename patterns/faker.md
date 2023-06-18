@@ -26,3 +26,27 @@ select left(md5(i::text), round(random() * 5 + 5)::int) from generate_series(1, 
 -- Ensure reproducibility.
 SELECT setseed(0.42);
 ```
+
+```sql
+-- Value from -1 to 1
+select setseed(0.5);
+
+
+
+-- This doesn't work, because we are not calling the seed table.
+with seed as (
+	select setseed(0.5)
+)
+select random()
+from generate_series(1, 10);
+
+-- This works
+with seed as (
+	select setseed(0.5)
+)
+select random()
+from generate_series(1, 10), seed;
+
+-- This works too
+select random() from generate_series(1, 10), setseed(0.5);
+```
