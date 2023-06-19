@@ -48,5 +48,21 @@ select random()
 from generate_series(1, 10), seed;
 
 -- This works too
+select setseed(0.5), random() from generate_series(1, 10);
+
+-- This doesn't work all the time, because set seed is executed last.
 select random() from generate_series(1, 10), setseed(0.5);
+```
+
+## Using recursive CTE to simulate generate_series
+
+```sql
+with recursive i as (
+	select 1 as n
+	union
+	select n + 1
+	from i
+	where n < 10
+)
+select * from i;
 ```
