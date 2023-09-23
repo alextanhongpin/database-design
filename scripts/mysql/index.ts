@@ -10,8 +10,8 @@ const connection = await mysql.createConnection({
 
 connection.connect();
 
-const service = createService(connection);
+const service = createService(connection, "accounts");
 await service.migrate();
-console.log(await service.seed(2000));
+console.log(await service.seed(1_000_000));
 
 connection.end();
