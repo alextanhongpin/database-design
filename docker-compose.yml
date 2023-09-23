@@ -15,8 +15,8 @@ services:
     image: mysql:5.7.43
     restart: always
     environment:
-      MYSQL_USER: $MYSQL_USER
-      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_DATABASE: $MYSQL_NAME
     ports:
       - $MYSQL_HOST:$MYSQL_PORT:3306
     volumes:

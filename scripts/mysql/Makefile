@@ -1,0 +1,2 @@
+run:
+	@bun index.ts

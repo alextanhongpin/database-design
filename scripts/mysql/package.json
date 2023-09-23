@@ -1,0 +1,15 @@
+{
+  "name": "mysql",
+  "module": "index.ts",
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@faker-js/faker": "^8.1.0",
+    "mysql2": "^3.6.1"
+  }
+}
