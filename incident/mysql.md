@@ -180,3 +180,23 @@ mysql> select /*+ MAX_EXECUTION_TIME(2000) */ sleep(10);
 1 row in set (2.00 sec)
 
 ```
+
+
+## Mysql add column for large table
+
+
+Tested with tables with 2 million rows:
+
+```
+mysql> alter table accounts add column is_married bool null;
+Query OK, 0 rows affected (15.23 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table accounts add column is_active bool null;
+Query OK, 0 rows affected (9.93 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table accounts add column is_verified bool not null default false;
+Query OK, 0 rows affected (9.56 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+```
