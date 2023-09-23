@@ -165,3 +165,18 @@ Current database: test
 ERROR 2013 (HY000): Lost connection to MySQL server during query
 mysql>
 ```
+
+## Setting hint max execution time
+
+https://dev.mysql.com/doc/refman/8.0/en/optimizer-hints.html
+
+```
+mysql> select /*+ MAX_EXECUTION_TIME(2000) */ sleep(10);
++-----------+
+| sleep(10) |
++-----------+
+|         1 |
++-----------+
+1 row in set (2.00 sec)
+
+```
