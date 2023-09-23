@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  db:
+  postgres:
     image: postgres:15.1-alpine
     restart: always
     environment:
@@ -11,6 +11,18 @@ services:
       - $DB_HOST:$DB_PORT:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  mysql:
+    image: mysql:5.7.43
+    restart: always
+    environment:
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - $MYSQL_HOST:$MYSQL_PORT:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+
 
 volumes:
   postgres_data:
+  mysql_data:
