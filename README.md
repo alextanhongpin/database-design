@@ -1,6 +1,10 @@
 # Database Design
 
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/alextan2205)
+
+
+
 ## Posgres 15
 
 - Merge command
