@@ -22,3 +22,11 @@ Is the operation atomic? It can be.
 6. otherwise, update the bloom filter and increment the count
 7. commit
 
+## Bottleneck count
+
+The bottleneck will be on the count table, since we have one row only.
+
+Instead, we can create multiple rows, e.g 10 rows and do a `select for update ... skip locked`.
+
+The total count is then the sum of all individual counts. When do we decide on when to add new row? We can check the rate of page views. 
+
