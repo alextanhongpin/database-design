@@ -1,5 +1,10 @@
 # Database Design
 
+I'm trying to spend more time to organize and write higher quality content. Would be great if you could support me!
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/alextan2205)
+
+
 
 ## Posgres 15
 
