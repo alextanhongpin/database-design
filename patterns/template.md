@@ -10,6 +10,13 @@ UPDATE pg_database SET datistemplate = TRUE WHERE datname = 'template1';
 UPDATE pg_database SET datallowconn = FALSE WHERE datname = 'template0';
 ```
 
+tips for speeding up ci/cd
+- use postgres template instead of running migrations multiple times
+- rollback after executing logic (doesn't always work, e.g. frozen timestamp, triggers logic)
+
+https://supabase.com/blog/postgresql-templates
+
+
 
 # the common technique for speeding postgres test
 - disable fsync
