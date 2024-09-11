@@ -15,3 +15,9 @@ Common design patterns in postgres. This does not cover relationships (one to on
 - slowly changing dimension
 - timeseries
 - counter pattern
+
+
+Todo
+- classify patterns by usecases (creational, constraints, updates)
+- add problem statement, and scenarios
+- add options for different database size. Larger tables usually requires more effort.
