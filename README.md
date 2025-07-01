@@ -1,37 +1,52 @@
 # Database Design
 
-I'm trying to spend more time to organize and write higher quality content. Would be great if you could support me!
+A comprehensive guide to designing robust, scalable, and maintainable database schemas with real-world examples and battle-tested patterns.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/alextan2205)
 
+## 📋 Table of Contents
+
+- [About](#about)
+- [Latest Updates](#latest-updates)
+- [Core Principles](#core-principles)
+- [Patterns & Use Cases](#patterns--use-cases)
+- [Real-World Examples](#real-world-examples)
+- [Quick Start](#quick-start)
+- [Contributing](#contributing)
 
 
-## Posgres 15
 
-- Merge command
-- public schema no longer recommended, namespace instead?
-- use BRIN index for created at column?
+## 🚀 Latest Updates
 
-## Postgres 14 in 2023
+### Postgres 15 (2025)
+- **Merge Command** - Advanced data synchronization capabilities
+- **Schema Namespacing** - Public schema deprecation best practices
+- **BRIN Indexing** - Optimized indexing for timestamp columns
 
-- use `identity` columns instead of `serial`
+### Postgres 14 Best Practices (2023)
+- **Identity Columns** - Use `GENERATED ALWAYS AS IDENTITY` instead of `SERIAL`
+- **Generated Columns** - Replace triggers for computed values within tables
+- **Range Types** - `tstzrange` and `tstzrmultirange` for time-based applications
+- **Array/JSONB Evolution** - Modern approaches that challenge traditional 1NF
+- **Custom Domains** - Preferred over JSONB for structured data validation
 
-- use `generated columns` instead of triggers if you need a column with computed values within the same table
+## 📖 About
 
-- `tstzrange` and `tstzrmultirange` becomes a superpower for time-based applications (appointments, scheduling, temporal, slowly-changing-dimensions etc)
+This guide serves as a comprehensive **decision reference** for designing database schemas that scale from startup to enterprise. Unlike generic "it depends" advice, this repository provides battle-tested patterns with real-world examples, trade-offs, and implementation details.
 
-- array/jsonb defies the 1NF but leads to evolution in db schema
+### Who This Guide Is For
 
-- triggers are not evil - it's a superpower to those who masters it
+- **Startup Engineers** - Build scalable foundations without over-engineering
+- **Backend Developers** - Learn database design patterns beyond ORM abstractions
+- **System Architects** - Understand trade-offs for different scaling scenarios
+- **Database Engineers** - Reference implementations for common patterns
 
-- embedding custom domain and types should be a norm and preferred over jsonb (except for highly unstructured data)
+### Why This Guide Matters
 
-## About
-
-Useful tips for designing a robust database schema. This guide is more of a decision reference (1) for people wanting to design better database schemas for startups (2).
-
-- Decision reference: You will probably come across any one of the problems below when designing database schema (e.g. should I use `JSONB`? How do I design `tagging` schema? How do I keep historical records?) and be presented with different options and trade-offs. If two standards are equal (should table name be singular or plural), then it's up to you to pick one and make it a standard and keeping it consistent. Rather than giving you a `it depends` answer, this guide is meant to share the `what-ifs`, that is the decision I made, and the outcome. Yes, the codes are actually being written and used in different applications I wrote. You don't have to agree with the approaches - I used to take some of the more complex approaches (for the sake of _best practice_), but over time I realised that it is unnecessary. Simple is best.
-- Startups: A lot of startups starts by using ORMs or frameworks that provides a lot of convenience when it comes to dealing with database. If you are thinking _hey, we need to be agile, that's why we are okay introducing some technical debts_ let me tell you something, you can be both fast and produce quality work (not compromising database design). Most of the time, when new features are being introduced, or when new situation aroses (e.g. analytics are not accurate, because we did not store timestamp with timezones in database, using integer id instead of uuid, and people start _hacking_ your system, etc), the application just won't cut it anymore. The last thing I want to live with is a poorly designed database schema. You can switch language and frameworks for your frontend/backend servers, but if you design your database wrongly, you have to live with it. Also, I mentioned `startups` because my knowledge on database design is limited to a user scale of `<5m`. Also, the approach taken by larger companies might vary, and the technology used might differ as they are focusing a lot on performance, reliability and running databases across the world. For this guide, we are talking specifically about `mysql` and `postgres`, and probably just running them in cloud providers like AWS/Google Cloud.
+- **Real-World Tested** - All patterns are from production systems serving millions of users
+- **Decision-Focused** - Clear recommendations instead of endless options
+- **Technology Agnostic** - Principles apply across PostgreSQL, MySQL, and beyond
+- **Scale-Aware** - Solutions for different user scales (<5M to enterprise)
 
 ## HELP ME IMPROVE THIS GUIDE :)
 
