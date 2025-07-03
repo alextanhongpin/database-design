@@ -1,52 +1,629 @@
-# How to store currency in Postgres?
+# Currency Storage: Complete Guide
 
+Storing monetary values correctly is critical for financial applications. This guide covers best practices for currency storage, arithmetic operations, and handling multi-currency scenarios.
 
-- most suggest to store them in the [smallest currency unit, e.g. cents](https://news.ycombinator.com/item?id=20575702)
-- so for example, if you have MYR 123.45, then you will store it as 12345 in the database as integer
-- this is [how Stripe does it](https://stripe.com/docs/api/charges/object#charge_object-amount)
-- Google stores them as [micros](https://developers.google.com/standard-payments/reference/glossary#micros), which seems a little overkill
-- what are the disadvantages of this? client now needs to convert the amount to the smallest currency unit, which can be confusing. If the client forgets to handle the conversion, it will be charged less - e.g.g MYR 1.23 instead of MYR 123.45
-- it is also confusing, when the client is sending MYR, but the expected amount is in cents
-- there are suggested libraries like dinero.js
+## Table of Contents
+- [Storage Strategies](#storage-strategies)
+- [Currency Arithmetic](#currency-arithmetic)
+- [Multi-Currency Support](#multi-currency-support)
+- [Rounding and Precision](#rounding-and-precision)
+- [Distribution and Splitting](#distribution-and-splitting)
+- [Common Pitfalls](#common-pitfalls)
+- [Best Practices](#best-practices)
 
+## Storage Strategies
 
-## Using numeric
+### 1. Integer Storage (Recommended)
+
+Store currency in the smallest unit (cents, pence, etc.) as integers to avoid floating-point precision issues.
 
 ```sql
-CREATE TABLE IF NOT EXISTS product_prices (
-	id int GENERATED ALWAYS AS IDENTITY,
-
-	price numeric(15,4) NOT NULL,
-
-	PRIMARY KEY (id)
+-- Store amounts in cents as INTEGER
+CREATE TABLE transactions (
+    id SERIAL PRIMARY KEY,
+    amount_cents INTEGER NOT NULL, -- $123.45 stored as 12345
+    currency_code CHAR(3) NOT NULL DEFAULT 'USD',
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Ensure positive amounts for certain transaction types
+    CONSTRAINT positive_amount CHECK (amount_cents >= 0)
 );
 
-
-INSERT INTO product_prices(price) VALUES
-(1234.99999),
-(1234.56789),
-(1234.56789123),
-(1234.5679987654321); -- The numbers will be rounded if it's over 4 decimal places.
-
-SELECT * FROM product_prices;
+-- Examples of storage
+INSERT INTO transactions (amount_cents, currency_code, description) VALUES
+(12345, 'USD', 'Product purchase: $123.45'),
+(9999, 'EUR', 'Service fee: €99.99'),
+(500, 'USD', 'Tip: $5.00');
 ```
 
-## Dealing with division between currency.
+**Advantages:**
+- No floating-point precision errors
+- Exact arithmetic operations
+- Consistent with payment processors (Stripe, PayPal)
+- Fast integer operations
 
+**Considerations:**
+- Application must handle conversion to/from display format
+- Clear documentation needed for API consumers
 
-Say if you have MYR 100 to be divided equally between 3 people, you will soon face the issue with decimal.
+### 2. DECIMAL Storage (Alternative)
 
-The proper solution is to divide the amount between two people first, with the values rounded (up or down, it depends on your impementation), and take  the total minus the amount already disbursed.
+Use DECIMAL type when you need to store the actual currency value directly.
 
+```sql
+-- Store amounts as DECIMAL with appropriate precision
+CREATE TABLE product_prices (
+    id SERIAL PRIMARY KEY,
+    product_id INTEGER NOT NULL,
+    price DECIMAL(15,4) NOT NULL, -- 15 digits total, 4 decimal places
+    currency_code CHAR(3) NOT NULL DEFAULT 'USD',
+    effective_date DATE NOT NULL,
+    
+    -- Ensure reasonable price ranges
+    CONSTRAINT reasonable_price CHECK (price >= 0 AND price <= 999999999.9999)
+);
+
+-- Examples
+INSERT INTO product_prices (product_id, price, currency_code) VALUES
+(1, 123.4500, 'USD'), -- $123.45
+(2, 99.9900, 'EUR'),  -- €99.99
+(3, 0.0100, 'USD');   -- $0.01
 ```
-A, B and C
-A: received 33
-B: received 33
-C: received (100 - 33 - 33) = 34
-Total disbursed: 100
+
+**When to use DECIMAL:**
+- Direct currency value storage needed
+- Integration with systems expecting decimal values
+- Regulatory requirements for decimal representation
+- Complex calculations requiring decimal precision
+
+### 3. Currency-Specific Considerations
+
+```sql
+-- Handle currencies with different decimal places
+CREATE TABLE currency_definitions (
+    code CHAR(3) PRIMARY KEY,
+    name TEXT NOT NULL,
+    decimal_places SMALLINT NOT NULL,
+    smallest_unit_name TEXT,
+    examples TEXT[],
+    
+    CONSTRAINT valid_decimal_places CHECK (decimal_places >= 0 AND decimal_places <= 4)
+);
+
+INSERT INTO currency_definitions VALUES
+('USD', 'US Dollar', 2, 'cent', '{"$1.23", "$0.01"}'),
+('JPY', 'Japanese Yen', 0, 'yen', '{"¥123", "¥1"}'),
+('BHD', 'Bahraini Dinar', 3, 'fils', '{"BD 1.234", "BD 0.001"}'),
+('CLF', 'Chilean Unit of Account', 4, 'clf', '{"CLF 1.2345"}'),
+('IDR', 'Indonesian Rupiah', 0, 'rupiah', '{"Rp 12345"}'');
+
+-- Flexible amount storage
+CREATE TABLE flexible_amounts (
+    id SERIAL PRIMARY KEY,
+    amount_minor_units BIGINT NOT NULL, -- Amount in smallest currency unit
+    currency_code CHAR(3) REFERENCES currency_definitions(code),
+    
+    -- Computed column for display amount
+    amount_display AS (
+        amount_minor_units::DECIMAL / (10 ^ (
+            SELECT decimal_places FROM currency_definitions 
+            WHERE code = currency_code
+        ))
+    ) STORED
+);
 ```
 
-In SQL, it is hard to achieve this. Note that using `ceil/floor` instead of `round` will lead to largely imbalance distribution. Rounding seems to ideal for most cases. For more advance usecases, also look at [banker's rounding](https://en.wikipedia.org/wiki/Rounding#Round_half_to_even).
+## Currency Arithmetic
+
+### Safe Addition and Subtraction
+
+```sql
+-- Account balance operations with integer amounts
+CREATE TABLE account_balances (
+    account_id INTEGER PRIMARY KEY,
+    balance_cents INTEGER NOT NULL DEFAULT 0,
+    currency_code CHAR(3) NOT NULL DEFAULT 'USD',
+    last_updated TIMESTAMPTZ DEFAULT NOW(),
+    
+    CONSTRAINT non_negative_balance CHECK (balance_cents >= 0)
+);
+
+-- Safe balance updates with explicit locking
+CREATE OR REPLACE FUNCTION update_account_balance(
+    p_account_id INTEGER,
+    p_amount_cents INTEGER,
+    p_description TEXT
+) RETURNS INTEGER AS $$
+DECLARE
+    v_new_balance INTEGER;
+BEGIN
+    -- Lock the account row to prevent concurrent modifications
+    UPDATE account_balances 
+    SET balance_cents = balance_cents + p_amount_cents,
+        last_updated = NOW()
+    WHERE account_id = p_account_id
+    RETURNING balance_cents INTO v_new_balance;
+    
+    -- Log the transaction
+    INSERT INTO balance_transactions (
+        account_id, amount_cents, description, balance_after
+    ) VALUES (
+        p_account_id, p_amount_cents, p_description, v_new_balance
+    );
+    
+    RETURN v_new_balance;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### Percentage Calculations
+
+```sql
+-- Calculate percentages safely with proper rounding
+CREATE OR REPLACE FUNCTION calculate_percentage(
+    amount_cents INTEGER,
+    percentage_rate DECIMAL(5,4), -- e.g., 0.0750 for 7.5%
+    rounding_mode TEXT DEFAULT 'round' -- 'round', 'floor', 'ceil'
+) RETURNS INTEGER AS $$
+DECLARE
+    calculated_amount DECIMAL;
+    result_cents INTEGER;
+BEGIN
+    calculated_amount := amount_cents * percentage_rate;
+    
+    CASE rounding_mode
+        WHEN 'floor' THEN result_cents := FLOOR(calculated_amount);
+        WHEN 'ceil' THEN result_cents := CEIL(calculated_amount);
+        ELSE result_cents := ROUND(calculated_amount);
+    END CASE;
+    
+    RETURN result_cents;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Usage examples
+SELECT 
+    calculate_percentage(10000, 0.0750, 'round') as tax_amount, -- $100 * 7.5% = $7.50 (750 cents)
+    calculate_percentage(10033, 0.0750, 'round') as tax_rounded, -- $100.33 * 7.5% = $7.52 (752 cents)
+    calculate_percentage(10033, 0.0750, 'floor') as tax_floor;   -- $100.33 * 7.5% = $7.52 (752 cents)
+```
+
+## Multi-Currency Support
+
+### Currency Conversion
+
+```sql
+-- Exchange rates table
+CREATE TABLE exchange_rates (
+    id SERIAL PRIMARY KEY,
+    from_currency CHAR(3) NOT NULL,
+    to_currency CHAR(3) NOT NULL,
+    rate DECIMAL(20,10) NOT NULL,
+    effective_date DATE NOT NULL,
+    expires_date DATE,
+    source TEXT, -- e.g., 'ECB', 'Fed', 'manual'
+    
+    UNIQUE(from_currency, to_currency, effective_date),
+    CONSTRAINT positive_rate CHECK (rate > 0),
+    CONSTRAINT different_currencies CHECK (from_currency != to_currency)
+);
+
+-- Get current exchange rate
+CREATE OR REPLACE FUNCTION get_exchange_rate(
+    p_from_currency CHAR(3),
+    p_to_currency CHAR(3),
+    p_date DATE DEFAULT CURRENT_DATE
+) RETURNS DECIMAL(20,10) AS $$
+DECLARE
+    v_rate DECIMAL(20,10);
+BEGIN
+    -- Direct rate
+    SELECT rate INTO v_rate
+    FROM exchange_rates
+    WHERE from_currency = p_from_currency
+      AND to_currency = p_to_currency
+      AND effective_date <= p_date
+      AND (expires_date IS NULL OR expires_date > p_date)
+    ORDER BY effective_date DESC
+    LIMIT 1;
+    
+    -- If no direct rate, try inverse
+    IF v_rate IS NULL THEN
+        SELECT 1.0 / rate INTO v_rate
+        FROM exchange_rates
+        WHERE from_currency = p_to_currency
+          AND to_currency = p_from_currency
+          AND effective_date <= p_date
+          AND (expires_date IS NULL OR expires_date > p_date)
+        ORDER BY effective_date DESC
+        LIMIT 1;
+    END IF;
+    
+    RETURN v_rate;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Convert currency amounts
+CREATE OR REPLACE FUNCTION convert_currency(
+    p_amount_cents INTEGER,
+    p_from_currency CHAR(3),
+    p_to_currency CHAR(3),
+    p_date DATE DEFAULT CURRENT_DATE
+) RETURNS INTEGER AS $$
+DECLARE
+    v_rate DECIMAL(20,10);
+    v_converted_amount DECIMAL;
+    v_from_decimals INTEGER;
+    v_to_decimals INTEGER;
+BEGIN
+    -- Return original amount if same currency
+    IF p_from_currency = p_to_currency THEN
+        RETURN p_amount_cents;
+    END IF;
+    
+    -- Get exchange rate
+    v_rate := get_exchange_rate(p_from_currency, p_to_currency, p_date);
+    IF v_rate IS NULL THEN
+        RAISE EXCEPTION 'No exchange rate found for % to % on %', 
+            p_from_currency, p_to_currency, p_date;
+    END IF;
+    
+    -- Get decimal places for each currency
+    SELECT decimal_places INTO v_from_decimals
+    FROM currency_definitions WHERE code = p_from_currency;
+    
+    SELECT decimal_places INTO v_to_decimals
+    FROM currency_definitions WHERE code = p_to_currency;
+    
+    -- Convert: amount_in_major_units * rate * to_currency_multiplier
+    v_converted_amount := (p_amount_cents::DECIMAL / (10 ^ v_from_decimals)) 
+                         * v_rate 
+                         * (10 ^ v_to_decimals);
+    
+    RETURN ROUND(v_converted_amount);
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Rounding and Precision
+
+### Banker's Rounding Implementation
+
+```sql
+-- Banker's rounding (round half to even) for fair distribution
+CREATE OR REPLACE FUNCTION bankers_round(value DECIMAL) RETURNS INTEGER AS $$
+DECLARE
+    truncated INTEGER;
+    fractional DECIMAL;
+BEGIN
+    truncated := FLOOR(value);
+    fractional := value - truncated;
+    
+    -- If fractional part is exactly 0.5, round to even
+    IF ABS(fractional - 0.5) < 0.0000001 THEN
+        RETURN CASE WHEN truncated % 2 = 0 THEN truncated ELSE truncated + 1 END;
+    ELSE
+        RETURN ROUND(value);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Example usage
+SELECT 
+    bankers_round(2.5) as round_25,  -- 2 (even)
+    bankers_round(3.5) as round_35,  -- 4 (even)
+    bankers_round(4.5) as round_45,  -- 4 (even)
+    bankers_round(5.5) as round_55;  -- 6 (even)
+```
+
+## Distribution and Splitting
+
+### Fair Distribution Algorithm
+
+```sql
+-- Distribute amount fairly among recipients with minimal remainder
+CREATE OR REPLACE FUNCTION distribute_amount(
+    total_amount_cents INTEGER,
+    recipient_count INTEGER,
+    distribution_weights INTEGER[] DEFAULT NULL -- Optional weights
+) RETURNS INTEGER[] AS $$
+DECLARE
+    base_amount INTEGER;
+    remainder INTEGER;
+    result INTEGER[];
+    i INTEGER;
+    weight_sum INTEGER;
+    weighted_amount DECIMAL;
+    allocated_total INTEGER := 0;
+BEGIN
+    IF recipient_count <= 0 THEN
+        RAISE EXCEPTION 'Recipient count must be positive';
+    END IF;
+    
+    -- Initialize result array
+    result := array_fill(0, ARRAY[recipient_count]);
+    
+    -- Simple equal distribution if no weights provided
+    IF distribution_weights IS NULL THEN
+        base_amount := total_amount_cents / recipient_count;
+        remainder := total_amount_cents % recipient_count;
+        
+        -- Give base amount to everyone
+        FOR i IN 1..recipient_count LOOP
+            result[i] := base_amount;
+        END LOOP;
+        
+        -- Distribute remainder to first recipients
+        FOR i IN 1..remainder LOOP
+            result[i] := result[i] + 1;
+        END LOOP;
+    ELSE
+        -- Weighted distribution
+        IF array_length(distribution_weights, 1) != recipient_count THEN
+            RAISE EXCEPTION 'Weights array length must match recipient count';
+        END IF;
+        
+        weight_sum := (SELECT SUM(w) FROM unnest(distribution_weights) w);
+        
+        -- Calculate weighted amounts
+        FOR i IN 1..recipient_count LOOP
+            weighted_amount := (total_amount_cents::DECIMAL * distribution_weights[i]) / weight_sum;
+            result[i] := ROUND(weighted_amount);
+            allocated_total := allocated_total + result[i];
+        END LOOP;
+        
+        -- Adjust for rounding differences (give/take from largest allocation)
+        IF allocated_total != total_amount_cents THEN
+            -- Find index of maximum allocation
+            SELECT array_position(result, max_val) INTO i
+            FROM (SELECT MAX(val) as max_val FROM unnest(result) val) t;
+            
+            result[i] := result[i] + (total_amount_cents - allocated_total);
+        END IF;
+    END IF;
+    
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Example: Distribute $100.00 among 3 people
+SELECT distribute_amount(10000, 3); -- Returns {3334, 3333, 3333}
+
+-- Example: Weighted distribution (2:1:1 ratio)
+SELECT distribute_amount(10000, 3, ARRAY[2, 1, 1]); -- Returns {5000, 2500, 2500}
+```
+
+### Practical Distribution Example
+
+```sql
+-- Split restaurant bill with tips
+CREATE TABLE bill_splits (
+    id SERIAL PRIMARY KEY,
+    bill_amount_cents INTEGER NOT NULL,
+    tip_percentage DECIMAL(5,4) NOT NULL,
+    participant_count INTEGER NOT NULL,
+    splits INTEGER[] NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE OR REPLACE FUNCTION split_restaurant_bill(
+    bill_amount_cents INTEGER,
+    tip_percentage DECIMAL(5,4),
+    participant_count INTEGER
+) RETURNS TABLE(
+    participant INTEGER,
+    bill_portion_cents INTEGER,
+    tip_portion_cents INTEGER,
+    total_portion_cents INTEGER
+) AS $$
+DECLARE
+    tip_amount_cents INTEGER;
+    bill_splits INTEGER[];
+    tip_splits INTEGER[];
+    i INTEGER;
+BEGIN
+    -- Calculate tip
+    tip_amount_cents := ROUND(bill_amount_cents * tip_percentage);
+    
+    -- Distribute bill and tip separately for fairness
+    bill_splits := distribute_amount(bill_amount_cents, participant_count);
+    tip_splits := distribute_amount(tip_amount_cents, participant_count);
+    
+    -- Return results
+    FOR i IN 1..participant_count LOOP
+        participant := i;
+        bill_portion_cents := bill_splits[i];
+        tip_portion_cents := tip_splits[i];
+        total_portion_cents := bill_splits[i] + tip_splits[i];
+        RETURN NEXT;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Example: $127.50 bill with 18% tip, split 4 ways
+SELECT * FROM split_restaurant_bill(12750, 0.18, 4);
+```
+
+## Common Pitfalls
+
+### 1. Floating Point Arithmetic
+
+```sql
+-- ❌ DON'T: Use floating point for currency
+CREATE TABLE bad_prices (
+    price REAL -- Precision errors guaranteed!
+);
+
+-- Example of precision loss
+SELECT 
+    0.1::REAL + 0.2::REAL = 0.3::REAL as should_be_true_but_false,
+    0.1::REAL + 0.2::REAL as actual_result; -- 0.30000001
+```
+
+### 2. Currency Mixing Without Validation
+
+```sql
+-- ❌ DON'T: Mix currencies without explicit conversion
+CREATE TABLE bad_transactions (
+    amount_cents INTEGER,
+    -- Missing currency code - dangerous!
+);
+
+-- ✅ DO: Always specify currency and validate
+CREATE TABLE good_transactions (
+    amount_cents INTEGER NOT NULL,
+    currency_code CHAR(3) NOT NULL,
+    
+    CONSTRAINT valid_currency 
+    CHECK (currency_code IN ('USD', 'EUR', 'GBP', 'JPY', 'etc'))
+);
+```
+
+### 3. Inconsistent Rounding
+
+```sql
+-- ❌ DON'T: Inconsistent rounding in calculations
+CREATE OR REPLACE FUNCTION bad_calculate_tax(amount_cents INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+    -- Sometimes ROUND, sometimes FLOOR - inconsistent!
+    IF amount_cents > 10000 THEN
+        RETURN FLOOR(amount_cents * 0.075);
+    ELSE
+        RETURN ROUND(amount_cents * 0.075);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ✅ DO: Consistent rounding strategy
+CREATE OR REPLACE FUNCTION good_calculate_tax(
+    amount_cents INTEGER,
+    rate DECIMAL(5,4),
+    rounding_strategy TEXT DEFAULT 'bankers'
+) RETURNS INTEGER AS $$
+BEGIN
+    CASE rounding_strategy
+        WHEN 'bankers' THEN RETURN bankers_round(amount_cents * rate);
+        WHEN 'up' THEN RETURN CEIL(amount_cents * rate);
+        WHEN 'down' THEN RETURN FLOOR(amount_cents * rate);
+        ELSE RETURN ROUND(amount_cents * rate);
+    END CASE;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Best Practices
+
+### 1. Always Store Currency Code
+
+```sql
+-- Every monetary amount should have an associated currency
+CREATE TABLE monetary_amounts (
+    id SERIAL PRIMARY KEY,
+    amount_cents INTEGER NOT NULL,
+    currency_code CHAR(3) NOT NULL,
+    
+    -- Enforce valid ISO currency codes
+    CONSTRAINT valid_currency_code 
+    CHECK (currency_code ~ '^[A-Z]{3}$')
+);
+```
+
+### 2. Use Appropriate Data Types
+
+```sql
+-- For high-precision requirements or very large amounts
+CREATE TABLE high_precision_amounts (
+    id SERIAL PRIMARY KEY,
+    amount_minor_units BIGINT NOT NULL, -- Use BIGINT for large amounts
+    currency_code CHAR(3) NOT NULL,
+    precision_factor INTEGER NOT NULL DEFAULT 100 -- Track precision used
+);
+```
+
+### 3. Document Rounding Strategies
+
+```sql
+-- Document rounding decisions in schema comments
+COMMENT ON FUNCTION calculate_percentage IS 
+'Calculates percentage amounts using specified rounding strategy.
+Default strategy is standard rounding (0.5 rounds up).
+Use banker''s rounding for fair distribution scenarios.';
+
+COMMENT ON TABLE exchange_rates IS
+'Exchange rates are stored with 10 decimal places for maximum precision.
+Rates are applied using banker''s rounding to minimize bias in conversions.';
+```
+
+### 4. Validate Currency Operations
+
+```sql
+-- Prevent mixing currencies in calculations
+CREATE OR REPLACE FUNCTION validate_same_currency(
+    currency1 CHAR(3),
+    currency2 CHAR(3),
+    operation_name TEXT
+) RETURNS VOID AS $$
+BEGIN
+    IF currency1 != currency2 THEN
+        RAISE EXCEPTION 'Cannot perform % with different currencies: % and %',
+            operation_name, currency1, currency2;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Use in operations
+CREATE OR REPLACE FUNCTION add_amounts(
+    amount1_cents INTEGER, currency1 CHAR(3),
+    amount2_cents INTEGER, currency2 CHAR(3)
+) RETURNS INTEGER AS $$
+BEGIN
+    PERFORM validate_same_currency(currency1, currency2, 'addition');
+    RETURN amount1_cents + amount2_cents;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+### 5. Audit Currency Calculations
+
+```sql
+-- Log all currency calculations for audit trails
+CREATE TABLE currency_calculation_audit (
+    id SERIAL PRIMARY KEY,
+    operation_type TEXT NOT NULL,
+    input_amounts JSONB NOT NULL,
+    output_amount_cents INTEGER NOT NULL,
+    output_currency CHAR(3) NOT NULL,
+    calculation_method TEXT,
+    performed_by TEXT,
+    performed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Example audit logging
+INSERT INTO currency_calculation_audit (
+    operation_type, input_amounts, output_amount_cents, 
+    output_currency, calculation_method
+) VALUES (
+    'currency_conversion',
+    '{"from_amount": 10000, "from_currency": "USD", "to_currency": "EUR", "rate": 0.85}',
+    8500,
+    'EUR',
+    'ECB_daily_rate'
+);
+```
+
+## Conclusion
+
+Proper currency handling requires:
+
+1. **Storage**: Use integers for exact arithmetic, DECIMAL when necessary
+2. **Precision**: Understand currency-specific decimal places and rounding rules
+3. **Validation**: Always validate currency codes and prevent mixing currencies
+4. **Documentation**: Clearly document rounding strategies and precision decisions
+5. **Testing**: Thoroughly test edge cases, especially distribution and conversion scenarios
+
+The key is consistency in your approach and clear communication with stakeholders about how monetary calculations are performed.
 
 
 Square also does [banker's rounding](https://squareup.com/help/us/en/article/5092-rounding#:~:text=When%20using%20standard%20rounding%2C%20you,closer%20to%20the%20actual%20amount.).

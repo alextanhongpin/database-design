@@ -9,10 +9,10 @@ Essential patterns that form the building blocks of robust database design.
 
 | Pattern | Use Case | Complexity | Examples |
 |---------|----------|------------|----------|
-| **[Primary Keys & Identity](../datatypes/id.md)** | Unique record identification | ⭐ | UUID vs Auto-increment, Composite keys |
+| **[Primary Keys & Identity](../data-types/id.md)** | Unique record identification | ⭐ | UUID vs Auto-increment, Composite keys |
 | **[Foreign Key Strategies](foreign-key.md)** | Relationship integrity | ⭐ | When to use, when to avoid, soft references |
-| **[Soft Delete](soft-delete.md)** | Data retention without removal | ⭐⭐ | User accounts, orders, audit trails |
-| **[Timestamps & Audit](../datatypes/date.md)** | Change tracking | ⭐ | created_at, updated_at, deleted_at |
+| **[Soft Delete](soft-delete-schema.md)** | Data retention without removal | ⭐⭐ | User accounts, orders, audit trails |
+| **[Timestamps & Audit](../data-types/date.md)** | Change tracking | ⭐ | created_at, updated_at, deleted_at |
 
 ### 🔄 State Management Patterns
 Patterns for modeling complex business processes and state transitions.
@@ -31,7 +31,7 @@ Patterns for modeling complex relationships between entities.
 |---------|----------|------------|----------|
 | **[Polymorphic Associations](polymorphic.md)** | Flexible relationships | ⭐⭐⭐ | Comments on multiple entities, tags |
 | **[Inheritance](inheritance.md)** | Type hierarchies | ⭐⭐⭐ | User types, product categories |
-| **[Many-to-Many](../relationships/many-to-many.md)** | Complex associations | ⭐⭐ | User roles, product categories |
+| **[Many-to-Many](many-to-many.md)** | Complex associations | ⭐⭐ | User roles, product categories |
 | **[Self-Referencing](friendship.md)** | Hierarchical data | ⭐⭐⭐ | Organization charts, social networks |
 
 ### 📊 Data Integrity Patterns
@@ -59,8 +59,8 @@ Advanced patterns for complex business scenarios.
 
 | Pattern | Use Case | Complexity | Examples |
 |---------|----------|------------|----------|
-| **[Multi-Tenancy](../authorization/row-level-security.md)** | Isolated data access | ⭐⭐⭐⭐ | SaaS platforms, enterprise apps |
-| **[Temporal Data](../temporal/README.md)** | Time-based modeling | ⭐⭐⭐⭐ | Price histories, employee records |
+| **[Multi-Tenancy](../security/row-level-security.md)** | Isolated data access | ⭐⭐⭐⭐ | SaaS platforms, enterprise apps |
+| **[Temporal Data](../specialized/README.md)** | Time-based modeling | ⭐⭐⭐⭐ | Price histories, employee records |
 | **[Data Versioning](revision.md)** | Change tracking | ⭐⭐⭐ | Document versions, configuration changes |
 | **[Approval Workflows](approval.md)** | Multi-stage processes | ⭐⭐⭐ | Content moderation, financial approvals |
 

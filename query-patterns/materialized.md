@@ -505,4 +505,4 @@ FROM orders GROUP BY customer_id;
 - [View Patterns](view.md)
 - [Query Optimization](query.md)
 - [Indexing Strategies](../performance/README.md)
-- [Time-Series Patterns](../temporal/README.md)
+- [Time-Series Patterns](../specialized/README.md)

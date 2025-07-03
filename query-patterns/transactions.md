@@ -667,7 +667,7 @@ UPDATE global_stats SET page_views = page_views + 1;
 
 ## Related Patterns
 
-- [Locking Patterns](../patterns/locks.md)
-- [Concurrency Patterns](../patterns/README.md)
-- [Error Handling](../patterns/error-handling.md)
+- [Locking Patterns](locks.md)
+- [Concurrency Patterns](README.md)
+- [Error Handling](error-handling.md)
 - [Performance Optimization](../performance/README.md)

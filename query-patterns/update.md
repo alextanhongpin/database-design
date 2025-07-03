@@ -556,7 +556,7 @@ WHERE id = @user_id
 
 ## Related Patterns
 
-- [Upsert Patterns](../patterns/001-bulk-update.md)
+- [Upsert Patterns](bulk-operations.md)
 - [Transaction Patterns](transaction.md)
-- [Locking Patterns](../patterns/locks.md)
+- [Locking Patterns](locks.md)
 - [Batch Processing](../performance/README.md)

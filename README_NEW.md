@@ -112,12 +112,12 @@ All topics → Specialized → Complex Examples → Custom Solutions
 - **[User Management Schema](examples/user-management.md)**
 - **[E-commerce Database](examples/e-commerce.md)**
 - **[Audit Logging](security/audit-logging.md)**
-- **[Soft Delete](query-patterns/specialized/soft-delete.md)**
-- **[Pagination](query-patterns/performance/pagination.md)**
+- **[Soft Delete](query-patterns/soft-delete.md)**
+- **[Pagination](query-patterns/pagination.md)**
 
 ### Performance Essentials
 - **[Indexing Strategy](performance/indexing.md)**
-- **[Query Optimization](query-patterns/performance/optimization.md)**
+- **[Query Optimization](query-patterns/optimization.md)**
 - **[Connection Pooling](application/connection-pooling.md)**
 - **[Caching Patterns](performance/caching.md)**
 

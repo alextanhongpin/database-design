@@ -451,6 +451,6 @@ WHERE (status = 'completed' AND amount > 100)
 ## Related Patterns
 
 - [Conditional Queries](query.md)
-- [Data Transformation](../patterns/data-changes.md)
+- [Data Transformation](data-transformation.md)
 - [Sorting Patterns](sorting.md)
-- [Aggregation Patterns](../patterns/group-and-sort.md)
+- [Aggregation Patterns](aggregation.md)

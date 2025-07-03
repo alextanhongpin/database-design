@@ -523,5 +523,5 @@ CREATE VIEW view3 AS SELECT ... FROM view2;
 
 - [Materialized Views](materialized.md)
 - [Query Optimization](query.md)
-- [Security Patterns](../authorization/README.md)
-- [Data Access Patterns](../patterns/README.md)
+- [Security Patterns](../security/README.md)
+- [Data Access Patterns](README.md)

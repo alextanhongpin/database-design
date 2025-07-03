@@ -5,38 +5,38 @@ Advanced SQL query patterns, optimization techniques, and best practices for eff
 ## 📚 Contents
 
 ### Basic Query Patterns
-- **[SELECT Fundamentals](basic/select-patterns.md)** - Essential SELECT patterns
-- **[Filtering](basic/filtering.md)** - WHERE clause patterns and techniques
-- **[Sorting](basic/sorting.md)** - ORDER BY strategies and custom sorting
-- **[Limiting](basic/limiting.md)** - LIMIT, OFFSET, and pagination patterns
+- **[SELECT Fundamentals](select-patterns.md)** - Essential SELECT patterns
+- **[Filtering](filter.md)** - WHERE clause patterns and techniques
+- **[Sorting](sorting.md)** - ORDER BY strategies and custom sorting
+- **[Limiting](limit.md)** - LIMIT, OFFSET, and pagination patterns
 
 ### Advanced Queries
-- **[Joins](advanced/joins.md)** - JOIN types and optimization
-- **[Subqueries](advanced/subqueries.md)** - Correlated and nested queries
-- **[Common Table Expressions](advanced/cte.md)** - WITH clause patterns
-- **[Window Functions](advanced/window-functions.md)** - Analytical functions
+- **[Joins](joins.md)** - JOIN types and optimization
+- **[Subqueries](subqueries.md)** - Correlated and nested queries
+- **[Common Table Expressions](cte.md)** - WITH clause patterns
+- **[Window Functions](window-functions.md)** - Analytical functions
 
 ### Conditional Logic
-- **[CASE Statements](conditional/case-statements.md)** - Conditional expressions
-- **[Conditional Aggregation](conditional/conditional-aggregation.md)** - Pivot-style queries
-- **[Dynamic Queries](conditional/dynamic-queries.md)** - Flexible query construction
+- **[CASE Statements](case.md)** - Conditional expressions
+- **[Conditional Aggregation](conditional-aggregation.md)** - Pivot-style queries
+- **[Dynamic Queries](dynamic-queries.md)** - Flexible query construction
 
 ### Data Manipulation
-- **[INSERT Patterns](manipulation/insert-patterns.md)** - Efficient data insertion
-- **[UPDATE Patterns](manipulation/update-patterns.md)** - Safe and efficient updates
-- **[DELETE Patterns](manipulation/delete-patterns.md)** - Data removal strategies
-- **[UPSERT Operations](manipulation/upsert.md)** - INSERT OR UPDATE patterns
+- **[INSERT Patterns](insert-patterns.md)** - Efficient data insertion
+- **[UPDATE Patterns](update-patterns.md)** - Safe and efficient updates
+- **[DELETE Patterns](delete-patterns.md)** - Data removal strategies
+- **[UPSERT Operations](upsert.md)** - INSERT OR UPDATE patterns
 
 ### Aggregation & Grouping
-- **[GROUP BY Patterns](aggregation/group-by.md)** - Grouping and aggregation
-- **[HAVING Clauses](aggregation/having.md)** - Filtering aggregated results
-- **[Group and Sort](aggregation/group-and-sort.md)** - Top-N per group patterns
-- **[Rolling Aggregations](aggregation/rolling.md)** - Moving averages and sums
+- **[GROUP BY Patterns](group-by.md)** - Grouping and aggregation
+- **[HAVING Clauses](having.md)** - Filtering aggregated results
+- **[Group and Sort](group-and-sort.md)** - Top-N per group patterns
+- **[Rolling Aggregations](rolling.md)** - Moving averages and sums
 
 ### Views & Materialization
-- **[Views](views/views.md)** - Creating and managing views
-- **[Materialized Views](views/materialized-views.md)** - Pre-computed results
-- **[Updatable Views](views/updatable-views.md)** - Modifying data through views
+- **[Views](views.md)** - Creating and managing views
+- **[Materialized Views](materialized-views.md)** - Pre-computed results
+- **[Updatable Views](updatable-views.md)** - Modifying data through views
 
 ### Specialized Queries
 - **[Search Patterns](specialized/search.md)** - Full-text and pattern search
@@ -45,10 +45,10 @@ Advanced SQL query patterns, optimization techniques, and best practices for eff
 - **[Range Queries](specialized/ranges.md)** - BETWEEN and range operations
 
 ### Performance Patterns
-- **[Index-Friendly Queries](performance/index-friendly.md)** - Writing indexable queries
-- **[Query Optimization](performance/optimization.md)** - Performance tuning
-- **[Batch Processing](performance/batch-processing.md)** - Handling large datasets
-- **[Cursor Pagination](performance/cursor-pagination.md)** - Efficient pagination
+- **[Index-Friendly Queries](indexing.md)** - Writing indexable queries
+- **[Query Optimization](optimization.md)** - Performance tuning
+- **[Batch Processing](batch-operations.md)** - Handling large datasets
+- **[Cursor Pagination](pagination-cursor.md)** - Efficient pagination
 
 ## 🔧 Query Tools & Techniques
 

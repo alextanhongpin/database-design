@@ -604,7 +604,7 @@ AND deleted_at IS NULL;
 
 ## Related Patterns
 
-- [Audit Logging](../authorization/audit-logging.md)
-- [Data Archival](../patterns/history.md)
-- [Versioning](../temporal/README.md)
-- [Constraint Patterns](../patterns/constraint.md)
+- [Audit Logging](../security/audit-logging.md)
+- [Data Archival](../specialized/data-archival.md)
+- [Versioning](../specialized/README.md)
+- [Constraint Patterns](../schema-design/constraints.md)
